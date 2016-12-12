@@ -410,7 +410,7 @@ char *GetStrCurrentDay(char *Mem) {
 
 char GetCharCurrentProfile() {
 
-    return (char) '0xff';
+    return (char) 0xff;
 }
 
 char *GetCurrentStrHour(char *Mem) {

@@ -8,6 +8,7 @@
 //  Serial1.print("AT+BAUD4");
 //Serial.println("AT115200");
 #include "loop.h"
+//#include "Loop.h"
 
 
 #if defined (_VARIANT_ARDUINO_DUE_X_)
@@ -55,10 +56,11 @@ unsigned int freemeMory() {
 
 
 #define DEBUG_loop true
-#define MAXVolumeDefined  2000
+//#define MAXVolumeDefined  2000
 
 void SetStutrupValues();
 
+byte BackColor[3] = {192, 192, 192};
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
 unsigned long FlowMicroSecDiff = 0;
@@ -67,12 +69,14 @@ unsigned long LastCallMillisCountFlowInterrupt20 = 0;
 float CurrentFlow, MovingAvgFlow[110];
 
 
-CGPRS_SIM800 gprs;
+//////////////////////////// TODO CGPRS_SIM800 gprs;
 RTC_DS1307 rtc;
-UTFT myGLCD(CTE32HR, 38, 39, 40, 41);
+
 IEC62056_21_Serial IEC6205621_Com;
 
 //////////////////////////////   Fonts
+UTFT myGLCD(CTE32HR, 38, 39, 40, 41);
+
 extern uint8_t BigFont[];
 extern uint8_t SmallFont[];     //SmallFn
 extern uint8_t PNumFontB24[];     //SmallFn
@@ -93,8 +97,12 @@ extern uint8_t Text_14[];
 extern uint8_t Text_15[];
 extern uint8_t Text_16[];
 extern uint8_t Text_17[];
-
 extern unsigned int cat[];// bitmap
+
+extern EventsStructDefine EventsStruct[];
+int DisplayBrightValue = 170;
+boolean Last_ShowTempTotalDuration_Charzh = false;
+//DefaultBacklight backlight;
 ////////////////////////////////////////////////////
 
 struct StructPreCheckValueInMmory {
@@ -109,7 +117,7 @@ StructTotalValues TotalValues;
 const char TTFName[10] = "TTFCheck";
 const char KodeVersion[10] = "1.0.1";
 long CurCalibrateFlow = 0;
-long TimeMill = 0;
+unsigned long TimeMill = 0, NewTimeMill = 0;
 int WaitForLoop = 0;
 
 int Add_PreCheckValueIn_EEP;
@@ -242,7 +250,7 @@ int FontRowPos(int row) {
 }
 
 float MaxFlowIn24Hour() {
-    char CurrDate[6];
+    char CurrDate[20];
     sprintf(CurrDate, "%02d%02d%02d", year(), month(), day());
 
     if (!strcmp(CurrDate, TotalValues.V_MaxFlowIn24Hour_LogDay)) {
@@ -272,7 +280,7 @@ unsigned long PompTotalHour(int incOneSEc = 0) {
 }
 
 void SimulateFllow(void) {
-    SumTotal(10000, TotalValues);
+    SumTotal(100000, TotalValues);
 }
 
 void CountFlowInterrupt20() {
@@ -305,6 +313,12 @@ void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
     TotalValues.DateStart[10] = '\0';
     memcpy(TotalValues.DateEnd, DateEnd, 10);
     TotalValues.DateEnd[10] = '\0';
+    char msg[20];
+    strcpy(TotalValues.LastDateCharzhe, GetStrCurrentDay(msg));
+
+    //   TotalValues.LastDateCharzhe
+    //   char msg[100];
+    //   sprintf(msg,"%lu,%s,%s",TotalValues.TotalDuration_Charzh,TotalValues.DateStart,TotalValues.DateEnd);
 }
 
 /*void SetParameters(int MaxFellow, int MaxVollume, int MaxPeriod, float K_param,
@@ -339,6 +353,8 @@ void SaveFirstInitialaizeFlashMemory() {
     strncpy(PreCheckValueInMmory.TTFName, TTFName, sizeof(TTFName));
     strncpy(PreCheckValueInMmory.KodeVersion, KodeVersion, sizeof(KodeVersion));
     PreCheckValueInMmory.kk = 12345;
+    strcpy(TotalValues.IEC_Password_1, "123456789");
+    strcpy(TotalValues.IEC_Password_2, "123456789");
     EEProm_Put<StructPreCheckValueInMmory>(Add_PreCheckValueIn_EEP,
                                            PreCheckValueInMmory);
     EEProm_Put<StructTotalValues>(Add_TotalValues_EEP, TotalValues);
@@ -456,19 +472,22 @@ void LCDShowCurrDateTime() {
     PassNumberOfPesianDate();
     myGLCD.setFont(PersianFontSmall);
     myGLCD.setColor(255, 255, 255);
-    myGLCD.setBackColor(192, 192, 192); // light gray
+    myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
     myGLCD.print(CurrSPDate, 40, 15);
 }
 
 void LCDShowCurrFlow() {
+
     char FFstr[20];
     unsigned long TempDuration_Volume = TotalValues.Duration_Volume;
     long TempTotalDuration_Charzh = TotalValues.TotalDuration_Charzh;
     unsigned long TempTotal_UsedVolume = TotalValues.Total_UsedVolume;
     unsigned long TempLitre_Volume = TotalValues.Litre_Volume;
+
+
     myGLCD.setFont(PNumFontB24);
     myGLCD.setColor(255, 255, 255);
-    myGLCD.setBackColor(192, 192, 192); // light gray
+    myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
 
     memcpy(FFstr, TotalValues.DateStart, 10);
     FFstr[10] = 0;
@@ -496,14 +515,22 @@ void LCDShowCurrFlow() {
         myGLCD.setFont(PNumFontB24);
         myGLCD.print(FFstr, 15, FontRowPos(0));
         myGLCD.setColor(255, 255, 255);
+        Last_ShowTempTotalDuration_Charzh = false;
     } else {
+        if (Last_ShowTempTotalDuration_Charzh == false) {
+            myGLCD.setFont(PNumFontB24);
+            myGLCD.print("  ", 225 + 48, FontRowPos(0));// clear with blank
+        }
+        Last_ShowTempTotalDuration_Charzh = true;
         myGLCD.setFont(Text_7); //(m3)
         myGLCD.print("0", 225, FontRowPos(0));
         myGLCD.setFont(Text_3); //قابل برداشت
-        myGLCD.print("0", 225 + 48, FontRowPos(0));
+        myGLCD.print("0", 235 + 48, FontRowPos(0));
         myGLCD.setFont(PNumFontB24);
         myGLCD.print(FFstr, 15, 105);
     }
+
+    /////////////////////////////////////////////////////////OK
     // مصرف دوره
     for (int i = 0; i < 20; i++)
         FFstr[i] = '\0';
@@ -559,6 +586,7 @@ void LCDShowCurrFlow() {
     FFstr[strlen(F2str)] = 0;
     myGLCD.print(F2str, 15, FontRowPos(4));
 
+    ///////////////////////////////////////////////////
     // نمایش آنتن موبایل
     myGLCD.setFont(Text_12);
     myGLCD.print("0", 225, 5);
@@ -574,7 +602,7 @@ void LCDShowCurrFlow() {
     //  // رله بسته
     myGLCD.setFont(Text_15);
     myGLCD.print("0", 285, 5);
-
+///////////////////////////////////oooooooooooooooooooooooook
     // باطری تمام
     // رله بسته
     myGLCD.setFont(Text_16);
@@ -593,20 +621,17 @@ void LCDShowCurrFlow() {
            myGLCD.print("  ", 380, 15);
 
        }*/
-    for (int i = 0; i < 20; i++)
-        FFstr[i] = '\0';
-    Dtostrf(TotalValues.K_param, 4, 2, FFstr);
+    //   for (int i = 0; i < 20; i++)
+    //       FFstr[i] = 0;
+    //   Dtostrf(TotalValues.K_param, 4, 2, FFstr);
 
     //FtoStr(ParametersConfig.K_param , FFstr, 2) ;
-    for (int i = strlen(FFstr); i < 13; i++)
-        FFstr[i] = '-';
+    //  for (int i = strlen(FFstr); i < 13; i++)
+    //      FFstr[i] = '-';
+    //  myGLCD.print(FFstr, 410, 15);
 
-    //myGLCD.print("    ", 410, 15);
-    myGLCD.print(FFstr, 410, 15);
-
-    buttonState = digitalRead(Pulse1Pin);
-    int i = (buttonState == true) ? 1 : 0;
-    //  Serial__println(i);
+//    buttonState = digitalRead(Pulse1Pin);
+//    int i = (buttonState == true) ? 1 : 0;
 
 }
 
@@ -638,8 +663,8 @@ void GetDateTime() {
 
     sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, hour(),
             minute(), second());
-   // IF_SERIAL_DEBUG()
-            printf_New(CurrSPDate,0);
+    // IF_SERIAL_DEBUG()
+    printf_New(CurrSPDate, 0);
 }
 
 void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_,
@@ -653,7 +678,7 @@ void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_,
 // todo to do
 bool get_MainPower() {
 
-    bool MainPower = digitalRead(MainPowerOnRelay);
+    bool MainPower = !digitalRead(MainPowerOnRelay);
     if (MainPower == false) {
         setEvent(true, PowerDown);
         setEvent(false, PowerUp);
@@ -803,6 +828,22 @@ void Log_Total_UsedHourPump() {
     }
 }
 
+void CheckElectroMagnetic() {
+    boolean PinState = digitalRead(ElectroMagneticPin);
+    //  EventsStruct[ 7].Value=0;
+    Serial.print("Pin 9 ==");
+    Serial.println(PinState);
+    if (PinState != EventsStruct[StrongDCMagneticFieldDetected].Value) {
+        setEvent(PinState, StrongDCMagneticFieldDetected);
+        if (PinState == false) {
+            char msg[20];
+            strcpy(TotalValues.LastDateSeeElectroMagnetic, GetStrCurrentDay(msg));
+            strcpy(TotalValues.LastTimeSeeElectroMagnetic, GetCurrentStrHour(msg));
+        }
+
+    }
+}
+
 void TimeStartup() {
     pinMode(MainPowerOnRelay, INPUT);
     pinMode(CharzheBatteryRelay, OUTPUT);
@@ -847,7 +888,7 @@ void TimeStartup() {
     myGLCD.fillRect(0, 0, 479, 13);
     myGLCD.fillScr(192, 192, 192);
     myGLCD.setColor(255, 255, 255);
-    myGLCD.setBackColor(192, 192, 192); // light gray
+    myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
     myGLCD.setFont(Text_1);
     myGLCD.print("0", 380, 45);
     myGLCD.setFont(Text_7);
@@ -871,8 +912,11 @@ void TimeStartup() {
     ReadEvents();
     FirstGetDateTime();
     //    myGLCD.drawBitmap( 10,  10, 80,  60, cat);
-    IEC6205621_Com.MAXVolumeDefined_ = MAXVolumeDefined;
+//    IEC6205621_Com.MAXVolumeDefined_ = MAXVolumeDefined;
     ResetTotalPerid();
+    InitializeEvents();
+    pinMode(ElectroMagneticPin, INPUT_PULLUP);
+    pinMode(BtnDisplayLight, INPUT_PULLUP);
 
 }
 
@@ -890,7 +934,21 @@ void TimeLoop() {
 
     if (TimeMill != 0)
         return;
-    if (get_MilliSecondDiff(LastCallMillisCountFlowInterrupt20) > 5000)
+
+    //  if(get_MilliSecondDiff(TimeMill)<1000L){
+    //     return;
+    // }
+    Serial.print("millis= ");
+    Serial.print(millis());
+
+    /*  Serial.print("millis= ");
+      Serial.print(millis());
+      Serial.print(",get=");
+      Serial.print(NewTimeMill);
+      NewTimeMill = millis();
+      Serial.print(",New=");
+      Serial.println(NewTimeMill);
+   */   if (get_MilliSecondDiff(LastCallMillisCountFlowInterrupt20) > 5000)
         CurrentFlow = 0;
 
     SimulateFllow();  // it should be run on interrupt
@@ -937,21 +995,54 @@ void TimeLoop() {
     //  int sensorValue = analogRead(A8);
     //  Serial.println(sensorValue);
     IEC6205621_Com.ShoeLevelCommunicate();
-
+    CheckElectroMagnetic();
+    //   ShowErrorsOnScreen();
 }
 
-void readFileTest();
+void readFileTestEvent();
+
 void writeStructType();
+
+void SaveHourlyFile(StructTotalValues TotalValues);
+
+void readFileTestHourly();
+
 void serialEvent() {
     char inChar;
+    struct EventsSaveFile_Struct *EvntStrdata;
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == '1')SaveEventsFile(1);
-    if (inChar == '2')readFileTest();
-    if (inChar == '3')DemoSaveGetEventFile();
-    if (inChar == 'D')if (SD.exists("EvwntLog.log"))SD.remove("EvwntLog.log");
-    if(inChar=='N')writeStructType();
+    if (inChar == '1')SaveHourlyFile(TotalValues);
+    if (inChar == '2')Serial.println("setEvent(false, 2);");
+    if (inChar == '3')readFileTestEvent();
+    if (inChar == '4')readFileTestHourly();
+    if (inChar == '5') {
+        DisplayBrightValue = (DisplayBrightValue < 210) ? DisplayBrightValue + 10 : 170;
+        Serial.println(DisplayBrightValue);
+        BackColor[0] = DisplayBrightValue;
+        BackColor[1] = DisplayBrightValue;
+        BackColor[2] = DisplayBrightValue;
+        myGLCD.setFont(PNumFontB24);
+        myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]);
+        myGLCD.fillRect(0, 0, 479, 13);
+        myGLCD.fillScr(BackColor[0], BackColor[1], BackColor[2]);
+        myGLCD.setColor(255, 255, 255);
+        myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+        myGLCD.setFont(Text_1);
+        myGLCD.print("0", 380, 45);
+        myGLCD.setFont(Text_7);
+        myGLCD.print("0", 225, 135);
+        myGLCD.setFont(Text_4); //  مصرف دوره
+        myGLCD.print("0", 225 + 48, 135);
+        myGLCD.setFont(Text_7);
+        myGLCD.print("0", 225, 165);
+        myGLCD.setFont(Text_5); // مصرف کل
+        myGLCD.print("0", 225 + 48, 165);
+
+    }
+    if (inChar == 'D')if (SD.exists("Hourly.log"))SD.remove("Hourly.log");//Hourly.log//"EvwntLog.log
+    if (inChar == 'N')writeStructType();
 
 }
 

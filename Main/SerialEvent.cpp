@@ -78,7 +78,7 @@ void IEC62056_21_Serial::Send_Config_IEC62056_ToPC() {
     InCommunicateModeWithPC_time = millis();
     CommunicateIEC62056Level = 1;
     intbytes TempIntByte;
-    TempIntByte.intn = MAXVolumeDefined_;
+    TempIntByte.intn = 2000;
 
     sprintf(TmpMsg, "/AMS234566V03%c%c01%c%c", TempIntByte.chars[0],
             TempIntByte.chars[1], CR_Const, LF_Const);
@@ -134,16 +134,29 @@ void IEC62056_21_Serial::SetCommunicateMode(int SetMode) {
 
 bool IEC62056_21_Serial::CheckCommunicateCorrectPassword(int PasswordType,
                                                          char *Password) {
-    return true;
+    boolean  EqualPass=true;
+  //  char msg[100];
+ //   sprintf(msg,"Pass--> check,%s , %s , %d , %d",TotalValues.IEC_Password_1,Password,PasswordType,strcmp(TotalValues.IEC_Password_1,Password));
+//    for(int i=0 ;i<strlen(Password);i++)
+//        Serial.print(Password[i]);
+//    Serial.print(";;");
+    for(int i=0 ;i<strlen(TotalValues.IEC_Password_1);i++) {
+  //      Serial.print(TotalValues.IEC_Password_1[i]);
+        if(TotalValues.IEC_Password_1[i] != Password[i]) EqualPass=false;
+    }
+  //  Serial.println(";;");
+
+
+    return EqualPass;
 }
 
 int IEC62056_21_Serial::CommunicateProgramModeCheckPassword() {
     char TempChr[100];
     int i, k = 0;
-    //   Serial1.println("In-------------CommunicateIEC62056 ");
-
+   //  IF_SERIAL_DEBUG(
+  //          printf_New("In------------Checking Pass 1=%c || 2=%c,P=%c , (=%c \n",0));
     if ((inputString[2] == '1' || inputString[2] == '2')
-        && inputString[4] == '(') // check P1 or P2 request
+        && inputString[1] == 'P'  && inputString[4] == '(' ) // check P1 or P2 request
     {
         for (i = 0; i < 99; i++)
             TempChr[k] = '\0';
@@ -154,8 +167,13 @@ int IEC62056_21_Serial::CommunicateProgramModeCheckPassword() {
             k++;
             i++;
         }
-        Serial1.println(TempChr);
-        if (CheckCommunicateCorrectPassword(inputString[2] - 48, TempChr)) {
+        String stringObis(inputString);
+        String StrTmp;
+        if((unsigned int) stringObis.indexOf('(')<(unsigned int) stringObis.indexOf(')'))
+            StrTmp = stringObis.substring((unsigned int) stringObis.indexOf('(')+1,(unsigned int) stringObis.indexOf(')'));
+   //     Serial1.print("Password_read:");
+   //     Serial1.println(TempChr);
+        if (CheckCommunicateCorrectPassword(inputString[2] - 48, (char *) StrTmp.c_str())) {
             CommunicateIEC62056Level = 3;
             //           Serial1.println("-------------CommunicateIEC62056Level  = 3 ");
             return ACK_Const;
@@ -325,7 +343,7 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
         return;
     // ACK0Z0CRLF
     IF_SERIAL_DEBUG(
-            printf_New("ACK0Z0CRLF=%d, %d,%d,%c,%d,%d ", inputString[SerialRecieve - 3] - 48, CommunicateIEC62056Level,
+            printf_New("ACK0Z0CRLF=%c,L= %d,%c,%c,%c,%c ", inputString[SerialRecieve - 3], CommunicateIEC62056Level,
                        inputString[SerialRecieve - 6], inputString[SerialRecieve - 5], inputString[SerialRecieve - 2],
                        inputString[SerialRecieve - 1]));
 //%  progmode = inputString[SerialRecieve - 3] - 48
@@ -336,6 +354,9 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
         SetCommunicateMode(inputString[SerialRecieve - 3] - 48);
 //        CommunicateIEC62056Level = 2;
     }
+    IF_SERIAL_DEBUG(
+            printf_New("CheckPAss=%d=1,%d=2,%c=&,%c=P,%c=?,%c=@ \n ", CommunicateIEC62056Mode , CommunicateIEC62056Level, inputString[0],
+                                                          inputString[1],inputString[3], inputString[SerialRecieve - 2] ));
 
     if (CommunicateIEC62056Mode == ProgramingMode && CommunicateIEC62056Level == 2 && inputString[0] == SOH_Const &&
         inputString[1] == 'P' &&
@@ -963,6 +984,6 @@ void IEC62056_21_Serial::checkInputString() {
 */
 void IEC62056_21_Serial::ShoeLevelCommunicate() {
     IF_SERIAL_DEBUG(
-            printf_New("InCommunicateModeWithPC_const=%d,CommunicateIEC62056Level=%d,CommunicateIEC62056Mode=%d",
+            printf_New("InCommunicateModeWithPC_const=%d,CommunicateIEC62056Level=%d,CommunicateIEC62056Mode=%d \n",
                        InCommunicateModeWithPC_const, CommunicateIEC62056Level, CommunicateIEC62056Mode));
 }

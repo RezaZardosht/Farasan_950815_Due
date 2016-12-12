@@ -93,7 +93,8 @@ typedef struct {
     int DateHourSaveTime;// hour that log daily data shuld be save
     int MonthDaySaveTime;// day that log monthly data shuld be save
     float K_param = 1.0;
-
+    char IEC_Password_1[10];
+    char IEC_Password_2[10];
 
 } StructTotalValues;
 
@@ -134,6 +135,15 @@ struct CharMemoryAlocated{
     char *memory;
     unsigned int size;
 };
+
+typedef struct  {
+    boolean EventNegativePositive;// check rise Event in negative or positive mode
+    boolean Value;
+    boolean SaveOnFile;
+    boolean ErrorShowOnScreen;
+    boolean ErrorValue;
+
+}EventsStructDefine;
 void TimeStartup();
 
 void TimeLoop();
@@ -194,9 +204,12 @@ const int AIBattery = 54 + 8;    // the number of the LED pin
 const int AIAmperMotor = 54 + 9;    // the number of the LED pin
 const int PositionSwitchOPEN = 54 + 10;    // the number of the LED pin
 const int PositionSwitchCLOSE = 54 + 11;    // the number of the LED pin
-const int MainPowerOnRelay = 54 + 12;    // the number of the LED pin
+const int MainPowerOnRelay = 53;    // the number of the LED pin
 const int CharzheBatteryRelay = 45;    // the number of the LED pin
 const int Pulse1Pin = 2;   // the pin that the pushbutton is attached to
+const int ElectroMagneticPin = 9;
+const int BtnDisplayLight = 8;
+
 const int StrongDCMagneticFieldDetected_Pin = 3;
 const int MeterCoverRemoved_Pin = 4;
 //const int  Pulse2Pin = 45;   // the pin that the pushbutton is attached to
@@ -220,21 +233,21 @@ unsigned long get_MicroSecondDiff(unsigned long PrevValue);
 unsigned long get_MilliSecondDiff(unsigned long PrevValue);
 
 
-/////////////////////////////  Events 
-const int PowerDown = 1;
-const int PowerUp = 2;
+/////////////////////////////  Events
+const int PowerDown = 1;//error
+const int PowerUp = 2;//error
 const int ReplaceBattery = 3;
-const int ApplicationError = 4;
+const int ApplicationError = 4;//error
 const int FirmwareActivated = 5;
 const int CreditAssignment = 6;
-const int StrongDCMagneticFieldDetected = 7;
-const int MeterCoverRemoved = 8;
+const int StrongDCMagneticFieldDetected = 7;//error
+const int MeterCoverRemoved = 8;//error
 const int EventLogCleared = 9;
-const int FlowrateExceeded = 10;
-const int PermittedVolumeThresholdEexceeded = 11;
-const int ElectricalCurrentDisconnected = 12;
+const int FlowrateExceeded = 10;//error
+const int PermittedVolumeThresholdEexceeded = 11;//error
+const int ElectricalCurrentDisconnected = 12;//error
 const int ElectricalCurrentConnected = 13;
-const int TamperedWaterFlowDetected = 14;
+const int TamperedWaterFlowDetected = 14;//error
 const int SuccessfulAuthentication = 15;
 const int AuthenticationFailed = 16;
 const int OperationalKeyChanged = 17;
@@ -242,8 +255,7 @@ const int Secret1ForSecureAlgorithmHasChanged = 18;
 const int Secret2ForSecureAlgorithmHasChanged = 19;
 const int ClockAdjusted = 20;
 const int MasterKeyChanged = 21;
-const int MBusDisconnected = 22;
-
+const int MBusDisconnected = 22;//error
 
 /////////////////////////////Battery
 int BatteryRemainlife();
@@ -261,6 +273,8 @@ char *ReadDailyLogFile(char *FromDay, char *ToDay);
 int GetDayOfMonthForSumofDays(int days);
 int GetMonthOfForSumofDays(int days);
 int strtoint(char a[]);
+
+void  InitializeEvents();
 //void setup_RFID_NEW(void) ;
 //void loop_RFID_NEW(void) ;
 void SaveEventsFile(int Event);
@@ -270,9 +284,10 @@ void SaveMonthlyFile(StructTotalValues TotalValues);
 
 struct CharMemoryAlocated *GetDailEventRecords(const char *from_day, const char *to_day);
 
-template<typename T>T *GetDaileRecords(const char *fileName, char *from_date, char *to_date);
-template<typename T>T *SaveFile_StructType_new();
-template<typename T>void SaveFile_StructType_free(T *data);
+//template<typename T>T *GetDaileRecords(const char *fileName, char *from_date, char *to_date);
+//template<typename T>T *SaveFile_StructType_new();
+//template<typename T>void SaveFile_StructType_free(T *data);
 void DemoSaveGetEventFile();
 unsigned int freemeMory();
+void ShowErrorsOnScreen();
 #endif
