@@ -1,6 +1,6 @@
 #include "loop.h"
 //#undef SERIAL_DEBUG
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #ifdef SERIAL_DEBUG
 #define IF_SERIAL_DEBUG(x) ({x;})
@@ -65,27 +65,40 @@ void SaveFile_StructType_free(T *data) {
         if (Next)
             SaveFile_StructType_free<T>(Next);
     }
+    delay(100);
 };
 
 char *stringFormat(char *msg, struct EventsSaveFile_Struct MdailyStruct) {
-    sprintf(msg, "%s %d\r\n", MdailyStruct.today, MdailyStruct.Events);
+    char mmsg[100];
+    memcpy(mmsg, MdailyStruct.today, sizeof(MdailyStruct.today));
+    mmsg[sizeof(MdailyStruct.today)]=0;
+    sprintf(msg, "%s %d\r\n", mmsg, MdailyStruct.Events);
     return msg;
 }
 
 char *stringFormat(char *msg, struct HourlySaveFile_Struct MdailyStruct) {
-    sprintf(msg, "%s %02X %lu\r\n", MdailyStruct.today, MdailyStruct.profile, MdailyStruct.Duration_Volume);
+    char mmsg[100];
+    memcpy(mmsg, MdailyStruct.today, sizeof(MdailyStruct.today));
+    mmsg[sizeof(MdailyStruct.today)]=0;
+    sprintf(msg, "%s %02X %lu\r\n", mmsg, MdailyStruct.profile, MdailyStruct.Duration_Volume);
     return msg;
 }
 
 char *stringFormat(char *msg, struct DailySaveFile_Struct MdailyStruct) {
-    sprintf(msg, "%s %02X %lu %lu %lu %lu\r\n", MdailyStruct.today, MdailyStruct.profile,
+    char mmsg[100];
+    memcpy(mmsg, MdailyStruct.today, sizeof(MdailyStruct.today));
+    mmsg[sizeof(MdailyStruct.today)]=0;
+    sprintf(msg, "%s,%02X,%lu,%lu,%lu,%lu\r\n", mmsg, MdailyStruct.profile,
             MdailyStruct.Duration_Volume,
             MdailyStruct.TotalDuration_Charzh, MdailyStruct.V_MaxFlowIn24Hour, MdailyStruct.V_PUmpTotalHour);
     return msg;
 }
 
 char *stringFormat(char *msg, struct MonthlySaveFile_Struct MdailyStruct) {
-    sprintf(msg, "%s %02X %lu %lu %lu \r\n", MdailyStruct.today, MdailyStruct.profile, MdailyStruct.Duration_Volume,
+    char mmsg[100];
+    memcpy(mmsg, MdailyStruct.today, sizeof(MdailyStruct.today));
+    mmsg[sizeof(MdailyStruct.today)]=0;
+    sprintf(msg, "%s,%02X,%lu,%lu,%lu\r\n",mmsg, MdailyStruct.profile, MdailyStruct.Duration_Volume,
             MdailyStruct.TotalDuration_Charzh, MdailyStruct.V_PUmpTotalHour);
     return msg;
 }
@@ -206,7 +219,7 @@ void SaveHourlyFile(StructTotalValues TotalValues) {
     HourlyStruct.profile = GetCharCurrentProfile();
     HourlyStruct.Duration_Volume = TotalValues.Duration_Volume;
 
-    SaveFileOnSD<HourlySaveFile_Struct>(HourlyStruct, "Hourly.log", MaxHourlySaveFileRecord);
+    SaveFileOnSD<HourlySaveFile_Struct>(HourlyStruct, (char *) "Hourly.log", MaxHourlySaveFileRecord);
 }
 
 void SaveEventsFile(int Event) {
@@ -217,14 +230,14 @@ void SaveEventsFile(int Event) {
     if (!(MsgD = (char *) malloc(20)))
         return;
     sprintf(Msg, "%s:%s", GetStrCurrentDay(Msg), GetCurrentStrHour(MsgD));
-    printf_New(Msg, 0);
+//    printf_New(Msg, 0);
     memset(EventslyStruct.today, 0, sizeof(EventslyStruct.today));
     memcpy(EventslyStruct.today, Msg, strlen(Msg));
     //   memcpy(EventslyStruct.today, "950101:142002", 14);
     free(Msg);
     free(MsgD);
     EventslyStruct.Events = Event;
-    SaveFileOnSD<EventsSaveFile_Struct>(EventslyStruct, "EvwntLog.log", MaxEventsSaveFileRecord);
+    SaveFileOnSD<EventsSaveFile_Struct>(EventslyStruct, (char *) "EvwntLog.log", MaxEventsSaveFileRecord);
 
 
 }
@@ -294,7 +307,7 @@ struct CharMemoryAlocated *FileSaveStructToChar(T *MdailyStruct_2) {
      FirsMdailyStruc_2 = MdailyStruct_2;
     TempMdailyStruc_2 = MdailyStruct_2;
 
-    char msg[100];
+    char msg[500];
     int MemoreyRequest = 0;
     while (TempMdailyStruc_2 != NULL) {
         MemoreyRequest = MemoreyRequest + strlen(stringFormat(msg, *TempMdailyStruc_2));
@@ -329,7 +342,7 @@ struct CharMemoryAlocated *FileSaveStructToChar(T *MdailyStruct_2) {
 
 }
 
-template<typename T>void readFileTest(char *filename) {//"HourlyLog.log","EvwntLog.log"
+template<typename T>void readFileTest(char *filename) {//"HourlyLog.log",EvwntLog.log
     T *MdailyStruct, *MdailyStructFirst;
     MdailyStructFirst = GetDaileRecords<T>((char *) filename, (char *) "00000000",
                                                                       (char *) "99999999");
@@ -355,15 +368,15 @@ template<typename T>void readFileTest(char *filename) {//"HourlyLog.log","EvwntL
     }
 }
 void readFileTestEvent(){
-    readFileTest<struct EventsSaveFile_Struct>("EvwntLog.log");
+    readFileTest<struct EventsSaveFile_Struct>((char *) "EvwntLog.log");
 }
 void readFileTestHourly(){
-    readFileTest<struct HourlySaveFile_Struct>("Hourly.log");
+    readFileTest<struct HourlySaveFile_Struct>((char *) "Hourly.log");
 }
 int DemoDate = 0;
 
 void DemoSaveGetEventFile() {
-    char MMg[40] = "00000000";
+    char MMg[100] = "00000000";
     int RecNo = 0;
     byte *ptr;
     struct EventsSaveFile_Struct *MdailyStruct, *MdailyStructFirst;
@@ -380,7 +393,7 @@ void DemoSaveGetEventFile() {
     MdailyStruct->Events = 0;
     int Ret = 0;
     Ret = SDFile_Read<struct EventsSaveFile_Struct>(dumpFile, *MdailyStruct, 0);
-    memset(MMg, 0, 8);
+    memset(MMg, 0, 18);
     memcpy(MMg, MdailyStruct->today, 18);
     printf_New("============= %d:%s %d,\n", RecNo++, MMg, MdailyStruct->Events);
     if (dumpFile) {
@@ -390,6 +403,7 @@ void DemoSaveGetEventFile() {
             memcpy(MMg, MdailyStruct->today, 18);
             printf_New("============= %d:%s %d,\n", RecNo, MMg, MdailyStruct->Events);
             Ret = SDFile_Read<struct EventsSaveFile_Struct>(dumpFile, *MdailyStruct, RecNo);
+
         }
         dumpFile.close();
 
@@ -397,6 +411,8 @@ void DemoSaveGetEventFile() {
         Serial.println("error opening file");
     }
     SaveFile_StructType_free<struct EventsSaveFile_Struct>(MdailyStructFirst);
+    printf_New("=============ENDDEmo,\n",0);
+   // delay(1000);
 }
 
 char *TypenameS(struct DailySaveFile_Struct t) {
@@ -423,7 +439,6 @@ void writeStructType() {
 }
 
 struct CharMemoryAlocated *GetDailEventRecords(const char *from_day, const char *to_day) {
-
     struct CharMemoryAlocated *ReadEventFile = NULL;
     struct EventsSaveFile_Struct *MdailyStruct, *MdailyStructFirst;
     MdailyStructFirst = GetDaileRecords<struct EventsSaveFile_Struct>((char *) "EvwntLog.log", (char *) from_day,
@@ -438,10 +453,36 @@ struct CharMemoryAlocated *GetDailEventRecords(const char *from_day, const char 
         MdailyStruct = MdailyStructFirst->Next;
         ReadEventFile = FileSaveStructToChar<struct EventsSaveFile_Struct>(MdailyStruct);
         if (ReadEventFile) {
-            for (int i = 0; i < ReadEventFile->size; i++) printf_New("%c", ReadEventFile->memory[i]);
+            for (int i = 0; i < ReadEventFile->size; i++) Serial.print(ReadEventFile->memory[i]);
         }
         if (MdailyStructFirst)
             SaveFile_StructType_free<struct EventsSaveFile_Struct>(MdailyStructFirst);
     }
     return ReadEventFile;
+}
+struct CharMemoryAlocated *GetHourlyLogFile(const char *from_day, const char *to_day) {
+    struct CharMemoryAlocated *ReadEventFile = NULL;
+    struct HourlySaveFile_Struct *MdailyStruct, *MdailyStructFirst;
+    MdailyStructFirst = GetDaileRecords<struct HourlySaveFile_Struct>((char *) "Hourly.log", (char *) from_day,
+                                                                      (char *) to_day);
+    if (!MdailyStructFirst->Next) {
+        if (MdailyStructFirst)
+            SaveFile_StructType_free<HourlySaveFile_Struct>(MdailyStructFirst);
+        printf_New("No Data Found", 0);
+        return NULL;
+    }
+    if (MdailyStructFirst) {
+        MdailyStruct = MdailyStructFirst->Next;
+        ReadEventFile = FileSaveStructToChar<HourlySaveFile_Struct>(MdailyStruct);
+        if (ReadEventFile) {
+            for (int i = 0; i < ReadEventFile->size; i++) Serial.print(ReadEventFile->memory[i]);
+        }
+        if (MdailyStructFirst)
+            SaveFile_StructType_free<HourlySaveFile_Struct>(MdailyStructFirst);
+    }
+    return ReadEventFile;
+}
+
+void Delete_File(char *FileName){
+    if (SD.exists(FileName))SD.remove(FileName);//EvwntLog.log);
 }

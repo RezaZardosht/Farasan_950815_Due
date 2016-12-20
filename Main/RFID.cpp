@@ -50,14 +50,14 @@ byte NFC_Sector_DATEEnd = 6;
 byte NFC_Sector_FINISH = 14;
 byte NFC_Byte_Need = 2;
 uint8_t Last_uid[] = {0, 0, 0, 0, 0, 0, 0};  // Buffer to store the returned UID
+boolean NFCInitializeOK=false;
+void InitializeNFC(){
 
-void NFC_Loop(void) {
-    static bool INFirstCall = true;
-    if (INFirstCall) {
         nfc.begin();
         uint32_t versiondata = nfc.getFirmwareVersion();
         if (!versiondata) {
             IF_SERIAL_DEBUG(printf_New("Didn't find PN53x board"));
+            SaveEventsFile(ErrorInternal_RFID);
             return;
         }
         // Got ok data, print it out!
@@ -68,9 +68,14 @@ void NFC_Loop(void) {
         // configure board to read RFID tags
         nfc.SAMConfig();
 
-        INFirstCall = false;
+        NFCInitializeOK=true;
         return;
-    }
+
+
+}
+void NFC_Loop(void) {
+
+   if(!NFCInitializeOK)return;
 
     uint8_t success;                          // Flag to check if there was an error with the PN532
     uint8_t uid[] = {0, 0, 0, 0, 0, 0, 0};  // Buffer to store the returned UID
@@ -178,8 +183,8 @@ void NFC_Loop(void) {
             data[9] = 'A';
 
             WriteNFCBlock(uid, uidLength, NFC_Sector_FINISH, data);
-            setEvent(true, CreditAssignment);
-            setEvent(false, CreditAssignment);
+            setEvent( CreditAssignment,true);
+            setEvent( CreditAssignment,false);
             uint8_t dateStart[NR_BLOCK_OF_LONGSECTOR];
             uint8_t dateEnd[NR_BLOCK_OF_LONGSECTOR];
             delay(10);

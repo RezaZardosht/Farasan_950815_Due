@@ -8,6 +8,7 @@
 //  Serial1.print("AT+BAUD4");
 //Serial.println("AT115200");
 #include "loop.h"
+#include "Loop.h"
 //#include "Loop.h"
 
 
@@ -60,6 +61,8 @@ unsigned int freemeMory() {
 
 void SetStutrupValues();
 
+void InitializeNFC();
+
 byte BackColor[3] = {192, 192, 192};
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
@@ -103,6 +106,7 @@ extern EventsStructDefine EventsStruct[];
 int DisplayBrightValue = 170;
 boolean Last_ShowTempTotalDuration_Charzh = false;
 //DefaultBacklight backlight;
+boolean SdError = false;
 ////////////////////////////////////////////////////
 
 struct StructPreCheckValueInMmory {
@@ -124,7 +128,8 @@ int Add_PreCheckValueIn_EEP;
 int Add_TotalValues_EEP;
 int Add_CalibrateConfig;
 
-char CurrSPDate[20];
+char CurrSPDate[50];
+unsigned long freememoryTrace;
 
 StructTotalValues &SumTotal(unsigned long IncLitre,
                             StructTotalValues &CurrTotalValues);
@@ -164,7 +169,7 @@ T &EEProm_Put(int Address, T &t) {
 }
 
 void Get_ObisValue(char *Obis, char *RetVal) {
-
+    char F2str[20];
     if (!strcmp(Obis, "0-4:96,1,0,255"))
         sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.SerialKontor);
     if (!strcmp(Obis, "0-4:96,1,1,255"))
@@ -241,6 +246,14 @@ void Get_ObisValue(char *Obis, char *RetVal) {
         sprintf(RetVal, " %s(%s;%s;%s;%s)\r\n", Obis, FFstr[0], FFstr[1],
                 FFstr[2], FFstr[3]);
     }
+    if (!strcmp(Obis, "0-4:24,2,33,255")) {
+        memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        Dtostrf(TotalValues.MaxFellowAllow, 6, 2, F2str);
+        sprintf(RetVal, " %s(%s)\r\n", Obis, F2str);
+    }
+    if (!strcmp(Obis, "0-4:24,2,34,255"))
+         sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
+
 //  return Ret;
 
 }
@@ -260,10 +273,14 @@ float MaxFlowIn24Hour() {
         TotalValues.V_MaxFlowIn24Hour =
                 (CurrentFlow > TotalValues.V_MaxFlowIn24Hour) ?
                 CurrentFlow : TotalValues.V_MaxFlowIn24Hour;
-    if (TotalValues.V_MaxFlowIn24Hour > TotalValues.MaxFellowAllow)
-        setEvent(true, FlowrateExceeded);
-    else
-        setEvent(false, FlowrateExceeded);
+    if (TotalValues.V_MaxFlowIn24Hour > TotalValues.MaxFellowAllow) {
+        setEvent(FlowrateExceeded, true);
+//        printf_New("FlowrateExceeded, true", 0);
+    } else {
+        setEvent(FlowrateExceeded, false);
+ //       printf_New("FlowrateExceeded, false", 0);
+    }
+ //   printf_New("V_Max=,%f,%f,%u\n", CurrentFlow, TotalValues.V_MaxFlowIn24Hour, TotalValues.MaxFellowAllow);
     return TotalValues.V_MaxFlowIn24Hour;
 }
 
@@ -385,13 +402,14 @@ int PassNumberOfPesianDate(int yMiladi = 2016, int mMiladi = 3,
 
 float GetcurrentTaarefe() {
     int passNumofyear;
+    float CurrentTaarefe;
     passNumofyear = PassNumberOfPesianDate(year(), month(), day());
 
-    if (passNumofyear < TotalValues.DateTaarefe[0])return TotalValues.Taarefe[0];
-    if (passNumofyear < TotalValues.DateTaarefe[1])return TotalValues.Taarefe[1];
-    if (passNumofyear < TotalValues.DateTaarefe[2])return TotalValues.Taarefe[2];
-    return TotalValues.Taarefe[4];
-
+    if (passNumofyear < TotalValues.DateTaarefe[0])CurrentTaarefe = TotalValues.Taarefe[0];
+    else if (passNumofyear < TotalValues.DateTaarefe[1])CurrentTaarefe = TotalValues.Taarefe[1];
+    else if (passNumofyear < TotalValues.DateTaarefe[2])CurrentTaarefe = TotalValues.Taarefe[2];
+    else CurrentTaarefe = TotalValues.Taarefe[3];
+    return CurrentTaarefe;
 }
 
 StructTotalValues &SumTotal(unsigned long IncLitre,
@@ -408,11 +426,9 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
     float F_IncLitre = IncLitre * 0.1;
     P_CurrTotalValues->Litre_Volume = P_CurrTotalValues->Litre_Volume
                                       + F_IncLitre / TotalValues.K_param;
-    unsigned long int IncP_CurrTotalValues = 0, TempP_Litre_Volume =
-            P_CurrTotalValues->Litre_Volume;
+    unsigned long int IncP_CurrTotalValues = 0, TaarefeIncP_CurrTotalValues = 0;//, TempP_Litre_Volume =            P_CurrTotalValues->Litre_Volume;
     while (P_CurrTotalValues->Litre_Volume >= 1000.0) {
-        P_CurrTotalValues->Litre_Volume = P_CurrTotalValues->Litre_Volume
-                                          - 1000.0;
+        P_CurrTotalValues->Litre_Volume = P_CurrTotalValues->Litre_Volume - 1000.0;
         IncP_CurrTotalValues++;
     }
 
@@ -420,8 +436,16 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
                                          + IncP_CurrTotalValues;
     P_CurrTotalValues->Total_UsedVolume = P_CurrTotalValues->Total_UsedVolume
                                           + IncP_CurrTotalValues;
+
+    P_CurrTotalValues->TaarefeLitre_Volume = P_CurrTotalValues->TaarefeLitre_Volume
+                                             + F_IncLitre / TotalValues.K_param * GetcurrentTaarefe();
+    while (P_CurrTotalValues->TaarefeLitre_Volume >= 1000.0) {
+        P_CurrTotalValues->TaarefeLitre_Volume = P_CurrTotalValues->TaarefeLitre_Volume - 1000.0;
+        TaarefeIncP_CurrTotalValues++;
+    }
     P_CurrTotalValues->TotalDuration_Charzh =
-            P_CurrTotalValues->TotalDuration_Charzh - IncP_CurrTotalValues * GetcurrentTaarefe();
+            (unsigned long) (P_CurrTotalValues->TotalDuration_Charzh -
+                             (TaarefeIncP_CurrTotalValues * GetcurrentTaarefe()));
 
     /* char str_CurrentFlow[10], SaveTempString[100];;
      Dtostrf(F_IncLitre, 4, 2, str_CurrentFlow);
@@ -429,15 +453,15 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
      Serial__println(SaveTempString);
      */
 
-    char tttemp[100], str_temp1[10], str_temp2[10], str_temp3[10],
-            str_temp4[10], str_temp5[10], str_temp6[10];
-    Dtostrf(TotalValues.K_param, 4, 2, str_temp1);
-    Dtostrf(IncLitre / TotalValues.K_param, 4, 2, str_temp2);
-    Dtostrf(P_CurrTotalValues->Litre_Volume, 4, 2, str_temp3);
+//    char  str_temp1[10], str_temp2[10], str_temp3[10],
+//            str_temp4[10], str_temp5[10], str_temp6[10];
+//  //  Dtostrf(TotalValues.K_param, 4, 2, str_temp1);
+    //  Dtostrf(IncLitre / TotalValues.K_param, 4, 2, str_temp2);
+    //  Dtostrf(P_CurrTotalValues->Litre_Volume, 4, 2, str_temp3);
     float tttt = (60000000.0 / FlowMicroSecDiff);
-    Dtostrf(tttt, 4, 2, str_temp4);
+    //   Dtostrf(tttt, 4, 2, str_temp4);
     float tttt2 = tttt * IncLitre / TotalValues.K_param / 10000.0;
-    Dtostrf(tttt2, 4, 2, str_temp5);
+    //  Dtostrf(tttt2, 4, 2, str_temp5);
 
     float Temp_CurrentFlow = 0;
     for (int i = 0; i < 99; i++)
@@ -448,7 +472,7 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
     for (int i = 0; i < 100; i++)
         Temp_CurrentFlow += MovingAvgFlow[i];
     CurrentFlow = Temp_CurrentFlow / 100.0;
-    Dtostrf(CurrentFlow, 4, 2, str_temp6);
+//    Dtostrf(CurrentFlow, 4, 2, str_temp6);
     // sprintf(tttemp, " % ld , % s , % s , % s , % ld , tttt = % s tttt2 =, % s, flow = % s", IncLitre, str_temp1, str_temp2, str_temp3, FlowMicroSecDiff, str_temp4, str_temp5, str_temp6);
     // Serial.println(tttemp);
     return CurrTotalValues;
@@ -535,10 +559,10 @@ void LCDShowCurrFlow() {
     for (int i = 0; i < 20; i++)
         FFstr[i] = '\0';
     if ((int) TempLitre_Volume / 10 < 100)
-        sprintf(FFstr, "%ld.0%ld", TempDuration_Volume,
-                (long) ((int) TempLitre_Volume / 10));
-    else
         sprintf(FFstr, "%ld.%ld", TempDuration_Volume,
+                (long) ((int) TempLitre_Volume / 100));
+    else
+        sprintf(FFstr, "%ld.0%ld", TempDuration_Volume,
                 (long) ((int) TempLitre_Volume / 10));
 
     for (int i = strlen(FFstr); i < 13; i++)
@@ -641,6 +665,14 @@ void ShowData() {
 }
 //////////////////[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]
 
+///////////////////////call by events to show on screen
+void Show_EventsOnScreen(char *msg) {
+    myGLCD.setFont(SmallFont);
+    myGLCD.print(msg, 420, 10);
+
+
+}
+
 void FirstGetDateTime() {
     //char CurrDateN[40];
     DateTime_RTC now_ = rtc.now();
@@ -680,11 +712,11 @@ bool get_MainPower() {
 
     bool MainPower = !digitalRead(MainPowerOnRelay);
     if (MainPower == false) {
-        setEvent(true, PowerDown);
-        setEvent(false, PowerUp);
+        setEvent(PowerDown, true);
+        setEvent(PowerUp, false);
     } else {
-        setEvent(false, PowerDown);
-        setEvent(true, PowerUp);
+        setEvent(PowerDown, false);
+        setEvent(PowerUp, true);
     }
 }
 
@@ -699,7 +731,7 @@ int get_BateryCharzhe() {
         BattPower = 1000;
     Prev_BattPower = BattPower;
     if (BatteryRemainlife() < BatterRemainLifeConst || BatteryCharzheError())
-        setEvent(true, ReplaceBattery);
+        setEvent(ReplaceBattery, true);
 
     /* myGLCD.setColor(255, 0, 0);
      myGLCD.setBackColor(255, 0, 0); // light gray
@@ -831,10 +863,10 @@ void Log_Total_UsedHourPump() {
 void CheckElectroMagnetic() {
     boolean PinState = digitalRead(ElectroMagneticPin);
     //  EventsStruct[ 7].Value=0;
-    Serial.print("Pin 9 ==");
-    Serial.println(PinState);
+    //   Serial.print("Pin 9 ==");
+    //   Serial.println(PinState);
     if (PinState != EventsStruct[StrongDCMagneticFieldDetected].Value) {
-        setEvent(PinState, StrongDCMagneticFieldDetected);
+        setEvent(StrongDCMagneticFieldDetected, PinState);
         if (PinState == false) {
             char msg[20];
             strcpy(TotalValues.LastDateSeeElectroMagnetic, GetStrCurrentDay(msg));
@@ -849,7 +881,7 @@ void TimeStartup() {
     pinMode(CharzheBatteryRelay, OUTPUT);
 
     Serial.begin(115200);
-    Serial1.begin(115200);/// M
+    Serial1.begin(9600);/// M
 
     if (!rtc.begin()) {
         Serial__println("Couldn't find RTC");
@@ -860,10 +892,13 @@ void TimeStartup() {
         Serial__println("RTC is NOT running!");
         // following line sets the RTC to the date & time this sketch was compiled
         rtc.adjust(DateTime_RTC(2016, 1, 21, 3, 0, 0)); //(F(__DATE__), F(__TIME__)));
+        SaveEventsFile(ErrorInternal_RTC);
     }
 
     if (!SD.begin(10)) {
         Serial__println("SD could not open!");
+        SdError = true;
+        SaveEventsFile(ErrorInternal_SDCard);
     }
     Set_FlashAdresses();
     bool firstcheck = FirsTimeLoadFlashMemory();
@@ -917,7 +952,8 @@ void TimeStartup() {
     InitializeEvents();
     pinMode(ElectroMagneticPin, INPUT_PULLUP);
     pinMode(BtnDisplayLight, INPUT_PULLUP);
-
+    InitializeNFC();
+    freememoryTrace = freemeMory();
 }
 
 // initialize the library with the numbers of the interface pins
@@ -925,7 +961,6 @@ void TimeLoop() {
 
     CheckMainRelayValveTimeOut();
 
-    char SSS[100];
     if ((millis() / 1000) < WaitForLoop)
         return;
     if ((millis() % 1000) == TimeMill)
@@ -938,8 +973,6 @@ void TimeLoop() {
     //  if(get_MilliSecondDiff(TimeMill)<1000L){
     //     return;
     // }
-    Serial.print("millis= ");
-    Serial.print(millis());
 
     /*  Serial.print("millis= ");
       Serial.print(millis());
@@ -951,17 +984,34 @@ void TimeLoop() {
    */   if (get_MilliSecondDiff(LastCallMillisCountFlowInterrupt20) > 5000)
         CurrentFlow = 0;
 
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 0);
+        freememoryTrace = freemeMory();
+    }
     SimulateFllow();  // it should be run on interrupt
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 1);
+        freememoryTrace = freemeMory();
+    }
+
 
     GetDateTime();
 //    CheckAlarmEvents();
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 2);
+        freememoryTrace = freemeMory();
+    }
     SaveTotalsInFlash();
-    printf_New("---> %d,\n", TotalValues.DateTaarefe[0]);
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 3);
+        freememoryTrace = freemeMory();
+    }
+
     ShowData();   // ERRRRRRRRRRRRRRRorr
-
-    Serial.print("Freememory_ =");
-    Serial.println(freemeMory());
-
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 4);
+        freememoryTrace = freemeMory();
+    }
 
     //	CalcCurrPesianDate();
     //CurCalibrateFlow=Calibrate_Flow() ;
@@ -980,23 +1030,46 @@ void TimeLoop() {
 
 
     NFC_Loop();
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 5);
+        freememoryTrace = freemeMory();
+    }
     OpenPermitRelay();
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 6);
+        freememoryTrace = freemeMory();
+    }
     CheckAndCharzheBattery();
 
     //if mainrelay is on and felo
     if (get_MainRelayValVePosition() == DO_On_Relay)
         PompTotalHour();
     if (TotalValues.Total_UsedVolume > TotalValues.MaxVolumeAllow)
-        setEvent(true, PermittedVolumeThresholdEexceeded);
+        setEvent(PermittedVolumeThresholdEexceeded, true);
     else
-        setEvent(false, PermittedVolumeThresholdEexceeded);
+        setEvent(PermittedVolumeThresholdEexceeded, false);
     //  SaveTotalsInFlash(TotalValues);
     // CheckMainPower();
     //  int sensorValue = analogRead(A8);
     //  Serial.println(sensorValue);
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 7);
+        freememoryTrace = freemeMory();
+    }
     IEC6205621_Com.ShoeLevelCommunicate();
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 8);
+        freememoryTrace = freemeMory();
+    }
     CheckElectroMagnetic();
-    //   ShowErrorsOnScreen();
+    ShowErrorsOnScreen();
+    if (freemeMory() != freememoryTrace) {
+        SaveEventsFile(ErrorInFreeMemory + 9);
+        freememoryTrace = freemeMory();
+    }
+    Serial.print("Freememory_ =");
+    Serial.println(freemeMory());
+
 }
 
 void readFileTestEvent();
@@ -1007,16 +1080,26 @@ void SaveHourlyFile(StructTotalValues TotalValues);
 
 void readFileTestHourly();
 
+void Setalltestzero();
+
+void Setalltestzero1();
+
+void Setalltestzero2();
+
 void serialEvent() {
     char inChar;
     struct EventsSaveFile_Struct *EvntStrdata;
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == '1')SaveHourlyFile(TotalValues);
-    if (inChar == '2')Serial.println("setEvent(false, 2);");
-    if (inChar == '3')readFileTestEvent();
-    if (inChar == '4')readFileTestHourly();
+    if (inChar == 'a')readFileTestHourly();
+    if (inChar == 'b')SaveHourlyFile( TotalValues);
+    if (inChar == 'c')Setalltestzero2();
+    if (inChar == '1')setEvent(12, false);//SaveHourlyFile(TotalValues);
+    if (inChar == '2')setEvent(12, true);//SaveHourlyFile(TotalValues);
+    if (inChar == '3')DemoSaveGetEventFile();
+    //  if (inChar == '3')readFileTestEvent();
+    // if (inChar == '4')//readFileTestHourly();
     if (inChar == '5') {
         DisplayBrightValue = (DisplayBrightValue < 210) ? DisplayBrightValue + 10 : 170;
         Serial.println(DisplayBrightValue);
@@ -1127,9 +1210,9 @@ void SetStutrupValues() {
     sprintf(TotalValues.LastUserConnectedDate, "%s", "13950510");
     TotalValues.LastUserConnectedCode = 125;
     sprintf(TotalValues.LastDateKontorConfig, "%s", "13950509");
-    TotalValues.DateTaarefe[0] = 90;
+    TotalValues.DateTaarefe[0] = 15;
     TotalValues.DateTaarefe[1] = 87;
-    TotalValues.DateTaarefe[2] = 15;
+    TotalValues.DateTaarefe[2] = 120;
 
     TotalValues.Taarefe[0] = 0.9;
     TotalValues.Taarefe[1] = 0.8;

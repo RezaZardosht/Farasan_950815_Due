@@ -248,8 +248,8 @@ int BatteryRemainlife()
 }
 void ClearEventLog()
 {
-  setEvent(true, EventLogCleared);
-  setEvent(false, EventLogCleared);
+  setEvent( EventLogCleared,true);
+  setEvent( EventLogCleared,false);
 
 }
 boolean BatteryCharzheError() {

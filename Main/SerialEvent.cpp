@@ -3,7 +3,7 @@
 #include "Loop.h"
 #include "SerialEvent.h"
 
-//#define SERIAL_DEBUG_1
+#define SERIAL_DEBUG_1
 
 #ifdef SERIAL_DEBUG_1
 #define IF_SERIAL_DEBUG(x) ({x;})
@@ -36,7 +36,15 @@ char *Obis_array[][2] = {{"0-4:96,1,0,255",  "SerialKontor"},
                          {"0-4:24,2,29,255", "LastUserConnectedCode"},
                          {"0-4:24,2,30,255", "LastDateKontorConfig"},
                          {"0-4:24,2,31,255", "SetDateDurateTaaarefe"},
-                         {"0-4:24,2,32,255", "SetTaaarefeValues"}
+                         {"0-4:24,2,32,255", "SetTaaarefeValues"},
+                         {"0-4:24,2,33,255", "SetMaxFellow"},
+                         {"0-4:24,2,34,255", "SetMaxVolume"},
+                         {"0-4:24,2,35,255", "GetEventFile"},
+                         {"0-4:24,2,36,255", "GetDailyLogFile"},
+                         {"0-4:50,2,01,255", "Delete_EventFile"},
+                         {"0-4:50,2,02,255", "Delete_HourlyFile"},
+                         {"0-4:50,2,03,255", "Delete_DailyFile"},
+                         {"0-4:50,2,04,255", "Delete_MonthlyFile"}
 };
 
 void IEC62056_21_Serial::SendReadOutDataToPC() {
@@ -49,7 +57,7 @@ void IEC62056_21_Serial::SendReadOutDataToPC() {
     sprintf(StrOut, "%c%s", (STX_Const), RetVal);
     Serial1.print(StrOut);
 
-    for (int i = 1; i < 25; i++) {
+    for (int i = 1; i < 27; i++) {
         Get_ObisValue(Obis_array[i][0], RetVal);
         sprintf(StrOut, "%s", RetVal);
         Serial1.print(StrOut);
@@ -134,17 +142,17 @@ void IEC62056_21_Serial::SetCommunicateMode(int SetMode) {
 
 bool IEC62056_21_Serial::CheckCommunicateCorrectPassword(int PasswordType,
                                                          char *Password) {
-    boolean  EqualPass=true;
-  //  char msg[100];
- //   sprintf(msg,"Pass--> check,%s , %s , %d , %d",TotalValues.IEC_Password_1,Password,PasswordType,strcmp(TotalValues.IEC_Password_1,Password));
+    boolean EqualPass = true;
+    //  char msg[100];
+    //   sprintf(msg,"Pass--> check,%s , %s , %d , %d",TotalValues.IEC_Password_1,Password,PasswordType,strcmp(TotalValues.IEC_Password_1,Password));
 //    for(int i=0 ;i<strlen(Password);i++)
 //        Serial.print(Password[i]);
 //    Serial.print(";;");
-    for(int i=0 ;i<strlen(TotalValues.IEC_Password_1);i++) {
-  //      Serial.print(TotalValues.IEC_Password_1[i]);
-        if(TotalValues.IEC_Password_1[i] != Password[i]) EqualPass=false;
+    for (int i = 0; i < strlen(TotalValues.IEC_Password_1); i++) {
+        //      Serial.print(TotalValues.IEC_Password_1[i]);
+        if (TotalValues.IEC_Password_1[i] != Password[i]) EqualPass = false;
     }
-  //  Serial.println(";;");
+    //  Serial.println(";;");
 
 
     return EqualPass;
@@ -153,10 +161,10 @@ bool IEC62056_21_Serial::CheckCommunicateCorrectPassword(int PasswordType,
 int IEC62056_21_Serial::CommunicateProgramModeCheckPassword() {
     char TempChr[100];
     int i, k = 0;
-   //  IF_SERIAL_DEBUG(
-  //          printf_New("In------------Checking Pass 1=%c || 2=%c,P=%c , (=%c \n",0));
+    //  IF_SERIAL_DEBUG(
+    //          printf_New("In------------Checking Pass 1=%c || 2=%c,P=%c , (=%c \n",0));
     if ((inputString[2] == '1' || inputString[2] == '2')
-        && inputString[1] == 'P'  && inputString[4] == '(' ) // check P1 or P2 request
+        && inputString[1] == 'P' && inputString[4] == '(') // check P1 or P2 request
     {
         for (i = 0; i < 99; i++)
             TempChr[k] = '\0';
@@ -169,10 +177,11 @@ int IEC62056_21_Serial::CommunicateProgramModeCheckPassword() {
         }
         String stringObis(inputString);
         String StrTmp;
-        if((unsigned int) stringObis.indexOf('(')<(unsigned int) stringObis.indexOf(')'))
-            StrTmp = stringObis.substring((unsigned int) stringObis.indexOf('(')+1,(unsigned int) stringObis.indexOf(')'));
-   //     Serial1.print("Password_read:");
-   //     Serial1.println(TempChr);
+        if ((unsigned int) stringObis.indexOf('(') < (unsigned int) stringObis.indexOf(')'))
+            StrTmp = stringObis.substring((unsigned int) stringObis.indexOf('(') + 1,
+                                          (unsigned int) stringObis.indexOf(')'));
+        //     Serial1.print("Password_read:");
+        //     Serial1.println(TempChr);
         if (CheckCommunicateCorrectPassword(inputString[2] - 48, (char *) StrTmp.c_str())) {
             CommunicateIEC62056Level = 3;
             //           Serial1.println("-------------CommunicateIEC62056Level  = 3 ");
@@ -276,13 +285,13 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
                 /*    if (SerialRecieve == 1 && inputString[0] != 'A')SerialRecieve = 0;
                  if (SerialRecieve == 2 && inputString[1] != 'A')SerialRecieve = 0;
                  if (SerialRecieve == 3 && inputString[2] != 'B')SerialRecieve = 0;
-                 if (SerialRecieve == 4 && inputString[3] != 'B')SerialRecieve = 0;*/
+                 if (SerialRecieve == 4 && inputString[3] != 'B')SerialRecieve = 0;
                 if (SerialRecieve > 10)
                     if (inputString[SerialRecieve - 4] == 'D'
                         && inputString[SerialRecieve - 3] == 'D'
                         && inputString[SerialRecieve - 2] == 'E'
                         && inputString[SerialRecieve - 1] == 'F')
-                        PakageComplete = true;
+                        PakageComplete = true;*/
                 if (SerialRecieve > 4)
                     if ((inputString[SerialRecieve - 2] == CR_Const//#
                          && inputString[SerialRecieve - 1] == LF_Const)//$
@@ -328,11 +337,15 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     }  //
     //  Serial1.println("<--//");
     // /?1!CRLF
+    printf_New("[%d,%c,%c,%c,%c,%c,%c]\n",SerialRecieve,inputString[SerialRecieve - 6] , inputString[SerialRecieve - 5] ,
+                                   inputString[SerialRecieve - 4],inputString[SerialRecieve - 3] ,
+                                   inputString[SerialRecieve - 2], inputString[SerialRecieve - 1]);
     IF_SERIAL_DEBUG(printf_New("PAckage compelet inputString[SerialRecieve - 2]", 0));
     if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == '?' &&
         inputString[SerialRecieve - 4] == '1' &&
-        inputString[SerialRecieve - 3] == '!' && inputString[SerialRecieve - 2] == CR_Const &&
-        inputString[SerialRecieve - 1] == LF_Const) {
+        inputString[SerialRecieve - 3] == '!' &&
+        inputString[SerialRecieve - 2] == '#' &&
+        inputString[SerialRecieve - 1] == '$' ) {
 
         Send_Config_IEC62056_ToPC();  // wait for replay for 2 second;
         IF_SERIAL_DEBUG(printf_New("Config  IEC62056-21", 0));
@@ -355,8 +368,9 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
 //        CommunicateIEC62056Level = 2;
     }
     IF_SERIAL_DEBUG(
-            printf_New("CheckPAss=%d=1,%d=2,%c=&,%c=P,%c=?,%c=@ \n ", CommunicateIEC62056Mode , CommunicateIEC62056Level, inputString[0],
-                                                          inputString[1],inputString[3], inputString[SerialRecieve - 2] ));
+            printf_New("CheckPAss=%d=1,%d=2,%c=&,%c=P,%c=?,%c=@ \n ", CommunicateIEC62056Mode, CommunicateIEC62056Level,
+                       inputString[0],
+                       inputString[1], inputString[3], inputString[SerialRecieve - 2]));
 
     if (CommunicateIEC62056Mode == ProgramingMode && CommunicateIEC62056Level == 2 && inputString[0] == SOH_Const &&
         inputString[1] == 'P' &&
@@ -370,10 +384,10 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
 
 
     char ssst[100];
- //   for (int ic = 0; ic < SerialRecieve; ic++) {
- //       Serial1.print(inputString[ic]);
-        // ssst[ic]=inputString[ic];ssst[ic+1]='\0';
-   // }
+    //   for (int ic = 0; ic < SerialRecieve; ic++) {
+    //       Serial1.print(inputString[ic]);
+    // ssst[ic]=inputString[ic];ssst[ic+1]='\0';
+    // }
     sprintf(ssst, "==-->%s,%d,%d", ssst, CommunicateIEC62056Mode, CommunicateIEC62056Level);
     Serial1.print(ssst);
     for (int ic = 0; ic < SerialRecieve; ic++) {
@@ -615,6 +629,11 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
             SendAck();
         }
     }
+    if (!strcmp(OBIS_Address, "0-4:50,2,01,255")) {//Delete Event file
+        if (TypeR_W == 'W')
+            Delete_File((char *) "EvwntLog.log");
+
+    }
     if (!strcmp(OBIS_Address, "0-4:24,2,32,255")) {//taarefevalue
         if (TypeR_W == 'R') {
             char RetVal[50];
@@ -626,7 +645,7 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
             }
             sprintf(RetVal, "%s;%s;%s;%s", FFstr[0], FFstr[1],
                     FFstr[2], FFstr[3]);
-            SendOBIS_Value("0-4:24,2,31,255", RetVal); //I-Meter serial number
+            SendOBIS_Value("0-4:24,2,32,255", RetVal); //I-Meter serial number
         }
         if (TypeR_W == 'W') {
             String stringObis = String(OBIS_Value);
@@ -644,18 +663,83 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
 
         }
     }
-    if (!strcmp(OBIS_Address, "0-4:24,2,33,255")) {//Send Event File
+    if (!strcmp(OBIS_Address, "0-4:24,2,33,255")) {//MaxFellowAllow
+        if (TypeR_W == 'R') {
+            char RetVal[50];
+            char F2str[50];
+            memset(F2str, 0, sizeof(F2str) / F2str[0]);
+            Dtostrf(TotalValues.MaxFellowAllow, 6, 2, F2str);
+            sprintf(RetVal, " %s", F2str);
+            SendOBIS_Value("0-4:24,2,33,255", RetVal); //MaxFellowAllow
+        }
+        if (TypeR_W == 'W') {
+            String stringObisValue = String(OBIS_Value);
+            TotalValues.MaxFellowAllow = stringObisValue.toFloat();
+        }
+    }
+    if (!strcmp(OBIS_Address, "0-4:24,2,34,255")) {//MaxVolumeAllow
+        if (TypeR_W == 'R') {
+            char RetVal[50];
+            sprintf(RetVal, " %lu", TotalValues.MaxFellowAllow);
+            SendOBIS_Value("0-4:24,2,34,255", RetVal); //MaxFellowAllow
+        }
+        if (TypeR_W == 'W') {
+            String stringObisValue = String(OBIS_Value);
+            TotalValues.MaxVolumeAllow = (unsigned long) stringObisValue.toInt();
+         }
+    }
+    if (!strcmp(OBIS_Address, "0-4:24,2,35,255")) {//Send Event File
         if (TypeR_W == 'R') {
             char StrOut[100];
-          struct CharMemoryAlocated *ReadEventFile;
+            struct CharMemoryAlocated *ReadEventFile;
             ReadEventFile = GetDailEventRecords("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
                 Serial1.print(StrOut);
-                for (int i = 0; i < ReadEventFile->size ; i++)
+                for (int i = 0; i < ReadEventFile->size; i++)
                     Serial1.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const,SOH_Const,STX_Const, ETX_Const_);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
                 Serial1.print(StrOut);
+
+                delay(1000);
+                sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
+                Serial.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    Serial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                Serial.print(StrOut);
+
+
+                if (ReadEventFile->memory)
+                    free(ReadEventFile->memory);
+                if (ReadEventFile)
+                    free(ReadEventFile);
+            }
+
+        }
+    }    if (!strcmp(OBIS_Address, "0-4:24,2,36,255")) {//Send Daily log  File
+        if (TypeR_W == 'R') {
+            char StrOut[100];
+            struct CharMemoryAlocated *ReadEventFile;
+
+            ReadEventFile = GetHourlyLogFile("00000000", "99999999");
+            if (ReadEventFile != NULL) {
+                sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
+                Serial1.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    Serial1.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                Serial1.print(StrOut);
+
+                delay(1000);
+                sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
+                Serial.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    Serial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                Serial.print(StrOut);
+
+
                 if (ReadEventFile->memory)
                     free(ReadEventFile->memory);
                 if (ReadEventFile)
@@ -665,34 +749,37 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
         }
     }
     //“YYyy-MM-DD hh:mm:ss”
-    if (!strcmp(OBIS_Address, "0-0:1,0,0,255"))
+    if (!strcmp(OBIS_Address, "0-0:1,0,0,255")) {
         if (TypeR_W == 'R') {
             SendOBIS_Value("0-0:1,0,0,255", "Get_CurrentDateTime()"); //
         }
-    if (TypeR_W == 'W') {
-        String stringObis = String(OBIS_Value);
-        String StrTmp;
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
-        int year_ = (int) StrTmp.toInt();
-        stringObis = stringObis.substring((unsigned int) (stringObis.indexOf('-') + 1));
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
-        int month_ = (int) StrTmp.toInt();
-        stringObis = stringObis.substring((unsigned int) (stringObis.indexOf('-') + 1));
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
-        int day_ = (int) StrTmp.toInt();
+        if (TypeR_W == 'W') {
+            String stringObis = String(OBIS_Value);
+            String StrTmp;
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
+            int year_ = (int) StrTmp.toInt();
+            stringObis = stringObis.substring((unsigned int) (stringObis.indexOf('-') + 1));
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
+            int month_ = (int) StrTmp.toInt();
+            stringObis = stringObis.substring((unsigned int) (stringObis.indexOf('-') + 1));
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf('-'));
+            int day_ = (int) StrTmp.toInt();
 
-        stringObis = stringObis.substring(stringObis.indexOf(';') + 1);
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
-        int hour_ = (int) StrTmp.toInt();
-        stringObis = stringObis.substring((unsigned int) (stringObis.indexOf(':') + 1));
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
-        int minute_ = (int) StrTmp.toInt();
-        stringObis = stringObis.substring((unsigned int) (stringObis.indexOf(':') + 1));
-        StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
-        int second_ = (int) StrTmp.toInt();
+            stringObis = stringObis.substring(stringObis.indexOf(';') + 1);
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
+            int hour_ = (int) StrTmp.toInt();
+            stringObis = stringObis.substring((unsigned int) (stringObis.indexOf(':') + 1));
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
+            int minute_ = (int) StrTmp.toInt();
+            stringObis = stringObis.substring((unsigned int) (stringObis.indexOf(':') + 1));
+            StrTmp = stringObis.substring(0, (unsigned int) stringObis.indexOf(':'));
+            int second_ = (int) StrTmp.toInt();
 
-        setTime(hour_, minute_, second_, day_, month_,year_);
-        printf_New("hour_=%d, minute_=%d, second_=%d, day_=%d, month_=%d,year_=%d",hour_, minute_, second_, day_, month_,year_);
+            SetDateTimeRTC(hour_, minute_, second_, day_, month_, year_);
+
+            printf_New("hour_=%d, minute_=%d, second_=%d, day_=%d, month_=%d,year_=%d", hour_, minute_, second_, day_,
+                       month_, year_);
+        }
 
     }
     //“XXXXX.xxx*m^3”

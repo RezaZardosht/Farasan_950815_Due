@@ -40,7 +40,6 @@
 
 
 
-
 typedef union {
     unsigned long longn;
     unsigned char chars[4];
@@ -78,8 +77,9 @@ typedef struct {
 
     unsigned long Duration_Volume = 34;
     float Litre_Volume = 10;
+    float TaarefeLitre_Volume = 10;
     long lastTotalBuy = 1000;
-    unsigned long MaxFellowAllow = 100;
+    float MaxFellowAllow = 100.0;
     float V_MaxFlowIn24Hour = 0.0;
     char V_MaxFlowIn24Hour_LogDay[7];
 
@@ -226,6 +226,7 @@ const int OPEN_VALVE = 1;
 const int CLOSE_VALVE = 0;
 const int ERROR_VALVE = -1;
 
+
 bool get_MainRelayValVePosition();
 
 unsigned long get_MicroSecondDiff(unsigned long PrevValue);
@@ -256,7 +257,11 @@ const int Secret2ForSecureAlgorithmHasChanged = 19;
 const int ClockAdjusted = 20;
 const int MasterKeyChanged = 21;
 const int MBusDisconnected = 22;//error
-
+const int ErrorInFreeMemory =200;
+const int ErrorInternal_SDCard =101;
+const int ErrorInternal_RTC =102;
+const int ErrorInternal_RFID =103;
+/////////////////////////////Battery
 /////////////////////////////Battery
 int BatteryRemainlife();
 
@@ -281,8 +286,10 @@ void SaveEventsFile(int Event);
 void SaveHourlyFile(StructTotalValues TotalValues);
 void SaveDailyFile(StructTotalValues TotalValues);
 void SaveMonthlyFile(StructTotalValues TotalValues);
+void Delete_File(char *FileNama);
 
 struct CharMemoryAlocated *GetDailEventRecords(const char *from_day, const char *to_day);
+struct CharMemoryAlocated *GetHourlyLogFile(const char *from_day, const char *to_day);
 
 //template<typename T>T *GetDaileRecords(const char *fileName, char *from_date, char *to_date);
 //template<typename T>T *SaveFile_StructType_new();
