@@ -7,7 +7,7 @@ void Show_EventsOnScreen(char *msg);
 //int MaxNumOfCurrentError = 0;
 const int EventErrors[] = {PowerDown, ApplicationError, StrongDCMagneticFieldDetected, MeterCoverRemoved,
                            PermittedVolumeThresholdEexceeded, ElectricalCurrentDisconnected, TamperedWaterFlowDetected,
-                           MBusDisconnected};
+                           MBusDisconnected,ErrorInFreeMemory,ErrorInternal_SDCard,ErrorInternal_RTC,ErrorInternal_RFID};
 
 
 EventsStructDefine EventsStruct[MAX_Event_DEFINE];
@@ -16,34 +16,8 @@ unsigned long WaitTimeShowErrors = 0;
 //int chekTest[MAX_Event_DEFINE] = {0, 0, 1, 1, 0, 1, 0, 0};
 int CureentShowing = 0;
 
-void Setalltestzero() {
-  //  Serial.println(sizeof(chekTest));
-  //  int arrsize = sizeof(chekTest) / sizeof(chekTest[0]);
-    for (int i = 0; i < MAX_Event_DEFINE; i++) {
-        EventsStruct[i].Value = 0;
-   //     printf_New("%d,", i);
 
-    }
-  //  printf_New("\n,", 0);
 
-}
-
-void Setalltestzero1() {
-    EventsStruct[0].Value = 0;
-    EventsStruct[1].Value = 0;
-    EventsStruct[2].Value = 1;
-    EventsStruct[3].Value = 0;
-    EventsStruct[4].Value = 0;
-    EventsStruct[5].Value = 0;
-    EventsStruct[6].Value = 0;
-    EventsStruct[7].Value = 0;
-    EventsStruct[8].Value = 0;
-    EventsStruct[9].Value = 0;
-    EventsStruct[10].Value = 0;
-    EventsStruct[11].Value = 0;
-    EventsStruct[12].Value = 0;
-
-}
 
 void Setalltestzero2() {
     EventsStruct[0].Value = 0;
@@ -80,9 +54,9 @@ void ShowErrorsOnScreen() {
 //        j = (j < (MAX_Event_DEFINE - 1)) ? ++j : 0;
 //        k++;
 //    }
-    for(int i=0;i<MAX_Event_DEFINE;i++)
+//    for(int i=0;i<MAX_Event_DEFINE;i++)
 //        if(EventsStruct[i].Value==true)
-//            printf_New("[%d=%d,%d]",i,EventsStruct[i].ErrorShowOnScreen,EventsStruct[i].Value==true);
+//            printf_New("\nErrror[%d=%d,%d]\n",i,EventsStruct[i].ErrorShowOnScreen,EventsStruct[i].Value==true);
     while ((k < MAX_Event_DEFINE) && (FoundNext == false)) {
         if (EventsStruct[j].ErrorShowOnScreen == true && EventsStruct[j].Value==true) {
             CureentShowing = j;

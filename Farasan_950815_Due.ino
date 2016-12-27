@@ -3,13 +3,13 @@
 
 
 void setup() {
-    // put your setup code here, to run once:
-    TimeStartup();
+  // put your setup code here, to run once:
+  TimeStartup();
 }
 
 void loop() {
-    // put your main code here, to run repeatedly:
-    TimeLoop();
+  // put your main code here, to run repeatedly:
+  TimeLoop();
 
 }
 

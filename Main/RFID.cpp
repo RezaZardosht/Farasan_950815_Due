@@ -57,7 +57,8 @@ void InitializeNFC(){
         uint32_t versiondata = nfc.getFirmwareVersion();
         if (!versiondata) {
             IF_SERIAL_DEBUG(printf_New("Didn't find PN53x board"));
-            SaveEventsFile(ErrorInternal_RFID);
+            setEvent(ErrorInternal_RFID,true);
+            setEvent(ApplicationError,true);
             return;
         }
         // Got ok data, print it out!

@@ -3,7 +3,7 @@
 #include "Loop.h"
 #include "SerialEvent.h"
 
-#define SERIAL_DEBUG_1
+//#define SERIAL_DEBUG_1
 
 #ifdef SERIAL_DEBUG_1
 #define IF_SERIAL_DEBUG(x) ({x;})

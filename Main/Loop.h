@@ -100,7 +100,7 @@ typedef struct {
 
 //#define DEBUG  Serial
 #define GreaUnSLong  4294967295
-#define MAX_Event_DEFINE 30
+#define MAX_Event_DEFINE 50
 struct MonthlySaveFile_Struct {
     char today[8];// 13950508
     char profile;
@@ -257,10 +257,10 @@ const int Secret2ForSecureAlgorithmHasChanged = 19;
 const int ClockAdjusted = 20;
 const int MasterKeyChanged = 21;
 const int MBusDisconnected = 22;//error
-const int ErrorInFreeMemory =200;
-const int ErrorInternal_SDCard =101;
-const int ErrorInternal_RTC =102;
-const int ErrorInternal_RFID =103;
+const int ErrorInFreeMemory =30;
+const int ErrorInternal_SDCard =31;
+const int ErrorInternal_RTC =32;
+const int ErrorInternal_RFID =33;
 /////////////////////////////Battery
 /////////////////////////////Battery
 int BatteryRemainlife();

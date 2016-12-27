@@ -90,8 +90,8 @@ extern uint8_t Text_4[];
 extern uint8_t Text_5[];
 extern uint8_t Text_6[];
 extern uint8_t Text_7[];
-extern uint8_t Text_8[];
-extern uint8_t Text_9[];
+extern uint8_t Text_8_Fellow[];
+extern uint8_t Text_9_m3_h[];
 extern uint8_t Text_10[];
 extern uint8_t Text_11[];
 extern uint8_t Text_12[];
@@ -107,6 +107,7 @@ int DisplayBrightValue = 170;
 boolean Last_ShowTempTotalDuration_Charzh = false;
 //DefaultBacklight backlight;
 boolean SdError = false;
+boolean ForceRelayMode=false;
 ////////////////////////////////////////////////////
 
 struct StructPreCheckValueInMmory {
@@ -252,7 +253,7 @@ void Get_ObisValue(char *Obis, char *RetVal) {
         sprintf(RetVal, " %s(%s)\r\n", Obis, F2str);
     }
     if (!strcmp(Obis, "0-4:24,2,34,255"))
-         sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
+        sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
 
 //  return Ret;
 
@@ -278,9 +279,9 @@ float MaxFlowIn24Hour() {
 //        printf_New("FlowrateExceeded, true", 0);
     } else {
         setEvent(FlowrateExceeded, false);
- //       printf_New("FlowrateExceeded, false", 0);
+        //       printf_New("FlowrateExceeded, false", 0);
     }
- //   printf_New("V_Max=,%f,%f,%u\n", CurrentFlow, TotalValues.V_MaxFlowIn24Hour, TotalValues.MaxFellowAllow);
+    //   printf_New("V_Max=,%f,%f,%u\n", CurrentFlow, TotalValues.V_MaxFlowIn24Hour, TotalValues.MaxFellowAllow);
     return TotalValues.V_MaxFlowIn24Hour;
 }
 
@@ -458,9 +459,10 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
 //  //  Dtostrf(TotalValues.K_param, 4, 2, str_temp1);
     //  Dtostrf(IncLitre / TotalValues.K_param, 4, 2, str_temp2);
     //  Dtostrf(P_CurrTotalValues->Litre_Volume, 4, 2, str_temp3);
-    float tttt = (60000000.0 / FlowMicroSecDiff);
+    float tttt = (360000.0 / FlowMicroSecDiff);
+ //   printf_New("Fllow->%u,%u,%u,%f,%f\n",FlowMicroSecDiff,IncLitre,IncP_CurrTotalValues,P_CurrTotalValues->Litre_Volume,TotalValues.K_param);
     //   Dtostrf(tttt, 4, 2, str_temp4);
-    float tttt2 = tttt * IncLitre / TotalValues.K_param / 10000.0;
+    float tttt2 = tttt * IncLitre / TotalValues.K_param ;
     //  Dtostrf(tttt2, 4, 2, str_temp5);
 
     float Temp_CurrentFlow = 0;
@@ -578,9 +580,9 @@ void LCDShowCurrFlow() {
     myGLCD.print(FFstr, 15, FontRowPos(2));
 
     // جریان
-    myGLCD.setFont(Text_9);  //  (m3/m)
+    myGLCD.setFont(Text_9_m3_h);  //  (m3/m)
     myGLCD.print("0", 335, FontRowPos(3));
-    myGLCD.setFont(Text_8);  //  جریان
+    myGLCD.setFont(Text_8_Fellow);  //  جریان
     myGLCD.print("0", 225 + 190, FontRowPos(3));
     myGLCD.setFont(PNumFontB24);
     for (int i = 0; i < 20; i++)
@@ -611,26 +613,6 @@ void LCDShowCurrFlow() {
     myGLCD.print(F2str, 15, FontRowPos(4));
 
     ///////////////////////////////////////////////////
-    // نمایش آنتن موبایل
-    myGLCD.setFont(Text_12);
-    myGLCD.print("0", 225, 5);
-
-    // نمایش آلارم مصرف
-    myGLCD.setFont(Text_13);
-    myGLCD.print("0", 255, 5);
-
-    // رله باز
-    //  myGLCD.setFont(Text_14);
-    // myGLCD.print("0", 285, 5);
-
-    //  // رله بسته
-    myGLCD.setFont(Text_15);
-    myGLCD.print("0", 285, 5);
-///////////////////////////////////oooooooooooooooooooooooook
-    // باطری تمام
-    // رله بسته
-    myGLCD.setFont(Text_16);
-    myGLCD.print("0", 355, 5);
 
     // don't touch
     //myGLCD.setFont(Text_17);
@@ -659,14 +641,84 @@ void LCDShowCurrFlow() {
 
 }
 
+// نمایش آنتن موبایل
+void ShowIcon_Anten(boolean Show) {
+    myGLCD.setFont(Text_12);
+    myGLCD.print("0", 225, 5);
+}
+
+boolean V_ShowIconAlarm = false;
+
+// نمایش آلارم مصرف
+void ShowIconAlarm(boolean Show) {
+    if (V_ShowIconAlarm)
+        myGLCD.setColor(255, 255, 255);
+    else
+        myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+
+    myGLCD.setFont(Text_13);
+    myGLCD.print("0", 255, 5);
+    V_ShowIconAlarm = !V_ShowIconAlarm;
+}
+void ShowIconRelayClose(boolean Show) ;
+
+// رله باز
+void ShowIconRelayOpen(boolean Show) {
+    if (Show) {
+        ShowIconRelayClose(false);
+        myGLCD.setColor(255, 255, 255);
+    }
+    else
+        myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+    myGLCD.setFont(Text_14);
+    myGLCD.print("0", 285, 5);
+}
+
+//  // رله بسته
+void ShowIconRelayClose(boolean Show) {
+    if (Show) {
+        ShowIconRelayOpen(false);
+        myGLCD.setColor(255, 255, 255);
+    }
+        else
+        myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+    myGLCD.setFont(Text_15);
+    myGLCD.print("0", 285, 5);
+}
+
+///////////////////////////////////oooooooooooooooooooooooook
+// باطری تمام
+
+void ShowIconBattery(boolean Show) {
+    myGLCD.setFont(Text_16);
+    myGLCD.print("0", 355, 5);
+}
+
 void ShowData() {
     LCDShowCurrDateTime();
     LCDShowCurrFlow();
+    ShowIconAlarm(false);
+    printf_New("O=%d,C=%d",get_ValvePosition() == OPEN_VALVE,get_ValvePosition() == CLOSE_VALVE);
+    if(get_ValvePosition() != OPEN_VALVE && get_ValvePosition() != CLOSE_VALVE){
+        ShowIconRelayOpen(false);
+        ShowIconRelayClose(false);
+
+    }else
+    if(get_ValvePosition() == OPEN_VALVE && get_ValvePosition() == CLOSE_VALVE){}
+    else {
+        if (get_ValvePosition() == OPEN_VALVE)
+            ShowIconRelayOpen(true);
+        if (get_ValvePosition() == CLOSE_VALVE)
+            ShowIconRelayClose(true);
+    }
+
 }
 //////////////////[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]
 
 ///////////////////////call by events to show on screen
 void Show_EventsOnScreen(char *msg) {
+    myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+    myGLCD.setColor(255, 255, 255);
     myGLCD.setFont(SmallFont);
     myGLCD.print(msg, 420, 10);
 
@@ -789,6 +841,10 @@ void ResetPerid() {
 void Debuglog(int errnom) {
 }
 
+boolean Val_PositionSwitchOPEN=false;
+boolean Val_PositionSwitchCLOSE=true;
+boolean Demo_PositionSwitchOPEN(){return Val_PositionSwitchOPEN;};
+boolean Demo_PositionSwitchCLOSE(){ return  Val_PositionSwitchCLOSE;};
 void OpenPermitRelay() {
     int i = get_ValvePosition();
     char ttemp[50];
@@ -815,6 +871,8 @@ void OpenPermitRelay() {
         sprintf(msg, "FC_%c", OpenCloseit);
         //    myGLCD.print("not permit for loading", 40, 175);
     }
+    myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
+    myGLCD.setColor(255, 255, 255);
     myGLCD.setFont(SmallFont);
     myGLCD.print(msg, 390, 25);
 }
@@ -892,13 +950,15 @@ void TimeStartup() {
         Serial__println("RTC is NOT running!");
         // following line sets the RTC to the date & time this sketch was compiled
         rtc.adjust(DateTime_RTC(2016, 1, 21, 3, 0, 0)); //(F(__DATE__), F(__TIME__)));
-        SaveEventsFile(ErrorInternal_RTC);
+        setEvent(ErrorInternal_RTC, true);
+        setEvent(ApplicationError, true);
     }
 
     if (!SD.begin(10)) {
         Serial__println("SD could not open!");
         SdError = true;
-        SaveEventsFile(ErrorInternal_SDCard);
+        setEvent(ErrorInternal_SDCard, true);
+        setEvent(ApplicationError, true);
     }
     Set_FlashAdresses();
     bool firstcheck = FirsTimeLoadFlashMemory();
@@ -938,7 +998,7 @@ void TimeStartup() {
     delay(1000);
     noInterrupts();
     ///////////////////// simulate fellow
-    TotalValues.K_param = 33.0;
+    TotalValues.K_param = 100.0;
     //    Timer1.initialize(100000);
     //    Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
@@ -1093,10 +1153,10 @@ void serialEvent() {
     if ((int) inChar == 0)return;
     Serial.println(inChar);
     if (inChar == 'a')readFileTestHourly();
-    if (inChar == 'b')SaveHourlyFile( TotalValues);
+    if (inChar == 'b')SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
-    if (inChar == '1')setEvent(12, false);//SaveHourlyFile(TotalValues);
-    if (inChar == '2')setEvent(12, true);//SaveHourlyFile(TotalValues);
+    if (inChar == '1')Val_PositionSwitchOPEN= ! Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
+    if (inChar == '2')Val_PositionSwitchCLOSE=! Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
     if (inChar == '3')DemoSaveGetEventFile();
     //  if (inChar == '3')readFileTestEvent();
     // if (inChar == '4')//readFileTestHourly();
