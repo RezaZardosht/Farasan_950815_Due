@@ -17,12 +17,7 @@ void turnMainRelayValve(bool DO_Value);
 
 
 void StartupRelayValves() {
-    pinMode(MainRelayValve, OUTPUT);
-    pinMode(SelectRelayValve_1_, OUTPUT);
-    pinMode(SelectRelayValve_2_, OUTPUT);
-    pinMode(PositionSwitchOPEN, INPUT);
-    pinMode(PositionSwitchCLOSE, INPUT);
-    turnMainRelayValve(DO_Off_Relay);
+ //    turnMainRelayValve(DO_Off_Relay);
 
 }
 
@@ -57,7 +52,7 @@ boolean Demo_PositionSwitchCLOSE();
 
 int get_ValvePosition() {
     bool OpenPosition = digitalRead(PositionSwitchOPEN);//Demo_PositionSwitchOPEN(); //
-    bool ClosePosition = digitalRead(PositionSwitchCLOSE);// Demo_PositionSwitchCLOSE();//
+    bool ClosePosition =  digitalRead(PositionSwitchCLOSE);//Demo_PositionSwitchCLOSE();//
     if (OpenPosition == false && ClosePosition == true)
         PrevForceMode = OPEN_VALVE;
     else if (OpenPosition == true && ClosePosition == false)

@@ -177,7 +177,7 @@ mbus_serial_send_frame( mbus_frame *frame)
     return -1;
   }
 
-  if ((len = mbus_frame_pack(frame, buff, sizeof(buff))) == -1)
+  if ((len = mbus_frame_pack(frame, buff, sizeof(buff))) <= -1)
   {
     DebugSerial.print("mbus_serial_send_frame: mbus_frame_pack failed\n");
     return -1;

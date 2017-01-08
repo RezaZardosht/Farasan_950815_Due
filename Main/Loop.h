@@ -1,8 +1,8 @@
 #ifndef LOOP_H
 #define LOOP_H
 
-
 #include <Arduino.h>
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -55,6 +55,7 @@ typedef struct {
     char CreatedDate[11];
     unsigned long Total_UsedVolume = 12;
     unsigned long Total_UsedHourPump = 12;
+  //  unsigned long V_PUmpTotalHour = 0;
     unsigned long UsedHourPump_CountBySec = 0;
     unsigned long TotalDuration_Charzh = 1000;
     char LastDateUseMoreThanMaxVolume[11];
@@ -84,7 +85,6 @@ typedef struct {
     char V_MaxFlowIn24Hour_LogDay[7];
 
     unsigned long MaxVolumeAllow = 1000;
-    unsigned long V_PUmpTotalHour = 0;
     char DateStart[8];// current duration Date start
     char DateEnd[8];  // Current duration Date End
 
@@ -202,8 +202,8 @@ const int SelectRelayValve_1_ = 47;      // the number of the LED pin
 const int SelectRelayValve_2_ = 49;      // the number of the LED pin
 const int AIBattery = 54 + 8;    // the number of the LED pin
 const int AIAmperMotor = 54 + 9;    // the number of the LED pin
-const int PositionSwitchOPEN = 54 + 10;    // the number of the LED pin
-const int PositionSwitchCLOSE = 54 + 11;    // the number of the LED pin
+const int PositionSwitchOPEN = 52;    // the number of the LED pin
+const int PositionSwitchCLOSE = 4;    // the number of the LED pin
 const int MainPowerOnRelay = 53;    // the number of the LED pin
 const int CharzheBatteryRelay = 45;    // the number of the LED pin
 const int Pulse1Pin = 2;   // the pin that the pushbutton is attached to
@@ -261,6 +261,7 @@ const int ErrorInFreeMemory =30;
 const int ErrorInternal_SDCard =31;
 const int ErrorInternal_RTC =32;
 const int ErrorInternal_RFID =33;
+const int ErrorUsingWaterWhenPowerOff=34;
 /////////////////////////////Battery
 /////////////////////////////Battery
 int BatteryRemainlife();
@@ -297,4 +298,5 @@ struct CharMemoryAlocated *GetHourlyLogFile(const char *from_day, const char *to
 void DemoSaveGetEventFile();
 unsigned int freemeMory();
 void ShowErrorsOnScreen();
+void SetCharzhe(int Value);
 #endif

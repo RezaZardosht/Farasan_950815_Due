@@ -7,7 +7,8 @@ void Show_EventsOnScreen(char *msg);
 //int MaxNumOfCurrentError = 0;
 const int EventErrors[] = {PowerDown, ApplicationError, StrongDCMagneticFieldDetected, MeterCoverRemoved,
                            PermittedVolumeThresholdEexceeded, ElectricalCurrentDisconnected, TamperedWaterFlowDetected,
-                           MBusDisconnected,ErrorInFreeMemory,ErrorInternal_SDCard,ErrorInternal_RTC,ErrorInternal_RFID};
+                           MBusDisconnected, ErrorInFreeMemory, ErrorInternal_SDCard, ErrorInternal_RTC,
+                           ErrorInternal_RFID};
 
 
 EventsStructDefine EventsStruct[MAX_Event_DEFINE];
@@ -15,8 +16,6 @@ unsigned long WaitTimeShowErrors = 0;
 //int EventsErrorsOnScreenListShow[MAX_Event_DEFINE];
 //int chekTest[MAX_Event_DEFINE] = {0, 0, 1, 1, 0, 1, 0, 0};
 int CureentShowing = 0;
-
-
 
 
 void Setalltestzero2() {
@@ -58,7 +57,7 @@ void ShowErrorsOnScreen() {
 //        if(EventsStruct[i].Value==true)
 //            printf_New("\nErrror[%d=%d,%d]\n",i,EventsStruct[i].ErrorShowOnScreen,EventsStruct[i].Value==true);
     while ((k < MAX_Event_DEFINE) && (FoundNext == false)) {
-        if (EventsStruct[j].ErrorShowOnScreen == true && EventsStruct[j].Value==true) {
+        if (EventsStruct[j].ErrorShowOnScreen == true && EventsStruct[j].Value == true) {
             CureentShowing = j;
             FoundNext = true;
         }
@@ -67,7 +66,9 @@ void ShowErrorsOnScreen() {
     }
     if (FoundNext == false)CureentShowing = last_CurrentShow;
     if (CureentShowing >= 0)
-        if (EventsStruct[CureentShowing].Value == false ||EventsStruct[CureentShowing].ErrorShowOnScreen == false)CureentShowing = -1;
+        if (EventsStruct[CureentShowing].Value == false ||
+            EventsStruct[CureentShowing].ErrorShowOnScreen == false)
+            CureentShowing = -1;
 
     char msg[100];
     sprintf(msg, "      ", 0);
@@ -134,25 +135,27 @@ void InitializeEvents() {
     EventsStruct[StrongDCMagneticFieldDetected].EventNegativePositive = false;
 }
 
-void setEvent( int EventNumber,boolean SetValue) {
+void setEvent(int EventNumber, boolean SetValue) {
     if (EventNumber >= MAX_Event_DEFINE || EventNumber < 1) return;
-//   printf_New("{1,%d,%d}",SetValue, EventNumber);
     if (EventsStruct[EventNumber].Value == SetValue) return;
- //   printf_New("{2,%d,%d}",SetValue, EventNumber);
     if ((SetValue == true && EventsStruct[EventNumber].EventNegativePositive == true) ||
         (SetValue == false && EventsStruct[EventNumber].EventNegativePositive == false)) {
-  //      printf_New("{3,%d,%d}",SetValue, EventNumber);
         EventsStruct->ErrorValue = true;
         if (EventsStruct[EventNumber].SaveOnFile)
             SaveEventsFile(EventNumber);
-
-        //  myGLCD.print("zEAXO ~{A^AG", 100, 250);
     } else {
         EventsStruct->ErrorValue = false;
 
     }
 
     EventsStruct[EventNumber].Value = SetValue;
+}
+
+boolean getEvent(int EventNumber) {
+    if ((EventsStruct[EventNumber].EventNegativePositive == true && EventsStruct[EventNumber].Value == true) ||
+        (EventsStruct[EventNumber].EventNegativePositive == false && EventsStruct[EventNumber].Value == false))
+        return true;
+    return false;
 }
 
 void ReadEvents() {

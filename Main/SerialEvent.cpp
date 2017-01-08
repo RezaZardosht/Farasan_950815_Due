@@ -44,7 +44,9 @@ char *Obis_array[][2] = {{"0-4:96,1,0,255",  "SerialKontor"},
                          {"0-4:50,2,01,255", "Delete_EventFile"},
                          {"0-4:50,2,02,255", "Delete_HourlyFile"},
                          {"0-4:50,2,03,255", "Delete_DailyFile"},
-                         {"0-4:50,2,04,255", "Delete_MonthlyFile"}
+                         {"0-4:50,2,04,255", "Delete_MonthlyFile"},
+                         {"0-4:50,2,05,255", "Read_all_DI"},
+                         {"0-4:50,2,06,255", "Set Charzhe"}
 };
 
 void IEC62056_21_Serial::SendReadOutDataToPC() {
@@ -337,15 +339,16 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     }  //
     //  Serial1.println("<--//");
     // /?1!CRLF
-    printf_New("[%d,%c,%c,%c,%c,%c,%c]\n",SerialRecieve,inputString[SerialRecieve - 6] , inputString[SerialRecieve - 5] ,
-                                   inputString[SerialRecieve - 4],inputString[SerialRecieve - 3] ,
-                                   inputString[SerialRecieve - 2], inputString[SerialRecieve - 1]);
+    printf_New("[%d,%c,%c,%c,%c,%c,%c]\n", SerialRecieve, inputString[SerialRecieve - 6],
+               inputString[SerialRecieve - 5],
+               inputString[SerialRecieve - 4], inputString[SerialRecieve - 3],
+               inputString[SerialRecieve - 2], inputString[SerialRecieve - 1]);
     IF_SERIAL_DEBUG(printf_New("PAckage compelet inputString[SerialRecieve - 2]", 0));
     if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == '?' &&
         inputString[SerialRecieve - 4] == '1' &&
         inputString[SerialRecieve - 3] == '!' &&
         inputString[SerialRecieve - 2] == '#' &&
-        inputString[SerialRecieve - 1] == '$' ) {
+        inputString[SerialRecieve - 1] == '$') {
 
         Send_Config_IEC62056_ToPC();  // wait for replay for 2 second;
         IF_SERIAL_DEBUG(printf_New("Config  IEC62056-21", 0));
@@ -632,8 +635,23 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
     if (!strcmp(OBIS_Address, "0-4:50,2,01,255")) {//Delete Event file
         if (TypeR_W == 'W')
             Delete_File((char *) "EvwntLog.log");
+    }
+    if (!strcmp(OBIS_Address, "0-4:50,2,05,255")) {//ReadDi's
+        if (TypeR_W == 'R') {
+            char RetVal[100];
+            sprintf(RetVal, "%d,%d,%d,%d", digitalRead(PositionSwitchOPEN), digitalRead(PositionSwitchCLOSE),
+                    digitalRead(MainPowerOnRelay), digitalRead(Pulse1Pin));
+            SendOBIS_Value("0-4:24,2,31,255", RetVal); //I-Meter serial number
+
+        }
 
     }
+    if (!strcmp(OBIS_Address, "0-4:50,2,06,255")) {//Delete Event file
+        if (TypeR_W == 'W') {
+             SetCharzhe(atoi( OBIS_Value));
+        }
+    }
+
     if (!strcmp(OBIS_Address, "0-4:24,2,32,255")) {//taarefevalue
         if (TypeR_W == 'R') {
             char RetVal[50];
@@ -686,7 +704,7 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
         if (TypeR_W == 'W') {
             String stringObisValue = String(OBIS_Value);
             TotalValues.MaxVolumeAllow = (unsigned long) stringObisValue.toInt();
-         }
+        }
     }
     if (!strcmp(OBIS_Address, "0-4:24,2,35,255")) {//Send Event File
         if (TypeR_W == 'R') {
@@ -717,7 +735,8 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
             }
 
         }
-    }    if (!strcmp(OBIS_Address, "0-4:24,2,36,255")) {//Send Daily log  File
+    }
+    if (!strcmp(OBIS_Address, "0-4:24,2,36,255")) {//Send Daily log  File
         if (TypeR_W == 'R') {
             char StrOut[100];
             struct CharMemoryAlocated *ReadEventFile;

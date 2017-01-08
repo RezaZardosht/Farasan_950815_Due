@@ -107,7 +107,7 @@ int DisplayBrightValue = 170;
 boolean Last_ShowTempTotalDuration_Charzh = false;
 //DefaultBacklight backlight;
 boolean SdError = false;
-boolean ForceRelayMode=false;
+boolean ForceRelayMode = false;
 ////////////////////////////////////////////////////
 
 struct StructPreCheckValueInMmory {
@@ -254,6 +254,8 @@ void Get_ObisValue(char *Obis, char *RetVal) {
     }
     if (!strcmp(Obis, "0-4:24,2,34,255"))
         sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
+    //   if (!strcmp(Obis, "0-4:24,2,34,255"))
+    //       sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
 
 //  return Ret;
 
@@ -274,28 +276,11 @@ float MaxFlowIn24Hour() {
         TotalValues.V_MaxFlowIn24Hour =
                 (CurrentFlow > TotalValues.V_MaxFlowIn24Hour) ?
                 CurrentFlow : TotalValues.V_MaxFlowIn24Hour;
-    if (TotalValues.V_MaxFlowIn24Hour > TotalValues.MaxFellowAllow) {
-        setEvent(FlowrateExceeded, true);
-//        printf_New("FlowrateExceeded, true", 0);
-    } else {
-        setEvent(FlowrateExceeded, false);
-        //       printf_New("FlowrateExceeded, false", 0);
-    }
-    //   printf_New("V_Max=,%f,%f,%u\n", CurrentFlow, TotalValues.V_MaxFlowIn24Hour, TotalValues.MaxFellowAllow);
     return TotalValues.V_MaxFlowIn24Hour;
 }
 
 unsigned int V_PompTotalSec = 0;
 
-unsigned long PompTotalHour(int incOneSEc = 0) {
-    if (incOneSEc > 0)
-        TotalValues.V_PUmpTotalHour++;
-    if (V_PompTotalSec >= 60) {
-        V_PompTotalSec = 0;
-        TotalValues.V_PUmpTotalHour++;
-    }
-    return TotalValues.V_PUmpTotalHour;
-}
 
 void SimulateFllow(void) {
     SumTotal(100000, TotalValues);
@@ -323,6 +308,12 @@ void CountFlowInterrupt20() {
     //	TotalValues.TotalDuration_Charzh = TotalValues.TotalDuration_Charzh - ( TotalValues.Duration_Volume * CalibrateConfig.Taarefe);
     //	return TotalValues.TotalDuration_Charzh;
 }*/
+void SetCharzhe(int Value) {
+    TotalValues.TotalDuration_Charzh = (unsigned long) Value;
+    char msg[20];
+    strcpy(TotalValues.LastDateCharzhe, GetStrCurrentDay(msg));
+
+}
 
 void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
 
@@ -437,7 +428,9 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
                                          + IncP_CurrTotalValues;
     P_CurrTotalValues->Total_UsedVolume = P_CurrTotalValues->Total_UsedVolume
                                           + IncP_CurrTotalValues;
-
+    if (P_CurrTotalValues->TotalDuration_Charzh < 0)
+        P_CurrTotalValues->VolumeUseWhenPowerOff = P_CurrTotalValues->VolumeUseWhenPowerOff
+                                                   + IncP_CurrTotalValues;
     P_CurrTotalValues->TaarefeLitre_Volume = P_CurrTotalValues->TaarefeLitre_Volume
                                              + F_IncLitre / TotalValues.K_param * GetcurrentTaarefe();
     while (P_CurrTotalValues->TaarefeLitre_Volume >= 1000.0) {
@@ -447,6 +440,7 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
     P_CurrTotalValues->TotalDuration_Charzh =
             (unsigned long) (P_CurrTotalValues->TotalDuration_Charzh -
                              (TaarefeIncP_CurrTotalValues * GetcurrentTaarefe()));
+
 
     /* char str_CurrentFlow[10], SaveTempString[100];;
      Dtostrf(F_IncLitre, 4, 2, str_CurrentFlow);
@@ -460,9 +454,9 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
     //  Dtostrf(IncLitre / TotalValues.K_param, 4, 2, str_temp2);
     //  Dtostrf(P_CurrTotalValues->Litre_Volume, 4, 2, str_temp3);
     float tttt = (360000.0 / FlowMicroSecDiff);
- //   printf_New("Fllow->%u,%u,%u,%f,%f\n",FlowMicroSecDiff,IncLitre,IncP_CurrTotalValues,P_CurrTotalValues->Litre_Volume,TotalValues.K_param);
+    //   printf_New("Fllow->%u,%u,%u,%f,%f\n",FlowMicroSecDiff,IncLitre,IncP_CurrTotalValues,P_CurrTotalValues->Litre_Volume,TotalValues.K_param);
     //   Dtostrf(tttt, 4, 2, str_temp4);
-    float tttt2 = tttt * IncLitre / TotalValues.K_param ;
+    float tttt2 = tttt * IncLitre / TotalValues.K_param;
     //  Dtostrf(tttt2, 4, 2, str_temp5);
 
     float Temp_CurrentFlow = 0;
@@ -660,15 +654,15 @@ void ShowIconAlarm(boolean Show) {
     myGLCD.print("0", 255, 5);
     V_ShowIconAlarm = !V_ShowIconAlarm;
 }
-void ShowIconRelayClose(boolean Show) ;
+
+void ShowIconRelayClose(boolean Show);
 
 // رله باز
 void ShowIconRelayOpen(boolean Show) {
     if (Show) {
         ShowIconRelayClose(false);
         myGLCD.setColor(255, 255, 255);
-    }
-    else
+    } else
         myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
     myGLCD.setFont(Text_14);
     myGLCD.print("0", 285, 5);
@@ -679,8 +673,7 @@ void ShowIconRelayClose(boolean Show) {
     if (Show) {
         ShowIconRelayOpen(false);
         myGLCD.setColor(255, 255, 255);
-    }
-        else
+    } else
         myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
     myGLCD.setFont(Text_15);
     myGLCD.print("0", 285, 5);
@@ -698,13 +691,12 @@ void ShowData() {
     LCDShowCurrDateTime();
     LCDShowCurrFlow();
     ShowIconAlarm(false);
-    printf_New("O=%d,C=%d",get_ValvePosition() == OPEN_VALVE,get_ValvePosition() == CLOSE_VALVE);
-    if(get_ValvePosition() != OPEN_VALVE && get_ValvePosition() != CLOSE_VALVE){
+    printf_New("O=%d,C=%d", get_ValvePosition() == OPEN_VALVE, get_ValvePosition() == CLOSE_VALVE);
+    if (get_ValvePosition() != OPEN_VALVE && get_ValvePosition() != CLOSE_VALVE) {
         ShowIconRelayOpen(false);
         ShowIconRelayClose(false);
 
-    }else
-    if(get_ValvePosition() == OPEN_VALVE && get_ValvePosition() == CLOSE_VALVE){}
+    } else if (get_ValvePosition() == OPEN_VALVE && get_ValvePosition() == CLOSE_VALVE) {}
     else {
         if (get_ValvePosition() == OPEN_VALVE)
             ShowIconRelayOpen(true);
@@ -779,7 +771,7 @@ int get_BateryCharzhe() {
     int BattPower = analogRead(AIBattery);
     if (BattPower == Prev_BattPower)
         return BattPower;
-    if (BattPower > 1000)
+    if (BattPower > 800)
         BattPower = 1000;
     Prev_BattPower = BattPower;
     if (BatteryRemainlife() < BatterRemainLifeConst || BatteryCharzheError())
@@ -810,6 +802,7 @@ int get_BateryCharzhe() {
 
 void set_BatteryCharzheRelay(bool value) {
     digitalWrite(CharzheBatteryRelay, value);
+    //   printf_New("RelayBatteryValue = %d\n",value);
 }
 
 bool FirstCheckMainPower;
@@ -817,10 +810,10 @@ bool FirstCheckMainPower;
 void SendSMS(String Value) {
 }
 
-const int MinimumForBatteryCharzhe = 100;
-const int MaximumForBatteryCharzhe = 110;
+const int MinimumForBatteryCharzhe = 700;
+const int MaximumForBatteryCharzhe = 1000;
 
-bool PermitCharzhe() {
+bool PermitPumpOn() {
     return (get_MainPower() == true && TotalValues.TotalDuration_Charzh > 1.0) ?
            true : false;
 }
@@ -841,10 +834,13 @@ void ResetPerid() {
 void Debuglog(int errnom) {
 }
 
-boolean Val_PositionSwitchOPEN=false;
-boolean Val_PositionSwitchCLOSE=true;
-boolean Demo_PositionSwitchOPEN(){return Val_PositionSwitchOPEN;};
-boolean Demo_PositionSwitchCLOSE(){ return  Val_PositionSwitchCLOSE;};
+boolean Val_PositionSwitchOPEN = false;
+boolean Val_PositionSwitchCLOSE = true;
+
+boolean Demo_PositionSwitchOPEN() { return Val_PositionSwitchOPEN; };
+
+boolean Demo_PositionSwitchCLOSE() { return Val_PositionSwitchCLOSE; };
+
 void OpenPermitRelay() {
     int i = get_ValvePosition();
     char ttemp[50];
@@ -859,7 +855,7 @@ void OpenPermitRelay() {
     if (get_ValvePosition() == ERROR_VALVE)
         OpenCloseit = 'E';
 
-    if (PermitCharzhe()) {
+    if (PermitPumpOn()) {
         //Open PermitRealay Output
         //request open valve
 
@@ -908,9 +904,9 @@ boolean PumpIsRunninig() {
     return true;
 }
 
-void Log_Total_UsedHourPump() {
-    if (PumpIsRunninig()) {
-        TotalValues.UsedHourPump_CountBySec++;
+void Log_Total_UsedHourPump(int incOneSEc = 0) {
+    if (CurrentFlow > 1.0) {
+        TotalValues.UsedHourPump_CountBySec += incOneSEc;
         if (TotalValues.UsedHourPump_CountBySec > 3600) {
             TotalValues.UsedHourPump_CountBySec = 0;
             TotalValues.Total_UsedHourPump++;
@@ -934,16 +930,72 @@ void CheckElectroMagnetic() {
     }
 }
 
-void TimeStartup() {
+void turnOffAllRelays() {
+    digitalWrite(CharzheBatteryRelay, DO_Off_Relay);
+    digitalWrite(MainRelayValve, DO_Off_Relay);
+    digitalWrite(SelectRelayValve_1_, DO_Off_Relay);
+    digitalWrite(SelectRelayValve_2_, DO_Off_Relay);
+}
+
+void StartupRelays() {
     pinMode(MainPowerOnRelay, INPUT);
     pinMode(CharzheBatteryRelay, OUTPUT);
+    pinMode(ElectroMagneticPin, INPUT_PULLUP);
+    pinMode(BtnDisplayLight, INPUT_PULLUP);
+    pinMode(MainRelayValve, OUTPUT);
+    pinMode(SelectRelayValve_1_, OUTPUT);
+    pinMode(SelectRelayValve_2_, OUTPUT);
+    pinMode(PositionSwitchOPEN, INPUT);
+    pinMode(PositionSwitchCLOSE, INPUT);
+    pinMode(Pulse1Pin, INPUT);
+
+    //  StartupRelayValves();
+    turnOffAllRelays();
+
+}
+
+void CheckMaxFellowVolumeUSeWhenPowerOff() {
+    if (TotalValues.Total_UsedVolume > TotalValues.MaxVolumeAllow) {
+        if (getEvent(PermittedVolumeThresholdEexceeded) == false) {
+            setEvent(PermittedVolumeThresholdEexceeded, true);
+            char msg[20];
+            strcpy(TotalValues.LastDatePowerOffForUseMoreThanMaxVolume, GetStrCurrentDay(msg));
+            strcpy(TotalValues.LastDateUseMoreThanMaxVolume, GetStrCurrentDay(msg));
+        }
+    } else {
+        setEvent(PermittedVolumeThresholdEexceeded, false);
+    }
+    if (TotalValues.V_MaxFlowIn24Hour > TotalValues.MaxFellowAllow) {
+        if (getEvent(FlowrateExceeded) == false) {
+            setEvent(FlowrateExceeded, true);
+            char msg[20];
+            strcpy(TotalValues.LastDatePowerOffForUseMoreThanMaxFellow, GetStrCurrentDay(msg));
+            strcpy(TotalValues.LastDatePowerOffForUseMoreThanMaxFellow, GetStrCurrentDay(msg));
+        }
+    } else {
+        setEvent(FlowrateExceeded, false);
+    }
+    if (TotalValues.TotalDuration_Charzh < 0 && CurrentFlow>0.1)
+    {
+        if (getEvent(ErrorUsingWaterWhenPowerOff) == false) {
+            setEvent(ErrorUsingWaterWhenPowerOff, true);
+            char msg[20];
+            strcpy(TotalValues.LastDateUseWaterWhenPowerOff, GetStrCurrentDay(msg));
+         }
+    } else {
+        setEvent(ErrorUsingWaterWhenPowerOff, false);
+    }
+
+}
+
+void TimeStartup() {
 
     Serial.begin(115200);
     Serial1.begin(9600);/// M
 
     if (!rtc.begin()) {
         Serial__println("Couldn't find RTC");
-        while (1);
+
     }
 
     if (!rtc.isrunning()) {
@@ -972,12 +1024,19 @@ void TimeStartup() {
     IF_SERIAL_DEBUG(printf_New("load flash %f \n", TotalValues.Litre_Volume));
     LoadSavedTotalInFlashMemory();
 
-    StartupRelayValves();
-    // Setup the LCD
-    // initialize the button pin as a input:
-    pinMode(Pulse1Pin, INPUT);
 
     myGLCD.InitLCD();
+
+    StartupRelays();
+    for (int k = 0; k < 10; k++) {
+        myGLCD.setFont(SmallFont);
+        myGLCD.print("0", 15 * k, 100);
+        delay(1000);
+    }
+    // Setup the LCD
+    // initialize the button pin as a input:
+
+
     myGLCD.setFont(PNumFontB24);
     myGLCD.setColor(192, 192, 192);
     myGLCD.fillRect(0, 0, 479, 13);
@@ -995,7 +1054,7 @@ void TimeStartup() {
     myGLCD.setFont(Text_5); // مصرف کل
     myGLCD.print("0", 225 + 48, 165);
 
-    delay(1000);
+    delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
     TotalValues.K_param = 100.0;
@@ -1010,8 +1069,6 @@ void TimeStartup() {
 //    IEC6205621_Com.MAXVolumeDefined_ = MAXVolumeDefined;
     ResetTotalPerid();
     InitializeEvents();
-    pinMode(ElectroMagneticPin, INPUT_PULLUP);
-    pinMode(BtnDisplayLight, INPUT_PULLUP);
     InitializeNFC();
     freememoryTrace = freemeMory();
 }
@@ -1048,7 +1105,7 @@ void TimeLoop() {
         SaveEventsFile(ErrorInFreeMemory + 0);
         freememoryTrace = freemeMory();
     }
-    SimulateFllow();  // it should be run on interrupt
+    //SimulateFllow();  // it should be run on interrupt
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 1);
         freememoryTrace = freemeMory();
@@ -1102,12 +1159,8 @@ void TimeLoop() {
     CheckAndCharzheBattery();
 
     //if mainrelay is on and felo
-    if (get_MainRelayValVePosition() == DO_On_Relay)
-        PompTotalHour();
-    if (TotalValues.Total_UsedVolume > TotalValues.MaxVolumeAllow)
-        setEvent(PermittedVolumeThresholdEexceeded, true);
-    else
-        setEvent(PermittedVolumeThresholdEexceeded, false);
+    Log_Total_UsedHourPump(1);
+    CheckMaxFellowVolumeUSeWhenPowerOff();
     //  SaveTotalsInFlash(TotalValues);
     // CheckMainPower();
     //  int sensorValue = analogRead(A8);
@@ -1129,6 +1182,7 @@ void TimeLoop() {
     }
     Serial.print("Freememory_ =");
     Serial.println(freemeMory());
+
 
 }
 
@@ -1155,8 +1209,8 @@ void serialEvent() {
     if (inChar == 'a')readFileTestHourly();
     if (inChar == 'b')SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
-    if (inChar == '1')Val_PositionSwitchOPEN= ! Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
-    if (inChar == '2')Val_PositionSwitchCLOSE=! Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
+    if (inChar == '1')Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
+    if (inChar == '2')Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
     if (inChar == '3')DemoSaveGetEventFile();
     //  if (inChar == '3')readFileTestEvent();
     // if (inChar == '4')//readFileTestHourly();
