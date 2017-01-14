@@ -1057,7 +1057,7 @@ void TimeStartup() {
     delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
-    TotalValues.K_param = 100.0;
+    TotalValues.K_param = 0.33;
     //    Timer1.initialize(100000);
     //    Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
