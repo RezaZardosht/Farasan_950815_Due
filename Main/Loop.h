@@ -13,6 +13,7 @@
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
     #include <EEPROM.h>
 #endif
+
 #include <TimeLib.h>
 #include "timeFuncs.h"
 #include "String.h"
@@ -207,11 +208,12 @@ const int PositionSwitchCLOSE = 4;    // the number of the LED pin
 const int MainPowerOnRelay = 53;    // the number of the LED pin
 const int CharzheBatteryRelay = 45;    // the number of the LED pin
 const int Pulse1Pin = 2;   // the pin that the pushbutton is attached to
-const int ElectroMagneticPin = 9;
-const int BtnDisplayLight = 8;
+const int ElectroMagneticPin = 12;
+const int BtnDisplayLight = 11;
 
 const int StrongDCMagneticFieldDetected_Pin = 3;
 const int MeterCoverRemoved_Pin = 4;
+const int Display_LED_PWM_PIN = 9;
 //const int  Pulse2Pin = 45;   // the pin that the pushbutton is attached to
 //const int  SelectorKeyPin = 47;   // the pin that the pushbutton is attached to
 //const int  MainPowerPin = 49;   // the pin that the pushbutton is attached to

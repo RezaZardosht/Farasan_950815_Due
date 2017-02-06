@@ -8,7 +8,7 @@
 //  Serial1.print("AT+BAUD4");
 //Serial.println("AT115200");
 #include "loop.h"
-#include "Loop.h"
+#include "DuePWM_P/DuePWM.h"
 //#include "Loop.h"
 
 
@@ -71,12 +71,15 @@ unsigned long PreFlowMicroSecDiff = 0;
 unsigned long LastCallMillisCountFlowInterrupt20 = 0;
 float CurrentFlow, MovingAvgFlow[110];
 
+#define PWM_FREQ1  200
+#define PWM_FREQ2  4000
 
 //////////////////////////// TODO CGPRS_SIM800 gprs;
 RTC_DS1307 rtc;
 
 IEC62056_21_Serial IEC6205621_Com;
 
+DuePWM pwm( PWM_FREQ1, PWM_FREQ2 );
 //////////////////////////////   Fonts
 UTFT myGLCD(CTE32HR, 38, 39, 40, 41);
 
@@ -942,6 +945,7 @@ void StartupRelays() {
     pinMode(CharzheBatteryRelay, OUTPUT);
     pinMode(ElectroMagneticPin, INPUT_PULLUP);
     pinMode(BtnDisplayLight, INPUT_PULLUP);
+    pinMode(Display_LED_PWM_PIN ,INPUT);
     pinMode(MainRelayValve, OUTPUT);
     pinMode(SelectRelayValve_1_, OUTPUT);
     pinMode(SelectRelayValve_2_, OUTPUT);
@@ -984,6 +988,19 @@ void CheckMaxFellowVolumeUSeWhenPowerOff() {
          }
     } else {
         setEvent(ErrorUsingWaterWhenPowerOff, false);
+    }
+
+}
+int button_11_prevVal;
+uint32_t pwm_duty = 127; // 50% duty cycle
+void SetDisplayPWM()
+{
+    pwm.pinDuty( Display_LED_PWM_PIN, pwm_duty ); // 100% duty cycle on Pin 6
+    if ( button_11_prevVal != BtnDisplayLight)
+    {
+        button_11_prevVal = BtnDisplayLight ;
+        if (BtnDisplayLight == 0)
+            pwm_duty = (pwm_duty <= 200) ? (pwm_duty + 50) : 100;
     }
 
 }
@@ -1058,8 +1075,8 @@ void TimeStartup() {
     noInterrupts();
     ///////////////////// simulate fellow
     TotalValues.K_param = 0.33;
-    //    Timer1.initialize(100000);
-    //    Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
+//        Timer1.initialize(100000);
+//        Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
                     CHANGE);
     interrupts();
@@ -1070,6 +1087,10 @@ void TimeStartup() {
     ResetTotalPerid();
     InitializeEvents();
     InitializeNFC();
+  //  pwm.setFreq1( 200);
+  //  pwm.setFreq2( 4000 );
+    pwm.pinFreq1( Display_LED_PWM_PIN );  // Pin 6 freq set to "pwm_freq1" on clock A
+
     freememoryTrace = freemeMory();
 }
 
@@ -1180,6 +1201,7 @@ void TimeLoop() {
         SaveEventsFile(ErrorInFreeMemory + 9);
         freememoryTrace = freemeMory();
     }
+    SetDisplayPWM();
     Serial.print("Freememory_ =");
     Serial.println(freemeMory());
 
