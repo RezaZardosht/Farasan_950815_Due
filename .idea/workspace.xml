@@ -21,9 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c48406ca-2385-41f1-88ec-7c8f4c7d3f9b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp" afterPath="$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/Loop.cpp" afterPath="$PROJECT_DIR$/Main/Loop.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/Loop.h" afterPath="$PROJECT_DIR$/Main/Loop.h" />
     </list>
     <ignored path="Farasan_950815_Due.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -548,7 +545,7 @@
       <workItem from="1484632460216" duration="1734000" />
       <workItem from="1485089625860" duration="744000" />
       <workItem from="1486376218869" duration="60000" />
-      <workItem from="1486378732215" duration="1707000" />
+      <workItem from="1486378732215" duration="1739000" />
     </task>
     <task id="LOCAL-00001" summary="Check Read alarm file">
       <created>1479044872337</created>
@@ -592,11 +589,18 @@
       <option name="project" value="LOCAL" />
       <updated>1483899786058</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Insert PWM&#10;">
+      <created>1486380478692</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1486380478692</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="366601000" />
+    <option name="totallyTimeSpent" value="366633000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1296" height="744" extended-state="0" />
@@ -679,7 +683,8 @@
     <MESSAGE value="950830" />
     <MESSAGE value="change 951007&#10;" />
     <MESSAGE value="change 951019&#10;" />
-    <option name="LAST_COMMIT_MESSAGE" value="change 951019&#10;" />
+    <MESSAGE value="Insert PWM&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Insert PWM&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
