@@ -39,7 +39,8 @@
 #define IF_SERIAL_DEBUG(x)
 #endif
 
-
+#define SerialIR Serial1
+#define SerialIREvent serialEvent1
 
 typedef union {
     unsigned long longn;
@@ -93,7 +94,7 @@ typedef struct {
     float Taarefe[4];
     int DateHourSaveTime;// hour that log daily data shuld be save
     int MonthDaySaveTime;// day that log monthly data shuld be save
-    float K_param = 1.0;
+    float K_param = 0.54;
     char IEC_Password_1[10];
     char IEC_Password_2[10];
 
@@ -294,9 +295,6 @@ void Delete_File(char *FileNama);
 struct CharMemoryAlocated *GetDailEventRecords(const char *from_day, const char *to_day);
 struct CharMemoryAlocated *GetHourlyLogFile(const char *from_day, const char *to_day);
 
-//template<typename T>T *GetDaileRecords(const char *fileName, char *from_date, char *to_date);
-//template<typename T>T *SaveFile_StructType_new();
-//template<typename T>void SaveFile_StructType_free(T *data);
 void DemoSaveGetEventFile();
 unsigned int freemeMory();
 void ShowErrorsOnScreen();

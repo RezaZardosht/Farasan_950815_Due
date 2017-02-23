@@ -206,7 +206,8 @@ void NFC_Loop(void) {
                     DateSt[i] = (char) dateStart[i];
                     DateEn[i] = (char) dateEnd[i];
                 }
-                IncreseCharzh(5000, DateSt, DateEn);
+
+                IncreseCharzh(20, DateSt, DateEn);
             }
             //   IF_SERIAL_DEBUG(printf_New("Ooops....");
 

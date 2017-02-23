@@ -57,15 +57,15 @@ void IEC62056_21_Serial::SendReadOutDataToPC() {
 
     Get_ObisValue(Obis_array[0][0], RetVal);
     sprintf(StrOut, "%c%s", (STX_Const), RetVal);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 
     for (int i = 1; i < 27; i++) {
         Get_ObisValue(Obis_array[i][0], RetVal);
         sprintf(StrOut, "%s", RetVal);
-        Serial1.print(StrOut);
+        SerialIR.print(StrOut);
     }
     sprintf(StrOut, "!%c%c%c", CR_Const, LF_Const, ETX_Const_);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 
     free(RetVal);
     return;
@@ -76,7 +76,7 @@ void IEC62056_21_Serial::SendProgramingFirstDataToPC() {
     char StrOut[100], TmpStr[10];
     sprintf(StrOut, "%cP0%c(%s)%c,BCC", (SOH_Const), (STX_Const),
             CommunicateSetupPassword, ETX_Const_);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 }
 
 void IEC62056_21_Serial::SendIdentificationDataToPC() {
@@ -92,7 +92,7 @@ void IEC62056_21_Serial::Send_Config_IEC62056_ToPC() {
 
     sprintf(TmpMsg, "/AMS234566V03%c%c01%c%c", TempIntByte.chars[0],
             TempIntByte.chars[1], CR_Const, LF_Const);
-    Serial1.print(TmpMsg);
+    SerialIR.print(TmpMsg);
 }
 
 void IEC62056_21_Serial::Save_Config_IEC62056() {
@@ -260,7 +260,7 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     while (!PakageComplete && ((millis() - start_millis) < 5)) {
         InRecievingSerial = true;
         ////////////////////////////////////////////////////////////////    inChar = (char)Serial1.read();
-        inChar = (char) Serial1.read();
+        inChar = (char) SerialIR.read();
         if ((int) inChar == 0) {
             stringComplete = false;
             memset(inputString, 0, sizeof(inputString - 1));
@@ -344,11 +344,11 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
                inputString[SerialRecieve - 4], inputString[SerialRecieve - 3],
                inputString[SerialRecieve - 2], inputString[SerialRecieve - 1]);
     IF_SERIAL_DEBUG(printf_New("PAckage compelet inputString[SerialRecieve - 2]", 0));
-    if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == '?' &&
+    if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == STX_Const &&
         inputString[SerialRecieve - 4] == '1' &&
         inputString[SerialRecieve - 3] == '!' &&
-        inputString[SerialRecieve - 2] == '#' &&
-        inputString[SerialRecieve - 1] == '$') {
+        inputString[SerialRecieve - 2] == CR_Const &&
+        inputString[SerialRecieve - 1] == LF_Const) {
 
         Send_Config_IEC62056_ToPC();  // wait for replay for 2 second;
         IF_SERIAL_DEBUG(printf_New("Config  IEC62056-21", 0));
@@ -392,7 +392,7 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     // ssst[ic]=inputString[ic];ssst[ic+1]='\0';
     // }
     sprintf(ssst, "==-->%s,%d,%d", ssst, CommunicateIEC62056Mode, CommunicateIEC62056Level);
-    Serial1.print(ssst);
+    SerialIR.print(ssst);
     for (int ic = 0; ic < SerialRecieve; ic++) {
         // get the new byte:
 
@@ -713,11 +713,11 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
             ReadEventFile = GetDailEventRecords("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
-                Serial1.print(StrOut);
+                SerialIR.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    Serial1.write(ReadEventFile->memory[i]);
+                    SerialIR.write(ReadEventFile->memory[i]);
                 sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
-                Serial1.print(StrOut);
+                SerialIR.print(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
@@ -744,11 +744,11 @@ void IEC62056_21_Serial::CheckCommunicateProgamingModeReadWriteRequestReplay(
             ReadEventFile = GetHourlyLogFile("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
-                Serial1.print(StrOut);
+                SerialIR.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    Serial1.write(ReadEventFile->memory[i]);
+                    SerialIR.write(ReadEventFile->memory[i]);
                 sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
-                Serial1.print(StrOut);
+                SerialIR.print(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", STX_Const, OBIS_Address);
@@ -854,19 +854,19 @@ void IEC62056_21_Serial::SendOBIS_Value(char *OBIS_Address, char *OBIS_Value) {
     char StrOut[200], TmpStr[10];
     sprintf(StrOut, "------->>%c%s(%s)%c%c%c", STX_Const, OBIS_Address,
             OBIS_Value, CR_Const, LF_Const, ETX_Const_);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 }
 
 void IEC62056_21_Serial::SendAck() {
     char StrOut[20];
     sprintf(StrOut, "%c", ACK_Const);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 }
 
 void IEC62056_21_Serial::SendEndCommunicate() {
     char StrOut[20];
     sprintf(StrOut, "%cB0%c", SOH_Const, ETX_Const_);
-    Serial1.print(StrOut);
+    SerialIR.print(StrOut);
 }
 
 /*

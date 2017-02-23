@@ -19,7 +19,7 @@ int button_11_prevVal = false;
 boolean   out_49 = false, out_47 = false, out_45 = false, out_43 = false, out_51 = false;
 char inputString[100];
 
-void setup_____________()
+void setup__()
 {
   pinMode(52, INPUT);
   pinMode(48, INPUT);
@@ -64,7 +64,7 @@ void setup_____________()
      pwm.stop( 9 );*/
 }
 
-void loop____________()
+void loop__()
 {
   char msg[200];
   button_52 = digitalRead(52);//52
@@ -73,7 +73,7 @@ void loop____________()
   button_2 = digitalRead(2);//2
   button_11 = digitalRead(11);
   sprintf(msg, "52=%d,48=%d,46=%d,2=%d,11=%d,49=%d,inputstring[0]=%c", button_52, button_48, button_46, button_2, button_11, out_51, inputString[0]);
-  // Serial.println(msg);
+   Serial.println(msg);
   if (inputString[0] == '1')
   {
     out_49 = !out_49;

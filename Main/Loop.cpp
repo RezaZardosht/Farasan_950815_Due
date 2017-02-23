@@ -320,7 +320,10 @@ void SetCharzhe(int Value) {
 
 void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
 
-    TotalValues.TotalDuration_Charzh = TotalValues.TotalDuration_Charzh + Value;
+    if(TotalValues.TotalDuration_Charzh>0)
+        TotalValues.TotalDuration_Charzh=0;
+    else
+        TotalValues.TotalDuration_Charzh = TotalValues.TotalDuration_Charzh + Value;
     memcpy(TotalValues.DateStart, DateStart, 10);
     TotalValues.DateStart[10] = '\0';
     memcpy(TotalValues.DateEnd, DateEnd, 10);
@@ -1008,7 +1011,7 @@ void SetDisplayPWM()
 void TimeStartup() {
 
     Serial.begin(115200);
-    Serial1.begin(9600);/// M
+    SerialIR.begin(300,SERIAL_7E1 );/// M
 
     if (!rtc.begin()) {
         Serial__println("Couldn't find RTC");
@@ -1074,7 +1077,7 @@ void TimeStartup() {
     delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
-    TotalValues.K_param = 0.33;
+    TotalValues.K_param = 0.7;
 //        Timer1.initialize(100000);
 //        Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
@@ -1228,7 +1231,7 @@ void serialEvent() {
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == 'a')readFileTestHourly();
+    if (inChar == 'a') ;//TotalValues.TotalDuration_Charzh=;
     if (inChar == 'b')SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
     if (inChar == '1')Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
@@ -1265,17 +1268,17 @@ void serialEvent() {
 
 }
 
-void serialEvent1() {
+void SerialIREvent() {
+  /*  char inChar;
+    int dd;
+    while (Serial1.available()) {
+        inChar = (char) Serial1.read();
+        if ((int) inChar == 0)return;
+        Serial.println(inChar);
+        dd= (int)inChar;
+        Serial.println(dd);
+    }*/
     IEC6205621_Com.ExternSerialEvent1();
-
-    /* char inChar;
-     inChar = (char)Serial.read();
-     if ((int )inChar == 0 )return;
-     Serial.println(inChar);
-     if (inChar == 'd') getDump();
-     if (inChar == 'e') Send_ParametersValues();
-     if (inChar == 'f') Serial1.println("AABB3,4,28,1234567890GGGDDEE1");*/
-
 }
 
 void getDump() {

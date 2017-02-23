@@ -2,9 +2,10 @@
 <project version="4">
   <component name="BookmarkManager">
     <bookmark url="file://$PROJECT_DIR$/Main/ReadWrite.cpp" line="169" mnemonic="3" />
-    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="1238" mnemonic="9" />
-    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="912" mnemonic="1" />
-    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="960" mnemonic="2" />
+    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="1241" mnemonic="9" />
+    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="963" mnemonic="2" />
+    <bookmark url="file://$PROJECT_DIR$/Main/Loop.cpp" line="1233" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/../HandHeld_950823/HandHeld/IEC_C_Com/IEC_C_protocol.cpp" description="IEC_C_frame_new" line="146" />
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" assignedExecutableTargets="true" buildAllGenerated="true">
     <generated>
@@ -19,8 +20,15 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c48406ca-2385-41f1-88ec-7c8f4c7d3f9b" name="Default" comment="">
+    <list default="true" id="c48406ca-2385-41f1-88ec-7c8f4c7d3f9b" name="Default" comment="Insert PWM&#10;">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/DuePWM_P/DuePWM_P.ino" afterPath="$PROJECT_DIR$/Main/DuePWM_P/DuePWM_P.ino" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/Loop.cpp" afterPath="$PROJECT_DIR$/Main/Loop.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/Loop.h" afterPath="$PROJECT_DIR$/Main/Loop.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/PublicFuncs.cpp" afterPath="$PROJECT_DIR$/Main/PublicFuncs.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/RFID.cpp" afterPath="$PROJECT_DIR$/Main/RFID.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/SerialEvent.cpp" afterPath="$PROJECT_DIR$/Main/SerialEvent.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main/SerialEvent.h" afterPath="$PROJECT_DIR$/Main/SerialEvent.h" />
     </list>
     <ignored path="Farasan_950815_Due.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,91 +52,67 @@
       <file leaf-file-name="Loop.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main/Loop.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3451">
-              <caret line="215" column="10" selection-start-line="215" selection-start-column="10" selection-end-line="215" selection-end-column="29" />
+            <state relative-caret-position="357">
+              <caret line="42" column="34" selection-start-line="42" selection-start-column="34" selection-end-line="42" selection-end-column="34" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Loop.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Loop.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main/Loop.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="1312" column="37" selection-start-line="1312" selection-start-column="0" selection-end-line="1312" selection-end-column="37" />
+            <state relative-caret-position="394">
+              <caret line="1280" column="2" selection-start-line="1280" selection-start-column="2" selection-end-line="1280" selection-end-column="2" />
               <folding>
                 <element signature="e#0#118#0" expanded="false" />
-                <element signature="e#346#363#0" expanded="true" />
                 <element signature="e#10497#10766#0" expanded="false" />
-                <element signature="e#11523#12117#0" expanded="false" />
-                <element signature="e#16396#16861#0" expanded="false" />
-                <element signature="e#18250#18634#0" expanded="false" />
-                <element signature="e#23026#23311#0" expanded="false" />
-                <element signature="e#39303#39325#0" expanded="false" />
-                <element signature="e#42618#42893#0" expanded="false" />
-                <element signature="e#42919#43373#0" expanded="false" />
+                <element signature="e#11623#12217#0" expanded="false" />
+                <element signature="e#16496#16961#0" expanded="false" />
+                <element signature="e#18350#18734#0" expanded="false" />
+                <element signature="e#23126#23411#0" expanded="false" />
+                <element signature="e#39414#39436#0" expanded="false" />
+                <element signature="e#43002#43456#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DuePWM.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-510">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#1562#1581#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GPRS_PROG.cpp" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="65" selection-start-line="15" selection-start-column="65" selection-end-line="15" selection-end-column="65" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="sim800.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Main/GSM/sim800.h">
+      <file leaf-file-name="RFID.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Main/RFID.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DuePWM.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.h">
+      <file leaf-file-name="SerialEvent.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Main/SerialEvent.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-714">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="289">
+              <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Events.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Main/Events.h">
+      <file leaf-file-name="PublicFuncs.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Main/PublicFuncs.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
+            <state relative-caret-position="3757">
+              <caret line="221" column="2" selection-start-line="221" selection-start-column="2" selection-end-line="221" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="time.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/time.h">
+      <file leaf-file-name="SerialEvent.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Main/SerialEvent.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+            <state relative-caret-position="-1241">
+              <caret line="264" column="23" selection-start-line="264" selection-start-column="23" selection-end-line="264" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -154,23 +138,23 @@
         <option value="$PROJECT_DIR$/Main/MBUS_Com/mbusprotocol.h" />
         <option value="$PROJECT_DIR$/Main/MBUS_Com/mbusprotocol.cpp" />
         <option value="$PROJECT_DIR$/Main/MBUS_Com/mbusprotocolaux.cpp" />
-        <option value="$PROJECT_DIR$/Main/SerialEvent.h" />
         <option value="$USER_HOME$/Documents/Arduino/libraries/IRSendRev-master/IRSendRev.cpp" />
         <option value="$PROJECT_DIR$/Main/ReadWrite.h" />
         <option value="$PROJECT_DIR$/Main/UTFT.cpp" />
-        <option value="$PROJECT_DIR$/Main/PublicFuncs.cpp" />
         <option value="$PROJECT_DIR$/Main/ReadWrite.cpp" />
-        <option value="$PROJECT_DIR$/Main/RFID.cpp" />
         <option value="$PROJECT_DIR$/Main/Fonts/DefaultFonts.c" />
         <option value="$PROJECT_DIR$/Main/MBUS_Com/mbusserial.cpp" />
         <option value="$PROJECT_DIR$/Main/ControlValve.cpp" />
-        <option value="$PROJECT_DIR$/Main/SerialEvent.cpp" />
         <option value="$PROJECT_DIR$/Main/Events.h" />
         <option value="$PROJECT_DIR$/Main/Events.cpp" />
         <option value="$PROJECT_DIR$/Main/DuePWM_P/DuePWM_P.ino" />
+        <option value="$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp" />
+        <option value="$PROJECT_DIR$/Main/RFID.cpp" />
+        <option value="$PROJECT_DIR$/Main/PublicFuncs.cpp" />
+        <option value="$PROJECT_DIR$/Main/SerialEvent.h" />
+        <option value="$PROJECT_DIR$/Main/SerialEvent.cpp" />
         <option value="$PROJECT_DIR$/Main/Loop.h" />
         <option value="$PROJECT_DIR$/Main/Loop.cpp" />
-        <option value="$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp" />
       </list>
     </option>
   </component>
@@ -187,10 +171,8 @@
   </component>
   <component name="OCFindUsagesOptions" text="false" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1296" />
-    <option name="height" value="744" />
+    <option name="width" value="1280" />
+    <option name="height" value="728" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -279,6 +261,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="Main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Farasan_950815_Due" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Farasan_950815_Due" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Farasan_950815_Due" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="cmake" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -292,7 +292,7 @@
     <property name="js-jscs-nodeInterpreter" value="C:\Program Files\nodejs\node.exe" />
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="F:/Desktop_Zardosht/burse/AmiBroker/ddedemo/Test1_EXcel/DDEFORM.PAS" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../M_BUS/Mbus-master/mbusserial_scan" />
     <property name="SearchEverywhereHistoryKey" value="setE&#9;null&#9;null" />
   </component>
   <component name="RunManager" selected="Application.Build All">
@@ -545,7 +545,14 @@
       <workItem from="1484632460216" duration="1734000" />
       <workItem from="1485089625860" duration="744000" />
       <workItem from="1486376218869" duration="60000" />
-      <workItem from="1486378732215" duration="1739000" />
+      <workItem from="1486378732215" duration="1889000" />
+      <workItem from="1486380809778" duration="845000" />
+      <workItem from="1486549970083" duration="649000" />
+      <workItem from="1486988165140" duration="2410000" />
+      <workItem from="1487062961509" duration="4303000" />
+      <workItem from="1487146100967" duration="8488000" />
+      <workItem from="1487476517804" duration="7171000" />
+      <workItem from="1487746632920" duration="4478000" />
     </task>
     <task id="LOCAL-00001" summary="Check Read alarm file">
       <created>1479044872337</created>
@@ -596,21 +603,27 @@
       <option name="project" value="LOCAL" />
       <updated>1486380478692</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Insert PWM&#10;">
+      <created>1486380499885</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1486380499886</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="366633000" />
+    <option name="totallyTimeSpent" value="395127000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1296" height="744" extended-state="0" />
+    <frame x="0" y="0" width="1280" height="728" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19453125" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19620253" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293718" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24094488" sideWeight="0.5031696" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37165356" sideWeight="0.49683043" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36394557" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Serial Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -622,6 +635,7 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24555735" sideWeight="0.49683043" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -695,54 +709,11 @@
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="32" />
+      <option name="time" value="33" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Main/AduinoLibs/SD/src/SD.h" />
-    <entry file="file://$PROJECT_DIR$/Main/Fonts/RedLED.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="571" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="572" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/Fonts/icon.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/PublicFuncs.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="36" column="30" selection-start-line="36" selection-start-column="30" selection-end-line="36" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbus.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/Logger.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="26" column="15" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/HardwareSerial.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2380">
-          <caret line="142" column="24" selection-start-line="142" selection-start-column="24" selection-end-line="142" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../HandHeld_950823/HandHeld_Ardu/HandHeld_Ardu.ino">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -782,13 +753,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1615">
           <caret line="626" column="34" selection-start-line="626" selection-start-column="32" selection-end-line="626" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusprotocolaux.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-690">
-          <caret line="1316" column="34" selection-start-line="1316" selection-start-column="28" selection-end-line="1316" selection-end-column="34" />
         </state>
       </provider>
     </entry>
@@ -891,13 +855,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusprotocol.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39916">
-          <caret line="2348" column="10" selection-start-line="2348" selection-start-column="10" selection-end-line="2348" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmake/ArduinoToolchain.cmake">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1496">
@@ -905,26 +862,161 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Main/PublicFuncs.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-257">
-          <caret line="321" column="4" selection-start-line="321" selection-start-column="4" selection-end-line="321" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Main/ControlValve.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="211">
           <caret line="54" column="49" selection-start-line="54" selection-start-column="49" selection-end-line="54" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/Desktop_Zardosht/burse/AmiBroker/ddedemo/Test1_EXcel/DDEFORM.PAS">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="417" column="20" selection-start-line="417" selection-start-column="6" selection-end-line="417" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/Events.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2601">
+          <caret line="153" column="16" selection-start-line="153" selection-start-column="7" selection-end-line="153" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/Events.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/time.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM_P.ino">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="42" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-714">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/GSM/sim800.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/CDC.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-156">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/abi.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-224">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="48" column="25" selection-start-line="48" selection-start-column="25" selection-end-line="48" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusprotocolaux.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22372">
+          <caret line="1316" column="34" selection-start-line="1316" selection-start-column="28" selection-end-line="1316" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/Logger.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="404">
+          <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/Logger.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbus.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/stdlib.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="146">
+          <caret line="120" column="8" selection-start-line="120" selection-start-column="8" selection-end-line="120" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/math.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="146">
+          <caret line="315" column="14" selection-start-line="315" selection-start-column="14" selection-end-line="315" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/GSM/sim800.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5304">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-463">
+          <caret line="15" column="65" selection-start-line="15" selection-start-column="65" selection-end-line="15" selection-end-column="65" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main/RFID.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="208" column="21" selection-start-line="208" selection-start-column="21" selection-end-line="208" selection-end-column="21" />
+        <state relative-caret-position="-5240">
+          <caret line="27" column="2" selection-start-line="27" selection-start-column="2" selection-end-line="27" selection-end-column="2" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusprotocol.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="2352" column="32" selection-start-line="2352" selection-start-column="32" selection-end-line="2352" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusserial.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="265" column="31" selection-start-line="265" selection-start-column="31" selection-end-line="265" selection-end-column="31" />
         </state>
       </provider>
     </entry>
@@ -938,143 +1030,60 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Main/PublicFuncs.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3757">
+          <caret line="221" column="2" selection-start-line="221" selection-start-column="2" selection-end-line="221" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main/RFID.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Main/SerialEvent.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1037">
-          <caret line="61" column="61" selection-start-line="61" selection-start-column="10" selection-end-line="61" selection-end-column="61" />
+        <state relative-caret-position="289">
+          <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main/SerialEvent.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8976">
-          <caret line="528" column="1" selection-start-line="528" selection-start-column="1" selection-end-line="528" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/Desktop_Zardosht/burse/AmiBroker/ddedemo/Test1_EXcel/DDEFORM.PAS">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="417" column="20" selection-start-line="417" selection-start-column="6" selection-end-line="417" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/mbusserial.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3043">
-          <caret line="179" column="58" selection-start-line="179" selection-start-column="58" selection-end-line="179" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/Events.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2601">
-          <caret line="153" column="16" selection-start-line="153" selection-start-column="7" selection-end-line="153" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/Events.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/MBUS_Com/time.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM_P.ino">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="42" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="42" />
+        <state relative-caret-position="-1241">
+          <caret line="264" column="23" selection-start-line="264" selection-start-column="23" selection-end-line="264" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main/Loop.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3451">
-          <caret line="215" column="10" selection-start-line="215" selection-start-column="10" selection-end-line="215" selection-end-column="29" />
+        <state relative-caret-position="357">
+          <caret line="42" column="34" selection-start-line="42" selection-start-column="34" selection-end-line="42" selection-end-column="34" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-714">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/DuePWM_P/DuePWM.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-510">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#1562#1581#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main/Loop.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="1312" column="37" selection-start-line="1312" selection-start-column="0" selection-end-line="1312" selection-end-column="37" />
+        <state relative-caret-position="394">
+          <caret line="1280" column="2" selection-start-line="1280" selection-start-column="2" selection-end-line="1280" selection-end-column="2" />
           <folding>
             <element signature="e#0#118#0" expanded="false" />
-            <element signature="e#346#363#0" expanded="true" />
             <element signature="e#10497#10766#0" expanded="false" />
-            <element signature="e#11523#12117#0" expanded="false" />
-            <element signature="e#16396#16861#0" expanded="false" />
-            <element signature="e#18250#18634#0" expanded="false" />
-            <element signature="e#23026#23311#0" expanded="false" />
-            <element signature="e#39303#39325#0" expanded="false" />
-            <element signature="e#42618#42893#0" expanded="false" />
-            <element signature="e#42919#43373#0" expanded="false" />
+            <element signature="e#11623#12217#0" expanded="false" />
+            <element signature="e#16496#16961#0" expanded="false" />
+            <element signature="e#18350#18734#0" expanded="false" />
+            <element signature="e#23126#23411#0" expanded="false" />
+            <element signature="e#39414#39436#0" expanded="false" />
+            <element signature="e#43002#43456#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/GSM/sim800.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/CDC.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-156">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/abi.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-224">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main/GSM/GPRS_PROG.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="65" selection-start-line="15" selection-start-column="65" selection-end-line="15" selection-end-column="65" />
-          <folding />
         </state>
       </provider>
     </entry>

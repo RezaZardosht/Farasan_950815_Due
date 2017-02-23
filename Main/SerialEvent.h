@@ -7,15 +7,15 @@
 #define MaxSerialRecieveByte  160
 #define MAX_inputString_Len 200
 #define MaxWaitForSerialCommunicateTimeOutMillis  100000
-#define CR_Const 35  //# chould be change to 13
-#define LF_Const 36  //$ chould be change to 10
-#define ACK_Const 37  //% chould be change to 06
-#define NAK_Const 62  //> chould be change to 15
-#define SOH_Const 38  //& chould be change to 1
+#define CR_Const 13  //# chould be change to 13
+#define LF_Const 10  //$ chould be change to 10
+#define ACK_Const 06  //% chould be change to 06
+#define NAK_Const 15  //> chould be change to 15
+#define SOH_Const 1  //& chould be change to 1
 #define DataReadOutMode 0
 
-#define STX_Const 63  //? chould be change to 2
-#define ETX_Const_ 64  //@ chould be change to 3
+#define STX_Const 2  //? chould be change to 2
+#define ETX_Const_ 3  //@ chould be change to 3
 
 #define ProgramingMode  1
 #define IdentificationMode 6
