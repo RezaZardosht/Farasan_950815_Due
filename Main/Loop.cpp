@@ -79,7 +79,7 @@ RTC_DS1307 rtc;
 
 IEC62056_21_Serial IEC6205621_Com;
 
-DuePWM pwm( PWM_FREQ1, PWM_FREQ2 );
+DuePWM pwm(PWM_FREQ1, PWM_FREQ2);
 //////////////////////////////   Fonts
 UTFT myGLCD(CTE32HR, 38, 39, 40, 41);
 
@@ -259,9 +259,111 @@ void Get_ObisValue(char *Obis, char *RetVal) {
         sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
     //   if (!strcmp(Obis, "0-4:24,2,34,255"))
     //       sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
+    if (!strcmp(Obis, "0-4:50,2,05,255")) {//ReadDi's
+        sprintf(RetVal, " %s(%d,%d,%d,%d)\r\n", digitalRead(PositionSwitchOPEN), digitalRead(PositionSwitchCLOSE),
+                digitalRead(MainPowerOnRelay), digitalRead(Pulse1Pin));
 
-//  return Ret;
 
+        if (!strcmp(Obis, "0-4:24,0,3,255"))// date log request
+        {
+            char DateFrom[20] = "", DateTo[20] = "";
+            TimeStruct *DateFromTimeStruct, *DateToTimeStruct;
+            if ((DateFromTimeStruct = (TimeStruct *) malloc(sizeof(TimeStruct))) == NULL) {
+                return;
+            }
+            if ((DateToTimeStruct = (TimeStruct *) malloc(sizeof(TimeStruct))) == NULL) {
+                return;
+            }
+
+            GetStartEndDateFromObisValue(Obis, DateFrom, DateTo);
+            if (DateFrom != "")
+                GetDateFromObisValue(DateFrom, DateFromTimeStruct);
+            if (DateTo != "")
+                GetDateFromObisValue(DateTo, DateToTimeStruct);
+
+            //  GetDateToObisValue(OBIS_Value, DateToTimeStruct);
+
+
+            //ReadDailyLogFile(DateFrom_, DateTo_, RetVal);
+            char StrOut[100];
+
+            sprintf(StrOut, "--> %d,%d,%d", DateFromTimeStruct->tm_year, DateFromTimeStruct->tm_mon,
+                    DateFromTimeStruct->tm_mday);
+            IF_SERIAL_DEBUG(printf_New("%s", StrOut));
+            sprintf(StrOut, "--> %d,%d,%d", DateToTimeStruct->tm_year, DateToTimeStruct->tm_mon,
+                    DateToTimeStruct->tm_mday);
+            IF_SERIAL_DEBUG(printf_New("%s", StrOut));
+
+
+            //        SendOBIS_Value("0-4:24,0,3,255(", RetVal); //I-Meter Log file
+
+            //        free(RetVal);
+            free(DateFromTimeStruct);
+            free(DateToTimeStruct);
+        }
+
+        if (!strcmp(Obis, "0-4:24,2,35,255")) {//Send Event File
+
+            char StrOut[100];
+            struct CharMemoryAlocated *ReadEventFile;
+            ReadEventFile = GetDailEventRecords("00000000", "99999999");
+            if (ReadEventFile != NULL) {
+                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                SerialIR.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    SerialIR.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                SerialIR.print(StrOut);
+
+                delay(1000);
+                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                Serial.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    Serial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                Serial.print(StrOut);
+
+
+                if (ReadEventFile->memory)
+                    free(ReadEventFile->memory);
+                if (ReadEventFile)
+                    free(ReadEventFile);
+            }
+
+
+        }
+        if (!strcmp(Obis, "0-4:24,2,36,255")) {//Send Daily log  File
+
+            char StrOut[100];
+            struct CharMemoryAlocated *ReadEventFile;
+
+            ReadEventFile = GetHourlyLogFile("00000000", "99999999");
+            if (ReadEventFile != NULL) {
+                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                SerialIR.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    SerialIR.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                SerialIR.print(StrOut);
+
+                delay(1000);
+                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                Serial.print(StrOut);
+                for (int i = 0; i < ReadEventFile->size; i++)
+                    Serial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                Serial.print(StrOut);
+
+
+                if (ReadEventFile->memory)
+                    free(ReadEventFile->memory);
+                if (ReadEventFile)
+                    free(ReadEventFile);
+            }
+
+
+        }
+    }
 }
 
 int FontRowPos(int row) {
@@ -320,8 +422,8 @@ void SetCharzhe(int Value) {
 
 void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
 
-    if(TotalValues.TotalDuration_Charzh>0)
-        TotalValues.TotalDuration_Charzh=0;
+    if (TotalValues.TotalDuration_Charzh > 0)
+        TotalValues.TotalDuration_Charzh = 0;
     else
         TotalValues.TotalDuration_Charzh = TotalValues.TotalDuration_Charzh + Value;
     memcpy(TotalValues.DateStart, DateStart, 10);
@@ -948,7 +1050,7 @@ void StartupRelays() {
     pinMode(CharzheBatteryRelay, OUTPUT);
     pinMode(ElectroMagneticPin, INPUT_PULLUP);
     pinMode(BtnDisplayLight, INPUT_PULLUP);
-    pinMode(Display_LED_PWM_PIN ,INPUT);
+    pinMode(Display_LED_PWM_PIN, INPUT);
     pinMode(MainRelayValve, OUTPUT);
     pinMode(SelectRelayValve_1_, OUTPUT);
     pinMode(SelectRelayValve_2_, OUTPUT);
@@ -982,26 +1084,24 @@ void CheckMaxFellowVolumeUSeWhenPowerOff() {
     } else {
         setEvent(FlowrateExceeded, false);
     }
-    if (TotalValues.TotalDuration_Charzh < 0 && CurrentFlow>0.1)
-    {
+    if (TotalValues.TotalDuration_Charzh < 0 && CurrentFlow > 0.1) {
         if (getEvent(ErrorUsingWaterWhenPowerOff) == false) {
             setEvent(ErrorUsingWaterWhenPowerOff, true);
             char msg[20];
             strcpy(TotalValues.LastDateUseWaterWhenPowerOff, GetStrCurrentDay(msg));
-         }
+        }
     } else {
         setEvent(ErrorUsingWaterWhenPowerOff, false);
     }
 
 }
+
 int button_11_prevVal;
 uint32_t pwm_duty = 127; // 50% duty cycle
-void SetDisplayPWM()
-{
-    pwm.pinDuty( Display_LED_PWM_PIN, pwm_duty ); // 100% duty cycle on Pin 6
-    if ( button_11_prevVal != BtnDisplayLight)
-    {
-        button_11_prevVal = BtnDisplayLight ;
+void SetDisplayPWM() {
+    pwm.pinDuty(Display_LED_PWM_PIN, pwm_duty); // 100% duty cycle on Pin 6
+    if (button_11_prevVal != BtnDisplayLight) {
+        button_11_prevVal = BtnDisplayLight;
         if (BtnDisplayLight == 0)
             pwm_duty = (pwm_duty <= 200) ? (pwm_duty + 50) : 100;
     }
@@ -1011,7 +1111,7 @@ void SetDisplayPWM()
 void TimeStartup() {
 
     Serial.begin(115200);
-    SerialIR.begin(300,SERIAL_7E1 );/// M
+    SerialIR.begin(300, SERIAL_7E1);/// M
 
     if (!rtc.begin()) {
         Serial__println("Couldn't find RTC");
@@ -1090,9 +1190,9 @@ void TimeStartup() {
     ResetTotalPerid();
     InitializeEvents();
     InitializeNFC();
-  //  pwm.setFreq1( 200);
-  //  pwm.setFreq2( 4000 );
-    pwm.pinFreq1( Display_LED_PWM_PIN );  // Pin 6 freq set to "pwm_freq1" on clock A
+    //  pwm.setFreq1( 200);
+    //  pwm.setFreq2( 4000 );
+    pwm.pinFreq1(Display_LED_PWM_PIN);  // Pin 6 freq set to "pwm_freq1" on clock A
 
     freememoryTrace = freemeMory();
 }
@@ -1231,7 +1331,7 @@ void serialEvent() {
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == 'a') ;//TotalValues.TotalDuration_Charzh=;
+    if (inChar == 'a');//TotalValues.TotalDuration_Charzh=;
     if (inChar == 'b')SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
     if (inChar == '1')Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
@@ -1268,17 +1368,21 @@ void serialEvent() {
 
 }
 
+int IEC_C_serial_recv();
+
 void SerialIREvent() {
-  /*  char inChar;
-    int dd;
-    while (Serial1.available()) {
-        inChar = (char) Serial1.read();
-        if ((int) inChar == 0)return;
-        Serial.println(inChar);
-        dd= (int)inChar;
-        Serial.println(dd);
-    }*/
-    IEC6205621_Com.ExternSerialEvent1();
+    /*  char inChar;
+      int dd;
+      while (Serial1.available()) {
+          inChar = (char) Serial1.read();
+          if ((int) inChar == 0)return;
+          Serial.println(inChar);
+          dd= (int)inChar;
+          Serial.println(dd);
+      }*/
+    //IEC6205621_Com.ExternSerialEvent1();
+    int i;
+    i = IEC_C_serial_recv();
 }
 
 void getDump() {

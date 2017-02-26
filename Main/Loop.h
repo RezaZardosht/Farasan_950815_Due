@@ -30,8 +30,8 @@
 #include "GSM/SIM800.h"
 #include "SerialEvent.h"
 
-#undef SERIAL_DEBUG
-//#define SERIAL_DEBUG
+//#undef SERIAL_DEBUG
+#define SERIAL_DEBUG
 
 #ifdef SERIAL_DEBUG
 #define IF_SERIAL_DEBUG(x) ({x;})
@@ -41,7 +41,7 @@
 
 #define SerialIR Serial1
 #define SerialIREvent serialEvent1
-
+#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 typedef union {
     unsigned long longn;
     unsigned char chars[4];
@@ -299,4 +299,11 @@ void DemoSaveGetEventFile();
 unsigned int freemeMory();
 void ShowErrorsOnScreen();
 void SetCharzhe(int Value);
+void GetStartEndDateFromObisValue(char *OBIS_Value, char *DateFrom, char *DateTo) ;
+
+void GetDateFromObisValue(char *value, TimeStruct *RetValue) ;
+
+void GetDateToObisValue(char *value, TimeStruct *RetValue) ;
+
+
 #endif

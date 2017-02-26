@@ -257,10 +257,15 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     unsigned long start_millis;
 
     start_millis = millis();
-    while (!PakageComplete && ((millis() - start_millis) < 5)) {
+    while (!PakageComplete /*&& ((millis() - start_millis) < 5)*/) {
         InRecievingSerial = true;
         ////////////////////////////////////////////////////////////////    inChar = (char)Serial1.read();
         inChar = (char) SerialIR.read();
+        if (((int) inChar) > 0 && ((int) inChar) != 255) {
+            sprintf(temp,"%c,(%x),",(inChar), inChar);
+            Serial.println(temp);
+        }
+
         if ((int) inChar == 0) {
             stringComplete = false;
             memset(inputString, 0, sizeof(inputString - 1));
@@ -269,7 +274,10 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
 
             return;
         }
+
         if (((int) inChar) > 0 && ((int) inChar) != 255) {
+
+
             InRecivingDate = 5;
             start_millis = millis();
             IF_SERIAL_DEBUG(printf_New("-->%c", inChar));
@@ -339,12 +347,12 @@ void IEC62056_21_Serial::ExternSerialEvent1() {
     }  //
     //  Serial1.println("<--//");
     // /?1!CRLF
-    printf_New("[%d,%c,%c,%c,%c,%c,%c]\n", SerialRecieve, inputString[SerialRecieve - 6],
-               inputString[SerialRecieve - 5],
-               inputString[SerialRecieve - 4], inputString[SerialRecieve - 3],
-               inputString[SerialRecieve - 2], inputString[SerialRecieve - 1]);
+    printf_New("[%d,%c(%xH),%c(%xH),%c(%xH),%c(%xH),%c((%xH),%c(%xH)]\n", SerialRecieve, inputString[SerialRecieve - 6], inputString[SerialRecieve - 6],
+               inputString[SerialRecieve - 5],inputString[SerialRecieve - 5],
+               inputString[SerialRecieve - 4],inputString[SerialRecieve - 4], inputString[SerialRecieve - 3],inputString[SerialRecieve - 3],
+               inputString[SerialRecieve - 2],inputString[SerialRecieve - 2], inputString[SerialRecieve - 1], inputString[SerialRecieve - 1]);
     IF_SERIAL_DEBUG(printf_New("PAckage compelet inputString[SerialRecieve - 2]", 0));
-    if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == STX_Const &&
+    if (inputString[SerialRecieve - 6] == '/' && inputString[SerialRecieve - 5] == '?' &&
         inputString[SerialRecieve - 4] == '1' &&
         inputString[SerialRecieve - 3] == '!' &&
         inputString[SerialRecieve - 2] == CR_Const &&
