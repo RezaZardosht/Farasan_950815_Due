@@ -136,7 +136,7 @@ int IEC_C_init();
 #define IF_SERIAL_DEBUG(x)
 #endif
 #define SerialIR Serial2
-
+#define DataPackRecieveOK 0
 
 typedef struct {
     char SerialKontor[11];

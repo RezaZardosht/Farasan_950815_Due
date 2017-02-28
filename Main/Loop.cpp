@@ -9,6 +9,7 @@
 //Serial.println("AT115200");
 #include "loop.h"
 #include "DuePWM_P/DuePWM.h"
+#include "IEC_C_Com/IEC_C_protocol.h"
 //#include "Loop.h"
 
 
@@ -77,7 +78,7 @@ float CurrentFlow, MovingAvgFlow[110];
 //////////////////////////// TODO CGPRS_SIM800 gprs;
 RTC_DS1307 rtc;
 
-IEC62056_21_Serial IEC6205621_Com;
+//IEC62056_21_Serial IEC6205621_Com;
 
 DuePWM pwm(PWM_FREQ1, PWM_FREQ2);
 //////////////////////////////   Fonts
@@ -177,62 +178,62 @@ void Get_ObisValue(char *Obis, char *RetVal) {
     if (!strcmp(Obis, "0-4:96,1,0,255"))
         sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.SerialKontor);
     if (!strcmp(Obis, "0-4:96,1,1,255"))
-        sprintf(RetVal, " %s(ABCDEF1234)\r\n", Obis, TotalValues.SerialConsule);
+        sprintf(RetVal, "%s(ABCDEF1234)\r\n", Obis, TotalValues.SerialConsule);
     if (!strcmp(Obis, "0-4:96,1,2,255"))
-        sprintf(RetVal, " %s(13950501)\r\n", Obis, TotalValues.CreatedDate);
+        sprintf(RetVal, "%s(13950501)\r\n", Obis, TotalValues.CreatedDate);
     if (!strcmp(Obis, "0-4:24,2,1,255"))
-        sprintf(RetVal, " %s(%lu  * m3)\r\n", Obis,
+        sprintf(RetVal, "%s(%lu  * m3)\r\n", Obis,
                 TotalValues.Total_UsedVolume);
     if (!strcmp(Obis, "0-4:24,2,4,255"))
-        sprintf(RetVal, " %s(%lu * h)\r\n", Obis,
+        sprintf(RetVal, "%s(%lu * h)\r\n", Obis,
                 TotalValues.Total_UsedHourPump);
     if (!strcmp(Obis, "0-4:24,2,3,255"))
-        sprintf(RetVal, " %s(%lu * m3)\r\n", Obis,
+        sprintf(RetVal, "%s(%lu * m3)\r\n", Obis,
                 TotalValues.TotalDuration_Charzh);
     if (!strcmp(Obis, "0-4:24,2,2,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDateUseMoreThanMaxVolume);
     if (!strcmp(Obis, "0-4:24,2,15,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDateUseMoreThanMaxFellow);
     if (!strcmp(Obis, "0-4:24,2,16,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDatePowerOffForUseMoreThanMaxVolume);
     if (!strcmp(Obis, "0-4:24,2,17,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDatePowerOffForUseMoreThanMaxFellow);
     if (!strcmp(Obis, "0-4:24,2,18,255"))
-        sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.CountOpenDoor);
+        sprintf(RetVal, "%s(%lu)\r\n", Obis, TotalValues.CountOpenDoor);
     if (!strcmp(Obis, "0-4:24,2,19,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDateUseWaterWhenPowerOff);
     if (!strcmp(Obis, "0-4:24,2,20,255"))
-        sprintf(RetVal, " %s(%lu)\r\n", Obis,
+        sprintf(RetVal, "%s(%lu)\r\n", Obis,
                 TotalValues.VolumeUseWhenPowerOff);
     if (!strcmp(Obis, "0-4:24,2,21,255"))
-        sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.CountOpenConsule);
+        sprintf(RetVal, "%s(%lu)\r\n", Obis, TotalValues.CountOpenConsule);
     if (!strcmp(Obis, "0-4:24,2,22,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastDateSeeElectroMagnetic);
     if (!strcmp(Obis, "0-4:24,2,23,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis,
+        sprintf(RetVal, "%s(%s)\r\n", Obis,
                 TotalValues.LastTimeSeeElectroMagnetic);
     if (!strcmp(Obis, "0-4:24,2,24,255"))
-        sprintf(RetVal, " %s(%d)\r\n", Obis, TotalValues.batteryStatus);
+        sprintf(RetVal, "%s(%d)\r\n", Obis, TotalValues.batteryStatus);
     if (!strcmp(Obis, "0-4:24,2,25,255"))
-        sprintf(RetVal, " %s(%d)\r\n", Obis, TotalValues.InternalError);
+        sprintf(RetVal, "%s(%d)\r\n", Obis, TotalValues.InternalError);
     if (!strcmp(Obis, "0-4:24,2,26,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis, TotalValues.NewFirmwareDate);
+        sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.NewFirmwareDate);
     if (!strcmp(Obis, "0-4:24,2,27,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis, TotalValues.LastDateCharzhe);
+        sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.LastDateCharzhe);
     if (!strcmp(Obis, "0-4:24,2,28,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis, TotalValues.LastUserConnectedDate);
+        sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.LastUserConnectedDate);
     if (!strcmp(Obis, "0-4:24,2,29,255"))
-        sprintf(RetVal, " %s(%d)\r\n", Obis, TotalValues.LastUserConnectedCode);
+        sprintf(RetVal, "%s(%d)\r\n", Obis, TotalValues.LastUserConnectedCode);
     if (!strcmp(Obis, "0-4:24,2,30,255"))
-        sprintf(RetVal, " %s(%s)\r\n", Obis, TotalValues.LastDateKontorConfig);
+        sprintf(RetVal, "%s(%s)\r\n", Obis, TotalValues.LastDateKontorConfig);
     if (!strcmp(Obis, "0-4:24,2,31,255"))
-        sprintf(RetVal, " %s(%02d%02d;%02d%02d;%02d%02d)\r\n", Obis,
+        sprintf(RetVal, "%s(%02d%02d;%02d%02d;%02d%02d)\r\n", Obis,
                 GetMonthOfForSumofDays(TotalValues.DateTaarefe[0]),
                 GetDayOfMonthForSumofDays(TotalValues.DateTaarefe[0]),
                 GetMonthOfForSumofDays(TotalValues.DateTaarefe[1]),
@@ -241,26 +242,26 @@ void Get_ObisValue(char *Obis, char *RetVal) {
                 GetDayOfMonthForSumofDays(TotalValues.DateTaarefe[2])
         );
     if (!strcmp(Obis, "0-4:24,2,32,255")) {
-        char FFstr[4][10];
-        for (int k = 0; k < 4; k++) {
-            for (int i = 0; i < 10; i++)
-                FFstr[k][i] = '\0';
-            Dtostrf(TotalValues.Taarefe[k], 4, 2, FFstr[k]);
-        }
-        sprintf(RetVal, " %s(%s;%s;%s;%s)\r\n", Obis, FFstr[0], FFstr[1],
-                FFstr[2], FFstr[3]);
+        memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s(%s", Obis, FtoStr(TotalValues.Taarefe[0],F2str , 2));
+       memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s",RetVal, FtoStr(TotalValues.Taarefe[1],F2str , 2));
+      memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s",RetVal, FtoStr(TotalValues.Taarefe[2],F2str , 2));
+       memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s)\r\n",RetVal,FtoStr(TotalValues.Taarefe[3],F2str , 2));
+
     }
     if (!strcmp(Obis, "0-4:24,2,33,255")) {
         memset(F2str, 0, sizeof(F2str) / F2str[0]);
-        Dtostrf(TotalValues.MaxFellowAllow, 6, 2, F2str);
-        sprintf(RetVal, " %s(%s)\r\n", Obis, F2str);
+        sprintf(RetVal, "%s(%u)\r\n", Obis, TotalValues.MaxFellowAllow);
     }
     if (!strcmp(Obis, "0-4:24,2,34,255"))
-        sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
+        sprintf(RetVal, "%s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
     //   if (!strcmp(Obis, "0-4:24,2,34,255"))
     //       sprintf(RetVal, " %s(%lu)\r\n", Obis, TotalValues.MaxVolumeAllow);
     if (!strcmp(Obis, "0-4:50,2,05,255")) {//ReadDi's
-        sprintf(RetVal, " %s(%d,%d,%d,%d)\r\n", digitalRead(PositionSwitchOPEN), digitalRead(PositionSwitchCLOSE),
+        sprintf(RetVal, "%s(%d,%d,%d,%d)\r\n", digitalRead(PositionSwitchOPEN), digitalRead(PositionSwitchCLOSE),
                 digitalRead(MainPowerOnRelay), digitalRead(Pulse1Pin));
 
 
@@ -308,19 +309,19 @@ void Get_ObisValue(char *Obis, char *RetVal) {
             struct CharMemoryAlocated *ReadEventFile;
             ReadEventFile = GetDailEventRecords("00000000", "99999999");
             if (ReadEventFile != NULL) {
-                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 SerialIR.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     SerialIR.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
                 SerialIR.print(StrOut);
 
                 delay(1000);
-                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 Serial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     Serial.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
                 Serial.print(StrOut);
 
 
@@ -339,19 +340,19 @@ void Get_ObisValue(char *Obis, char *RetVal) {
 
             ReadEventFile = GetHourlyLogFile("00000000", "99999999");
             if (ReadEventFile != NULL) {
-                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 SerialIR.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     SerialIR.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
                 SerialIR.print(StrOut);
 
                 delay(1000);
-                sprintf(StrOut, "%c%s(", STX_Const, Obis);
+                sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 Serial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     Serial.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", CR_Const, LF_Const, SOH_Const, STX_Const, ETX_Const_);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
                 Serial.print(StrOut);
 
 
@@ -360,8 +361,6 @@ void Get_ObisValue(char *Obis, char *RetVal) {
                 if (ReadEventFile)
                     free(ReadEventFile);
             }
-
-
         }
     }
 }
@@ -370,12 +369,12 @@ int FontRowPos(int row) {
     return 105 + row * 30;
 }
 
-float MaxFlowIn24Hour() {
+long MaxFlowIn24Hour() {
     char CurrDate[20];
     sprintf(CurrDate, "%02d%02d%02d", year(), month(), day());
 
     if (!strcmp(CurrDate, TotalValues.V_MaxFlowIn24Hour_LogDay)) {
-        TotalValues.V_MaxFlowIn24Hour = 0.0;
+        TotalValues.V_MaxFlowIn24Hour = 0;
         strcpy(TotalValues.V_MaxFlowIn24Hour_LogDay, CurrDate);
     } else
         TotalValues.V_MaxFlowIn24Hour =
@@ -689,7 +688,7 @@ void LCDShowCurrFlow() {
     myGLCD.setFont(PNumFontB24);
     for (int i = 0; i < 20; i++)
         FFstr[i] = 0;
-    Dtostrf(CurrentFlow, 4, 2, FFstr);
+    FtoStr(CurrentFlow, FFstr, 2);
     for (int i = strlen(FFstr); i < 7; i++)
         FFstr[i] = '-';
     myGLCD.print(FFstr, 225, FontRowPos(3));
@@ -700,9 +699,10 @@ void LCDShowCurrFlow() {
     myGLCD.setFont(Text_10);  // بیشینه
     myGLCD.print("0", 135, FontRowPos(3));
     myGLCD.setFont(PNumFontB24);
-    float MaxFlowIn24Hour_V = MaxFlowIn24Hour();
-    Dtostrf(TotalValues.V_MaxFlowIn24Hour, 4, 2, F2str);
+    long MaxFlowIn24Hour_V = MaxFlowIn24Hour();
+    FtoStr(TotalValues.V_MaxFlowIn24Hour, F2str, 2);
     FFstr[strlen(F2str)] = 0;
+    sprintf(F2str,"%u",TotalValues.V_MaxFlowIn24Hour);
     myGLCD.print(F2str, 15, FontRowPos(3));
 
     memset(F2str, 0, 20);
@@ -1112,7 +1112,7 @@ void TimeStartup() {
 
     Serial.begin(115200);
     SerialIR.begin(300, SERIAL_7E1);/// M
-
+    SerialMBUS.begin(115200);
     if (!rtc.begin()) {
         Serial__println("Couldn't find RTC");
 
@@ -1293,23 +1293,18 @@ void TimeLoop() {
         SaveEventsFile(ErrorInFreeMemory + 7);
         freememoryTrace = freemeMory();
     }
-    IEC6205621_Com.ShoeLevelCommunicate();
-    if (freemeMory() != freememoryTrace) {
-        SaveEventsFile(ErrorInFreeMemory + 8);
-        freememoryTrace = freemeMory();
-    }
-    CheckElectroMagnetic();
+     CheckElectroMagnetic();
     ShowErrorsOnScreen();
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 9);
         freememoryTrace = freemeMory();
     }
     SetDisplayPWM();
+    IEC_C_CheckModeTimeOut(false);
+
     Serial.print("Freememory_ =");
     Serial.println(freemeMory());
-
-
-}
+  }
 
 void readFileTestEvent();
 
@@ -1383,6 +1378,11 @@ void SerialIREvent() {
     //IEC6205621_Com.ExternSerialEvent1();
     int i;
     i = IEC_C_serial_recv();
+}
+int mbus_serial_recv();
+void SerialMBUSEvent() {
+    int i;
+    i = mbus_serial_recv();
 }
 
 void getDump() {

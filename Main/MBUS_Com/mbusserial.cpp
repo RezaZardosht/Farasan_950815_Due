@@ -170,7 +170,7 @@ mbus_serial_send_frame( mbus_frame *frame)
   int len, ret;
   char Tmsg[100];
   
-  IF_SERIAL_DEBUG(ardprintf("%s: Entered \n", __PRETTY_FUNCTION__));
+  IF_SERIAL_DEBUG(printf_New("%s: Entered \n", __PRETTY_FUNCTION__));
 
   if (frame == NULL)
   {
@@ -185,18 +185,18 @@ mbus_serial_send_frame( mbus_frame *frame)
 
   //#ifdef MBUS_SERIAL_DEBUG
   // if debug, dump in HEX form to stdout what we write to the serial port
-  IF_SERIAL_DEBUG(ardprintf("%s: Dumping M-Bus frame [%d bytes]:\n ", __PRETTY_FUNCTION__, len));
+  IF_SERIAL_DEBUG(printf_New("%s: Dumping M-Bus frame [%d bytes]:\n ", __PRETTY_FUNCTION__, len));
    for (int i = 0; i < len; i++)
   {
    
-    IF_SERIAL_DEBUG(ardprintf( "%02X, ", buff[i]));
+    IF_SERIAL_DEBUG(printf_New( "%02X, ", buff[i]));
     
   }
-  IF_SERIAL_DEBUG(ardprintf("\n"));
+  IF_SERIAL_DEBUG(printf_New("\n"));
 
   //#endif
 
-  if ((ret = M_BusSerial.write(buff, len)) == len)
+  if ((ret = SerialMBUS.write(buff, len)) == len)
   {
     //
     // call the send event function, if the callback function is registered
@@ -206,7 +206,7 @@ mbus_serial_send_frame( mbus_frame *frame)
   }
   else
   {
-    IF_SERIAL_DEBUG(ardprintf( "%s: Failed to write frame to socket (ret = %d: )\n", "mbus_serial_send_frame", ret));
+    IF_SERIAL_DEBUG(printf_New( "%s: Failed to write frame to socket (ret = %d: )\n", "mbus_serial_send_frame", ret));
  
     return -1;
   }
@@ -230,7 +230,7 @@ mbus_serial_recv()
   char Tmsg[100];
 
   //    printf_P(PSTR("%s: Entered \n"), __PRETTY_FUNCTION__);
-  IF_SERIAL_DEBUG(ardprintf("%s: Entered \n", __PRETTY_FUNCTION__));
+  IF_SERIAL_DEBUG(printf_New("%s: Entered \n", __PRETTY_FUNCTION__));
 
 
   memset(buff, 0, sizeof(buff));
@@ -242,24 +242,24 @@ mbus_serial_recv()
   len = 0;
   timeouts = 0;
   //   printf_P(PSTR("%s: Entered3 \n"), __PRETTY_FUNCTION__);
-  IF_SERIAL_DEBUG(ardprintf( "%s: Entered3 \n", __PRETTY_FUNCTION__));
+  IF_SERIAL_DEBUG(printf_New( "%s: Entered3 \n", __PRETTY_FUNCTION__));
  
   do {
     //       printf_P(PSTR("%s: Attempt to read %d bytes [len = %d]\n"), __PRETTY_FUNCTION__, remaining, len);
-    IF_SERIAL_DEBUG(ardprintf( "%s: Attempt to read %d bytes [len = %d]\n", __PRETTY_FUNCTION__, remaining, len));
+    IF_SERIAL_DEBUG(printf_New( "%s: Attempt to read %d bytes [len = %d]\n", __PRETTY_FUNCTION__, remaining, len));
      unsigned long start_millis;
 
 
     start_millis = millis();
 
-    while (Serial1.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis ) < 7))
+    while (SerialMBUS.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis ) < 7))
 
     {
-      buff[len] = Serial1.read();
+      buff[len] = SerialMBUS.read();
       len++;
 
       start_millis = millis();
-      //     DebugSerial.println(ardprintf("millis = %ld", millis()));
+      //     DebugSerial.println(printf_New("millis = %ld", millis()));
 
     }
 
@@ -280,14 +280,14 @@ mbus_serial_recv()
   if (remaining != 0)
   {
     // Would be OK when e.g. scanning the bus, otherwise it is a failure.
-   IF_SERIAL_DEBUG(ardprintf( "%s: M-Bus layer failed to receive complete data.\n", __PRETTY_FUNCTION__));
+   IF_SERIAL_DEBUG(printf_New( "%s: M-Bus layer failed to receive complete data.\n", __PRETTY_FUNCTION__));
  
     return -2;
   }
 
   if (len == -1)
   {
-    IF_SERIAL_DEBUG(ardprintf( "%s: M-Bus layer failed to parse data.\n", __PRETTY_FUNCTION__));
+    IF_SERIAL_DEBUG(printf_New( "%s: M-Bus layer failed to parse data.\n", __PRETTY_FUNCTION__));
    
     return -1;
   }

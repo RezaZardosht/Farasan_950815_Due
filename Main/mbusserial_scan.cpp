@@ -11,13 +11,15 @@
 //#include <SPI.h>
 //#include "MBUS_Com\printf.h"
 //#include "MBUS_Com\sscan.h"
-#include "loop.h"
-#include "MBUS_Com\mbus.h"
+
+#include "MBUS_Com/mbus.h"
+#include "PublicFuncVar.h"
 //#include <stdint.h>
 //#include <SoftwareSerial.h>
 //#include <MemoryFree.h>
-#include "MBUS_Com\mbus_config.h"
+#include "MBUS_Com/mbus_config.h"
 
+extern StructTotalValues TotalValues;
 static int debug = 0;
 
 #define rxPin 2
@@ -67,7 +69,7 @@ void loop_Mbus() {
         if (replay_frame == NULL) {
             Serial.println("Could not get memory for mbus_frame");
             stringComplete = false;
-            return ;
+            return;
         }
         replay_frame->control = 0x08;
         replay_frame->address = 0x03;
@@ -78,7 +80,7 @@ void loop_Mbus() {
         if (frame_data_replay == NULL) {
             Serial.println("Could not get memory for frame_data_replay");
             stringComplete = false;
-            return ;
+            return;
         }
         frame_data_replay->type = MBUS_DATA_TYPE_VARIABLE;
         frame_data_replay->data_var.header.id_bcd[0] = 0x64;
@@ -101,7 +103,7 @@ void loop_Mbus() {
         {
             Serial.println("Could not get memory for mbus_data_record_replay");
             stringComplete = false;
-            return ;
+            return;
         }
         mbus_data_record_replay->drh.dib.dif = 0x04;
         mbus_data_record_replay->drh.dib.ndife = 0;
@@ -121,7 +123,7 @@ void loop_Mbus() {
         {
             Serial.println("Could not get memory for mbus_data_record_replay");
             stringComplete = false;
-            return ;
+            return;
         }
         mbus_data_record_replay2->drh.dib.dif = 0x04;
         mbus_data_record_replay2->drh.dib.ndife = 0;
@@ -176,25 +178,7 @@ void serialEvent() {
 }
 */
 
-void serialEvent2() {
-    /*  while (Serial.available()) {
-        // get the new byte:
-        char inChar = (char)Serial.read();
-        // add it to the inputString:
-        inputString += inChar;
-        // if the incoming character is a newline, set a flag
-        // so the main loop can do something about it:
-        if (inChar == '\n') {
-          stringComplete = true;
-        }
-      }*/
 
-    int i;
-    i = mbus_serial_recv();
-    // Serial.println(i);
-
-
-}
 
 #define ARDBUFFER 16
 
@@ -205,7 +189,7 @@ void serialEvent2() {
   char s = 'g';
   float f = 2.3;
 
-  ardprintf("test %d %l %c %s %f", l, k, s, j, f);
+  printf_New("test %d %l %c %s %f", l, k, s, j, f);
 */
 
 
@@ -226,12 +210,17 @@ mbus_Ndata_record *MBUS_CumulativeVolume() {
     mbus_data_record_replay2->drh.vib.vif = 0x14;
     mbus_data_record_replay2->drh.vib.nvife = 0;
     mbus_data_record_replay2->data_len = 6;
-    mbus_data_record_replay2->data[0] = 0x12;
-    mbus_data_record_replay2->data[1] = 0x34;
-    mbus_data_record_replay2->data[2] = 0x56;
-    mbus_data_record_replay2->data[3] = 0x78;
-    mbus_data_record_replay2->data[4] = 0x56;
-    mbus_data_record_replay2->data[5] = 0x78;
+
+    /* mbus_data_record_replay2->data[0] = 0x12;
+      mbus_data_record_replay2->data[1] = 0x34;
+      mbus_data_record_replay2->data[2] = 0x56;
+      mbus_data_record_replay2->data[3] = 0x78;
+      mbus_data_record_replay2->data[4] = 0x56;
+      mbus_data_record_replay2->data[5] = 0x78;*/
+    longlongbytes ik;
+    ik.longn = TotalValues.Total_UsedVolume;
+    for (int i = 0; i < 6; i++)
+        mbus_data_record_replay2->data[i] = ik.chars[i];
     mbus_data_record_replay2->next = NULL;
     return mbus_data_record_replay2;
 
@@ -250,12 +239,17 @@ mbus_Ndata_record *MBUS_MAX_Daily_Volume_Fellow() {
     mbus_data_record_replay2->drh.vib.vif = 0x4E;
     mbus_data_record_replay2->drh.vib.nvife = 0;
     mbus_data_record_replay2->data_len = 6;
-    mbus_data_record_replay2->data[0] = 0x12;
+/*    mbus_data_record_replay2->data[0] = 0x12;
     mbus_data_record_replay2->data[1] = 0x34;
     mbus_data_record_replay2->data[2] = 0x56;
     mbus_data_record_replay2->data[3] = 0x78;
     mbus_data_record_replay2->data[4] = 0x56;
-    mbus_data_record_replay2->data[5] = 0x78;
+    mbus_data_record_replay2->data[5] = 0x78;*/
+    longlongbytes ik;
+    ik.longn = TotalValues.V_MaxFlowIn24Hour;
+    for (int i = 0; i < 6; i++)
+        mbus_data_record_replay2->data[i] = ik.chars[i];
+
     mbus_data_record_replay2->next = NULL;
     return mbus_data_record_replay2;
 
@@ -274,16 +268,54 @@ mbus_Ndata_record *MBUS_CumulativPumpHourWork() {
     mbus_data_record_replay2->drh.vib.vif = 0x26;
     mbus_data_record_replay2->drh.vib.nvife = 0;
     mbus_data_record_replay2->data_len = 6;
-    mbus_data_record_replay2->data[0] = 0x12;
+/*    mbus_data_record_replay2->data[0] = 0x12;
     mbus_data_record_replay2->data[1] = 0x34;
     mbus_data_record_replay2->data[2] = 0x56;
     mbus_data_record_replay2->data[3] = 0x78;
     mbus_data_record_replay2->data[4] = 0x56;
-    mbus_data_record_replay2->data[5] = 0x78;
+    mbus_data_record_replay2->data[5] = 0x78;*/
+    longlongbytes ik;
+    ik.longn = TotalValues.Total_UsedHourPump;
+    for (int i = 0; i < 6; i++)
+        mbus_data_record_replay2->data[i] = ik.chars[i];
+
     mbus_data_record_replay2->next = NULL;
     return mbus_data_record_replay2;
 
 }
+
+mbus_Ndata_record *MBUS_CuCurrentInterval() {
+    mbus_Ndata_record *mbus_data_record_replay2;
+    mbus_data_record_replay2 = mbus_Ndata_record_new();
+    if (mbus_data_record_replay2 == NULL) {
+        Serial.println("Could not get memory for mbus_data_record_replay");
+        return NULL;
+    }
+
+    mbus_data_record_replay2->drh.dib.dif = 0x86;
+    mbus_data_record_replay2->drh.dib.ndife = 0x10;
+    mbus_data_record_replay2->drh.vib.vif = 0xFF;
+    mbus_data_record_replay2->drh.vib.nvife = 0x11;
+    mbus_data_record_replay2->data_len = 6;
+/*    mbus_data_record_replay2->data[0] = 0x12;
+    mbus_data_record_replay2->data[1] = 0x34;
+    mbus_data_record_replay2->data[2] = 0x56;
+    mbus_data_record_replay2->data[3] = 0x78;
+    mbus_data_record_replay2->data[4] = 0x56;
+    mbus_data_record_replay2->data[5] = 0x78;*/
+    longbytes ik;
+    ik.longn = TotalValues.Duration_Volume;
+    for (int i = 0; i < 4; i++)
+        mbus_data_record_replay2->data[i] = ik.chars[i];
+    intbytes in;
+    in.intn = 100;
+    for (int i = 0; i < 2; i++)
+        mbus_data_record_replay2->data[i + 4] = in.chars[i];
+    mbus_data_record_replay2->next = NULL;
+    return mbus_data_record_replay2;
+
+}
+
 
 mbus_Ndata_record *MBUS_RemainingVolume() {
     mbus_Ndata_record *mbus_data_record_replay2;
@@ -348,17 +380,20 @@ mbus_Ndata_record *MBUS_PowerDownDate() {
 
     mbus_data_record_replay2->drh.dib.dif = 0x86;
     mbus_data_record_replay2->drh.dib.ndife = 1;
-    mbus_data_record_replay2->drh.dib.dife[0] = 0x10;
+    mbus_data_record_replay2->drh.dib.dife[0] = 0x20;
     mbus_data_record_replay2->drh.vib.vif = 0xFF;
     mbus_data_record_replay2->drh.vib.nvife = 1;
     mbus_data_record_replay2->drh.vib.vife[0] = 0x13;
-    mbus_data_record_replay2->data_len = 6;
-    mbus_data_record_replay2->data[0] = 0x12;
+    mbus_data_record_replay2->data_len = 4;
+    char CurrDate[20];
+    sprintf(CurrDate, "%04d%02d%02d", year(), month(), day());
+    strcpy((char *)mbus_data_record_replay2->data,CurrDate);
+   /* mbus_data_record_replay2->data[0] = 0x12;
     mbus_data_record_replay2->data[1] = 0x34;
     mbus_data_record_replay2->data[2] = 0x56;
     mbus_data_record_replay2->data[3] = 0x78;
     mbus_data_record_replay2->data[4] = 0x56;
-    mbus_data_record_replay2->data[5] = 0x78;
+    mbus_data_record_replay2->data[5] = 0x78;*/
     mbus_data_record_replay2->next = NULL;
     return mbus_data_record_replay2;
 
@@ -1100,9 +1135,9 @@ void MBUS_MakeArrayOfRequestParameters(mbus_frame *replay_frame) {
 
     for (int i = 0; i < 32; i++) {
         if (MBUS_ParametersRequest[i]) {
-            NRecord =  MBus_ptr_array[i]();
-            add_NrecordPackFrame(replay_frame,NRecord);
-          }
+            NRecord = MBus_ptr_array[i]();
+            add_NrecordPackFrame(replay_frame, NRecord);
+        }
     }
     mbus_Ndata_record_free(NRecord);
 
@@ -1120,7 +1155,114 @@ mbus_Ndata_record *MBUS_MakeHeaderOfRequestParameters() {
 }
 
 void Get_MBUS_MakeArrayOfRequestParameters() {
- //   mbus_Ndata_record *mbus_data_record_replay = MBUS_MakeArrayOfRequestParameters();
-  //  mbus_Ndata_record_free(mbus_data_record_replay);
+    //   mbus_Ndata_record *mbus_data_record_replay = MBUS_MakeArrayOfRequestParameters();
+    //  mbus_Ndata_record_free(mbus_data_record_replay);
+
+}
+void Mbus_CheckRequesPS(char PSS[]){
+
+
+
+    if(PSS[0] && 0x01);
+        //cumulatve consumtion volume request
+    if(PSS[0] && 0x02);
+        //MAximumDailyFellow
+    if(PSS[0] && 0x04);
+        //cumulatve Pump hour work
+
+    if(PSS[1] && 0x01);
+        //cumulatve consumtion volume request
+    if(PSS[1] && 0x02);
+        //MAximumDailyFellow
+    if(PSS[1] && 0x04);
+        //cumulatve Pump hour work
+
+    if(PSS[2] && 0x01);
+    //cumulatve consumtion volume request
+    if(PSS[2] && 0x02);
+    //MAximumDailyFellow
+    if(PSS[2] && 0x04);
+    //cumulatve Pump hour work
+    if(PSS[2] && 0x08);
+        //Remaining Volume
+    if(PSS[2] && 0x10);
+        //Assign Credit
+    //MBUS_Credit
+    if(PSS[2] && 0x20);
+        //volume of Water consumtion fraud
+    if(PSS[3] && 0x01);
+        //Event Power Down event
+        //MBUS_PowerDownDate,
+     if(PSS[3] && 0x02);
+    //Event Power Up event
+    //MBUS_PowerUpDate,
+
+    if(PSS[3] && 0x04);
+    //Event Replace battery
+   // MBUS_ReplaceBatteryRequest,
+              if(PSS[3] && 0x08);
+    //Event Application error
+    //MBUS_ApplicationError,
+
+    if(PSS[3] && 0x10);
+    //Event Frimware activated
+  //  MBUS_FirmwareActivated,
+    if(PSS[3] && 0x20);
+    //Event Credit assignment
+   // MBUS_CreditAssignmentDate,
+
+    if(PSS[3] && 0x40);
+    //Strong DC Magnetic Field detect
+   // MBUS_MagneticFieldDetected,
+                if(PSS[3] && 0x80);
+    //Meter cover remove
+   // MBUS_MetercoverremovedDate,
+            if(PSS[4] && 0x01);
+    //Event log Cleard
+   // MBUS_EventLogClearedDate,
+              if(PSS[4] && 0x02);
+    //Flow rate exceed
+   // MBUS_FlowRateExceededDate,
+              if(PSS[4] && 0x04);
+    //Permit volume Threshold exceed
+   // MBUS_PermittedVolumeThresholdExceededdDate,
+           if(PSS[4] && 0x08);
+    //Electerical connect disconnected
+   // MBUS_ElectricalCurrentDisconnectedDate,
+            if(PSS[4] && 0x10);
+    //Electerical connect Connected
+   // MBUS_ElectricalCurrentConnectedDate,
+    if(PSS[4] && 0x20);
+    //Tempered Wter Flow Detected
+    //MBUS_TamperedWaterFlowDetecteddDate,
+   if(PSS[4] && 0x40);
+    //Successful Authentication
+    // MBUS_SuccessfulAuthenticationDate,
+   if(PSS[4] && 0x80);
+    //Authentication failed
+   // MBUS_AuthenticationFailedDate,
+   if(PSS[5] && 0x01);
+    //Operational key changed
+    // MBUS_OperationalKeyChangedDate,
+  if(PSS[5] && 0x02);
+    //Secret1 for secure algorithm changed
+   // MBUS_Secret1SecureCchangedDate
+   // MBUS_RemainingVolume,
+
+
+
+ if(PSS[5] && 0x04);
+    //Secret2 for secure algorithm changed
+    //MBUS_Secret2SecureCchangedDate
+
+    if(PSS[5] && 0x08);
+    //Clock adjusted
+    //MBUS_ClockAdjusted1
+  if(PSS[5] && 0x10);
+    //MasterKeychanged
+    //  MBUS_MasterKeyChangedDate,
+ if(PSS[5] && 0x20);
+    //MBusCable Disconnected
+    //  MBUS_MBusCableDisconnectedDate
 
 }

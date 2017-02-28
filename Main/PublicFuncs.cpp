@@ -311,6 +311,7 @@ int strtoint(char a[]) {
   const int MasterKeyChanged = 21;
   const int MBusDisconnected = 22;*/
 char *Dtostrf(double val, signed char width, unsigned char prec, char *sout) {
+
     char fmt[20];
     sprintf(fmt, "%%%d.%df", width, prec);
     sprintf(sout, fmt, val);
@@ -389,6 +390,7 @@ int printf_New(char *str, ...) {
                         sprintf(msg2, msg, va_arg(argv, char *));
                         Find_Argument = true;
                         break;
+                    case 'x':
                     case 'X':
                         sprintf(msg2, msg, va_arg(argv, int));
                         Find_Argument = true;
@@ -452,6 +454,7 @@ int ardprintf(char *str, ...) {
     va_start(argv, count);
     i = 0;
     j = 0;
+
     while (str[i] != '\0') {
         k = 0;
         if (str[i] == '%') {

@@ -148,7 +148,7 @@ IEC_C_serial_send_frame(IEC_C_frame *frame) {
 //    uint8_t buff[PACKET_BUFF_SIZE];
     int len, ret;
     // char Tmsg[100];
-    IEC_C_CheckModeTimeOut();
+
     IF_SERIAL_DEBUG(printf_New("%s: Entered \n", __PRETTY_FUNCTION__));
 
     if (frame == NULL) {
@@ -213,7 +213,7 @@ IEC_C_serial_recv() {
     uint8_t buff[PACKET_BUFF_SIZE];
     int len, remaining, nread, timeouts;
 
-    IEC_C_CheckModeTimeOut(true);
+
     //    printf_P(PSTR("%s: Entered \n"), __PRETTY_FUNCTION__);
     IF_SERIAL_DEBUG(printf_New("%s: Entered \n", __PRETTY_FUNCTION__));
 
@@ -246,7 +246,8 @@ IEC_C_serial_recv() {
         }
 
     } while ((remaining = IEC_C_parse(buff, len)) > 0 && ((millis() - start_millis) < 500));
-
+    if(remaining == DataPackRecieveOK)
+        IEC_C_CheckModeTimeOut(true);
     if (len == 0) {
         // No data received
         return -1;

@@ -21,7 +21,7 @@
 //#include <termios.h>
 #include "mbus.h"
 #include "mbusprotocol.h"
-
+#define SerialMBUS Serial2
 
 //SoftwareSerial *mbus_serial_connect(char *device);
 int                 mbus_serial_disconnect(HardwareSerial  *handle);

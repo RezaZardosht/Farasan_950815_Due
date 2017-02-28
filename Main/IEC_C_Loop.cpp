@@ -331,7 +331,7 @@ byte Get_IEC_IdentifyByte(int byteNum) {
 }
 
 void Set_ObisValue(char *Obis, char *OBIS_Value) {
-    IF_SERIAL_DEBUG(printf_New("%s:No 301==>OBIS= %s %u \n", __PRETTY_FUNCTION__, Obis));
+    IF_SERIAL_DEBUG(printf_New("%s:No 301==>OBIS=%s,  Value=%s \n", __PRETTY_FUNCTION__, Obis,OBIS_Value));
     if (!strcmp(Obis, "0-4:96,1,0,255")) {//I-Meter serial number
         strcpy(TotalValues.SerialKontor, OBIS_Value); //I-Meter serial number
     }

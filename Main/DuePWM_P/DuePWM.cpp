@@ -43,21 +43,25 @@ Notes:
 #include "Arduino.h"
 
 
+
+
 DuePWM::DuePWM()
 {
-	//pwm_res_nbit = 8;
+#if defined (_VARIANT_ARDUINO_DUE_X_)	//pwm_res_nbit = 8;
 	pmc_enable_periph_clk( PWM_INTERFACE_ID );
 	setFreq1(PWM_FREQUENCY);
 	setFreq2(PWM_FREQUENCY);
+#endif
 }
 
 
 DuePWM::DuePWM(uint32_t clockA_freq, uint32_t clockB_freq)
 {
-	//pwm_res_nbit = res_nbit;
+#if defined (_VARIANT_ARDUINO_DUE_X_)	//pwm_res_nbit = res_nbit;
 	pmc_enable_periph_clk( PWM_INTERFACE_ID );
 	setFreq1(clockA_freq);
 	setFreq2(clockB_freq);
+#endif
 }
 
 
@@ -69,21 +73,25 @@ DuePWM::DuePWM(uint32_t clockA_freq, uint32_t clockB_freq)
 
 void DuePWM::setFreq1(uint32_t  clockA_freq)
 {
+#if defined (_VARIANT_ARDUINO_DUE_X_)
 	pwm_clockA_freq = pwm_max_duty_Ncount*clockA_freq;
 
 	// PWM STARTUP AND SETUP CLOCK
 	//-------------------------------
 	PWMC_ConfigureClocks( pwm_clockA_freq, pwm_clockB_freq, VARIANT_MCK );
+#endif
 }
 
 
 void DuePWM::setFreq2(uint32_t  clockB_freq)
 {
+#if defined (_VARIANT_ARDUINO_DUE_X_)
 	pwm_clockB_freq = pwm_max_duty_Ncount*clockB_freq;
 	
 	// PWM STARTUP AND SETUP CLOCK
 	//-------------------------------
 	PWMC_ConfigureClocks( pwm_clockA_freq, pwm_clockB_freq, VARIANT_MCK );
+#endif
 }
 
 
@@ -91,7 +99,8 @@ void DuePWM::setFreq2(uint32_t  clockB_freq)
 //--------------------------------
 void  DuePWM::pinFreq1( uint32_t  pin )
 {
-    uint32_t  chan = g_APinDescription[pin].ulPWMChannel; 
+#if defined (_VARIANT_ARDUINO_DUE_X_)
+    uint32_t  chan = g_APinDescription[pin].ulPWMChannel;
 
 	if (pin < 6 || pin > 9)
 		return;
@@ -108,11 +117,13 @@ void  DuePWM::pinFreq1( uint32_t  pin )
 	PWMC_SetPeriod(PWM_INTERFACE, chan, pwm_max_duty_Ncount);
 	PWMC_SetDutyCycle(PWM_INTERFACE, chan, 0);  // The 0 is the initial duty cycle
 	PWMC_EnableChannel(PWM_INTERFACE, chan);
+#endif
 }
 
 void  DuePWM::pinFreq2( uint32_t  pin )
 {
-    uint32_t  chan = g_APinDescription[pin].ulPWMChannel; 
+#if defined (_VARIANT_ARDUINO_DUE_X_)
+    uint32_t  chan = g_APinDescription[pin].ulPWMChannel;
 
 	if (pin < 6 || pin > 9)
 		return;
@@ -129,6 +140,7 @@ void  DuePWM::pinFreq2( uint32_t  pin )
 	PWMC_SetPeriod(PWM_INTERFACE, chan, pwm_max_duty_Ncount);
 	PWMC_SetDutyCycle(PWM_INTERFACE, chan, 0);  // The 0 is the initial duty cycle
 	PWMC_EnableChannel(PWM_INTERFACE, chan);
+#endif
 }
 
 
@@ -136,11 +148,13 @@ void  DuePWM::pinFreq2( uint32_t  pin )
 //--------------------------------
 void  DuePWM::pinDuty( uint32_t  pin,  uint32_t  duty ) 
 {
+#if defined (_VARIANT_ARDUINO_DUE_X_)
 	if (pin < 6 || pin > 9)
 		return;
 
 	//pwm_duty = mapResolution( duty, pwm_res_nbit, PWM_RESOLUTION);
 	PWMC_SetDutyCycle(PWM_INTERFACE, g_APinDescription[pin].ulPWMChannel, duty);
+#endif
 }
 
 
@@ -152,3 +166,4 @@ void  DuePWM::stop( uint32_t  pin )
     pinMode(pin, OUTPUT);      // sets the digital pin as output
     digitalWrite(pin, LOW);    // sets the LED off
 }
+

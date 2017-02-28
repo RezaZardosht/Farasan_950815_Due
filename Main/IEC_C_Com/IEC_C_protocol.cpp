@@ -20,6 +20,8 @@ _HandHeldRFID_Communication HandHeldRFID_Communication;
 
 int SerielTesSendFram();
 
+int strtoint(char a[]);
+
 //#include <MemoryFree.h>
 void Get_ObisValue(char *Obis, char *RetVal);
 
@@ -44,7 +46,54 @@ void (*_IEC_C_recv_event)(uint8_t src_type, const uint8_t *buff, size_t len) = N
 
 void (*_IEC_C_send_event)(uint8_t src_type, const uint8_t *buff, size_t len) = NULL;
 
-extern char *Obis_array[][2];
+char *Obis_array[][2] = {{"0-4:96,1,0,255",  "SerialKontor"},
+                         {"0-4:96,1,1,255",  "SerialConsule"},
+                         {"0-4:96,1,2,255",  "CreatedDate"},
+                         {"0-4:24,2,1,255",  "Total_UsedVolume"},
+                         {"0-4:24,2,4,255",  "Total_UsedHourPump"},
+                         {"0-4:24,2,3,255",  "TotalDuration_Charzh"},
+                         {"0-4:24,2,2,255",  "LastDateUseMoreThanMaxVolume"},
+                         {"0-4:24,2,15,255", "LastDateUseMoreThanMaxFellow"},
+                         {"0-4:24,2,16,255", "LastDatePowerOffForUseMoreThanMaxVolume"},
+                         {"0-4:24,2,17,255", "LastDatePowerOffForUseMoreThanMaxFellow"},
+                         {"0-4:24,2,18,255", "CountOpenDoor"},
+                         {"0-4:24,2,19,255", "LastDateUseWaterWhenPowerOff"},
+                         {"0-4:24,2,20,255", "VolumeUseWhenPowerOff"},
+                         {"0-4:24,2,21,255", "CountOpenConsule"},
+                         {"0-4:24,2,22,255", "LastDateSeeElectroMagnetic"},
+                         {"0-4:24,2,23,255", "LastTimeSeeElectroMagnetic"},
+                         {"0-4:24,2,24,255", "batteryStatus"},
+                         {"0-4:24,2,25,255", "InternalError"},
+                         {"0-4:24,2,26,255", "NewFirmwareDate"},
+                         {"0-4:24,2,27,255", "LastDateCharzhe"},
+                         {"0-4:24,2,28,255", "LastUserConnectedDate"},
+                         {"0-4:24,2,29,255", "LastUserConnectedCode"},
+                         {"0-4:24,2,30,255", "LastDateKontorConfig"},
+                         {"0-4:24,2,31,255", "SetDateDurateTaaarefe"},
+                         {"0-4:24,2,32,255", "SetTaaarefeValues"},
+                         {"0-4:24,2,33,255", "SetMaxFellow"},
+                         {"0-4:24,2,34,255", "SetMaxVolume"},
+                         {"0-4:24,2,35,255", "GetEventFile"},
+                         {"0-4:24,2,36,255", "GetDailyLogFile"},
+                         {"0-4:50,2,01,255", "Delete_EventFile"},
+                         {"0-4:50,2,02,255", "Delete_HourlyFile"},
+                         {"0-4:50,2,03,255", "Delete_DailyFile"},
+                         {"0-4:50,2,04,255", "Delete_MonthlyFile"},
+                         {"0-4:50,2,05,255", "Read_all_DI"},
+                         {"0-4:50,2,06,255", "Set Charzhe"}
+};
+
+
+char BccValue(uint8_t *data, int data_size) {
+    char RetVal;
+    RetVal = (char) 0;
+    for (int i = 1; i < data_size; i++)
+        RetVal = RetVal ^ (data[i] & 0xff);
+    IF_SERIAL_DEBUG(printf_New("%s:No 177 Bcc= %d \n", __PRETTY_FUNCTION__, RetVal));
+
+    return RetVal;
+}
+
 /*
 char *Obis_array[][2] = {{"0-4:96,1,0,255",  "SerialKontor"},
                          {"0-4:96,1,1,255",  "SerialConsule"},
@@ -174,7 +223,7 @@ IEC_C_frame_new(int frame_type, uint8_t *data = NULL, size_t data_size = -1) {
 
                 Iec_OBIS_Ndata_record *NrecordN;
 //27
-                for (int i = 1; i < 26; i++) {
+                for (int i = 1; i < 25; i++) {
 
                     NrecordN = AddNewIec_OBIS_Ndata_record_ToLinkList(frame->Iec_record, "i", "a");
                     Get_ObisValue(Obis_array[i][0], NrecordN->msg);
@@ -210,11 +259,11 @@ IEC_C_frame_new(int frame_type, uint8_t *data = NULL, size_t data_size = -1) {
                 IF_SERIAL_DEBUG(printf_New("%s:No 102 \n", __PRETTY_FUNCTION__));
                 break;
             case IEC_C_FRAME_TYPE_REPLAY_INPROGMOD_1:
-                IF_SERIAL_DEBUG(printf_New("%s:No 101 \n", __PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s:No 161 \n", __PRETTY_FUNCTION__));
 
 
                 if ((NrecordRFID = Iec_OBIS_Ndata_record_new("123455", "abcd")) == NULL) {
-                    IF_SERIAL_DEBUG(printf_New("%s:No 611 \n", __PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New("%s:No 162 \n", __PRETTY_FUNCTION__));
                     return NULL;
                 }
                 char Obis_adress__[MAX_OBIS_ADDRESS_LENGTH];
@@ -225,6 +274,9 @@ IEC_C_frame_new(int frame_type, uint8_t *data = NULL, size_t data_size = -1) {
 
                 frame->Iec_record = NrecordRFID;
                 Get_ObisValue(Obis_adress__, NrecordRFID->msg);
+                IF_SERIAL_DEBUG(
+                        printf_New("%s:NO 163--->OBIS==%s,---->Value=%s,NrecordRFID->msg=%s\n", __PRETTY_FUNCTION__,
+                                   Obis_adress__, ObisValue, NrecordRFID->msg));
 
                 frame->start1 = IEC_C_FRAME_TYPE_REPLAY_INPROGMOD_1;
 
@@ -232,7 +284,6 @@ IEC_C_frame_new(int frame_type, uint8_t *data = NULL, size_t data_size = -1) {
                 //      NrecordNRFID = AddNewIec_OBIS_Ndata_record_ToLinkList(frame->Iec_record, "i", "a");
                 //      Get_ObisValue("0-2:01,1,01,001", NrecordNRFID->msg);
                 //          IF_SERIAL_DEBUG(printf_New("%s:No 101========Nrecord= %s \n", __PRETTY_FUNCTION__, NrecordNRFID->msg));
-                IF_SERIAL_DEBUG(printf_New("%s:No 602 \n", __PRETTY_FUNCTION__));
                 break;
             case IEC_C_FRAME_TYPE_PROGRAMING_FIRST_REPLAY:
 
@@ -385,11 +436,17 @@ IEC_C_frame_calc_length(IEC_C_frame *frame) {
 
 ///////////////////////
 void Set_IEC_state(_IEC_state st) {
-    IEC_state = st;
-    if (IEC_state == Wait_SignOn) {
-        HandHeldRFID_Communication = nothing;
-        IEC_C_serial_set_baudrate('0');
+    if (st == Wait_SignOn) {
+        if (IEC_state != Wait_SignOn)
+        {
+                IF_SERIAL_DEBUG(printf_New("IEC_RESET to wait sign in))))st=%d)))))),IEC_state=%d)))))))))))", st,IEC_state));
+
+            HandHeldRFID_Communication = nothing;
+            IEC_C_serial_set_baudrate('0');
+        }
     }
+    IEC_state = st;
+
 }
 
 //------------------------------------------------------------------------------
@@ -401,8 +458,8 @@ void Set_IEC_state(_IEC_state st) {
 /// check if time out elapsed from last time recieved data
 //------------------------------------------------------------------------------
 unsigned long IEC_C_CheckModeTimeOutMillis;
-#define MaxSecondElapsedForNewLogIn 300
-#define MaxSecondWaitdForProgMode 60
+#define MaxSecondElapsedForNewLogIn 30//300
+#define MaxSecondWaitdForProgMode 20//60
 
 void IEC_C_CheckModeTimeOut(boolean reset) {
     //
@@ -412,7 +469,7 @@ void IEC_C_CheckModeTimeOut(boolean reset) {
     }
     if ((IEC_C_CheckModeTimeOutMillis + (long) (MaxSecondElapsedForNewLogIn * 1000)) < millis()) {
         Set_IEC_state(Wait_SignOn);
-        IF_SERIAL_DEBUG(printf_New("IEC_RESET to wait sign in)))))))))))))))))))))",0));
+        //    IF_SERIAL_DEBUG(printf_New("IEC_RESET to wait sign in)))))))))))))))))))))", 0));
 
     } else {
         if ((IEC_state == Wait_SelectMode || IEC_state == InMode_DataReadOut || IEC_state == Wait_Password) &&
@@ -420,7 +477,7 @@ void IEC_C_CheckModeTimeOut(boolean reset) {
             Set_IEC_state(Wait_SignOn);
         }
     }
-    IEC_C_CheckModeTimeOutMillis = millis();
+    //  IEC_C_CheckModeTimeOutMillis = millis();
 }
 
 bool GetSeperatedObisAddressObisValue(uint8_t *data, char *ObisAddress, char *ObisValue) {
@@ -503,9 +560,9 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                     printf_New("%s: Attempting to parse binary data [size = %c]\n", __PRETTY_FUNCTION__, data_size));
         }
         for (i = 0; i < data_size && parse_debug; i++) {
-            IF_SERIAL_DEBUG(printf_New("%c , ", data[i]));
-
+            IF_SERIAL_DEBUG(printf_New("%c[%d],", data[i], data[i]));
         }
+        IF_SERIAL_DEBUG(printf_New("\n", 0));
 //       IF_SERIAL_DEBUG(printf_New("type = %d ", data[0]));
         IEC_C_frame *frame;
 
@@ -519,18 +576,26 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
 
      return 0;
      //return IEC_C_FRAME_BASE_SIZE_ACK - 1; // == 0*/
+        if (data_size == 1 && data[0] == IEC_C_SOH_Const) return 5;
+        if (data_size == 2 && data[0] == IEC_C_SOH_Const && data[1] == 'B') return 5 - 2;
+        if (data_size == 3 && data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0') return 5 - 3;
+        if (data_size == 3 && data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0' &&
+            data[3] == IEC_C_ETX_Const)
+            return 5 - 4;
+
         if (data_size >= CommunicateEndRequestPacketLen) {
-            if (data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0' && data[3] == IEC_C_ETX_Const &&
-                data[4] == 'B') {
+            if (data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0' && data[3] == IEC_C_ETX_Const   ) {
+                IF_SERIAL_DEBUG(printf_New("%s:Xor End:%x ", __PRETTY_FUNCTION__,data[0]^data[1]^data[2]^data[3]));
+
                 Set_IEC_state(Wait_SignOn);
 
-                return 0;
+                return DataPackRecieveOK;
             }
         }
 #ifdef HANDHELD
         if (IEC_state == HandHeldRouter) {
             SerialIR.write(data, data_size);
-            return 0;
+            return DataPackRecieveOK;
         }
 #endif
         if (IEC_state == Wait_SignOn) {
@@ -595,7 +660,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                                                __PRETTY_FUNCTION__));
 //                   SerielTesSendFram();
                 }
-                return 0;
+                return DataPackRecieveOK;
             }
         }
         if (IEC_state == Wait_SelectMode) {
@@ -641,7 +706,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                 IEC_C_frame_free(replay_frame);
                 IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid short packet start, but we need more data\n",
                                            __PRETTY_FUNCTION__));
-                return 0;
+                return DataPackRecieveOK;
             }
         }
         if (IEC_state == Wait_Password) {
@@ -696,7 +761,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                 }
                 IEC_C_serial_send_frame(replay_frame);
                 IEC_C_frame_free(replay_frame);
-                return 0;
+                return DataPackRecieveOK;
             }
 
         }
@@ -736,6 +801,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
 
                 IEC_C_frame *replay_frame;
                 if (IEC_state == InMode_ProgramingP1) {
+                    BccValue(data, data_size);
                     IF_SERIAL_DEBUG(printf_New(
                             "%s:case IEC_C_FRAME_PROGRAMING_ END OKKKK33333333333333333KKKKKKRead Wrie = %c\n ",
                             __PRETTY_FUNCTION__, data[1]));
@@ -759,7 +825,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                     }
                     IEC_C_serial_send_frame(replay_frame);
                     IEC_C_frame_free(replay_frame);
-                    return 0;
+                    return DataPackRecieveOK;
                 }
                 int CommModeProgType = data[2] - 48;
                 if (CommunicateProgramModeOBIS(data[1], data, ObisValue) == true) {
@@ -774,7 +840,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                 }
                 IEC_C_serial_send_frame(replay_frame);
                 IEC_C_frame_free(replay_frame);
-                return 0;
+                return DataPackRecieveOK;
             }
 
         }
@@ -852,9 +918,9 @@ IEC_C_frame_pack(IEC_C_frame *frame, uint8_t *data, size_t data_size) {
                 offset = 0;
                 for (; NrecordN; NrecordN = NrecordN->next) {
                     NrecordLength = NrecordLength + strlen(NrecordN->msg) + 2;
-                    IF_SERIAL_DEBUG(printf_New("%s:No 722======== %s \n", __PRETTY_FUNCTION__, NrecordN->msg));
+                    IF_SERIAL_DEBUG(printf_New("%s:No 722========%s \n", __PRETTY_FUNCTION__, NrecordN->msg));
                 }
-                IF_SERIAL_DEBUG(printf_New("%s:No 712======== %d \n", __PRETTY_FUNCTION__, NrecordLength));
+                IF_SERIAL_DEBUG(printf_New("%s:No 712========%d \n", __PRETTY_FUNCTION__, NrecordLength));
 
                 NrecordLength = NrecordLength + strlen(NrecordN->msg) + 9;
                 data = (uint8_t *)
@@ -871,34 +937,32 @@ IEC_C_frame_pack(IEC_C_frame *frame, uint8_t *data, size_t data_size) {
                 char TempMSg[200];
                 //               IF_SERIAL_DEBUG(printf_New("%s:No 15======== %d %s,%s\n", __PRETTY_FUNCTION__, strlen(TempMSg), TempMSg,
                 //                                         NrecordN->msg));
-                char BCC = 0;
+                char BCC;
+                BCC = (char) 0;
                 for (; NrecordN; NrecordN = NrecordN->next) {
                     strcpy(TempMSg, NrecordN->msg);
-                    for (int k = 0; k < strlen(TempMSg) - 1; k++) {
+                    for (int k = 0; k < strlen(TempMSg); k++) {
                         data[offset++] = TempMSg[k];
                         BCC = BCC ^ TempMSg[k];
                     }
-     //               data[offset++] = 13;
-     //               data[offset++] = 10;
+                    //               data[offset++] = 13;
+                    //               data[offset++] = 10;
                 }
 
                 data[offset] = '!';
-                BCC = BCC ^  data[offset++];
+                BCC = BCC ^ data[offset++];
 
                 data[offset] = IEC_CR_CHARACTER;
-                BCC = BCC ^  data[offset++];
+                BCC = BCC ^ data[offset++];
                 data[offset] = IEC_LF_CHARACTER;
-                BCC = BCC ^  data[offset++];
+                BCC = BCC ^ data[offset++];
                 data[offset] = IEC_C_ETX_Const;
-                BCC = BCC ^  data[offset++];
-                data[offset] =BCC;
-                IF_SERIAL_DEBUG(printf_New("frame->start1222222222 = IEC_C_FRAME_TYPE_READOUT_REPLAY;",0));
+                BCC = BCC ^ data[offset++];
+                data[offset] = BCC;
+                IF_SERIAL_DEBUG(printf_New("frame->start1222222222 = IEC_C_FRAME_TYPE_READOUT_REPLAY;", 0));
                 return offset;
             case IEC_C_FRAME_TYPE_PROGRAMING_FIRST_REPLAY:
-
-                data = (uint8_t *)
-                        realloc((uint8_t *)
-                                        data, 9);
+                data = (uint8_t *) realloc((uint8_t *) data, 9);
                 data[offset++] = IEC_C_SOH_Const;
                 data[offset++] = 'P';
                 data[offset++] = '0';
@@ -908,10 +972,8 @@ IEC_C_frame_pack(IEC_C_frame *frame, uint8_t *data, size_t data_size) {
 
                 data[offset++] = IEC_C_ETX_Const;
                 data[offset++] = 'B';
-                IF_SERIAL_DEBUG(printf_New("frame->start1333333333333 = IEC_C_FRAME_TYPE_PROGRAMING_FIRST_REPLAY;",0));
+                IF_SERIAL_DEBUG(printf_New("frame->start1333333333333 = IEC_C_FRAME_TYPE_PROGRAMING_FIRST_REPLAY;", 0));
                 return offset;
-
-
             default:
                 return -5;
         }

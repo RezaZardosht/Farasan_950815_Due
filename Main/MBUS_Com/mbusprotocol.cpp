@@ -76,13 +76,13 @@ mbus_error_str() {
 void
 mbus_error_str_set(char *message) {
     if (message) {
-        IF_SERIAL_DEBUG(ardprintf(("%s"), message));
+        IF_SERIAL_DEBUG(printf_New(("%s"), message));
     }
 }
 
 void
 mbus_error_reset() {
-    IF_SERIAL_DEBUG(ardprintf(("no errors")));
+    IF_SERIAL_DEBUG(printf_New(("no errors")));
 }
 
 //------------------------------------------------------------------------------
@@ -300,7 +300,7 @@ mbus_frame_verify(mbus_frame *frame) {
 
             case MBUS_FRAME_TYPE_SHORT:
                 if (frame->start1 != MBUS_FRAME_SHORT_START) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:No frame start \n",__PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New("%s:No frame start \n", __PRETTY_FUNCTION__));
 
                     return -1;
                 }
@@ -310,7 +310,7 @@ mbus_frame_verify(mbus_frame *frame) {
                     (frame->control != (MBUS_CONTROL_MASK_REQ_UD1 | MBUS_CONTROL_MASK_FCB)) &&
                     (frame->control != MBUS_CONTROL_MASK_REQ_UD2) &&
                     (frame->control != (MBUS_CONTROL_MASK_REQ_UD2 | MBUS_CONTROL_MASK_FCB))) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__,frame->control));
+                    IF_SERIAL_DEBUG(printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
 
                     return -11;
                 }
@@ -321,7 +321,7 @@ mbus_frame_verify(mbus_frame *frame) {
             case MBUS_FRAME_TYPE_LONG:
                 if (frame->start1 != MBUS_FRAME_CONTROL_START ||
                     frame->start2 != MBUS_FRAME_CONTROL_START) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:No frame start\n",__PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New("%s:No frame start\n", __PRETTY_FUNCTION__));
 
                     return -12;
                 }
@@ -332,23 +332,25 @@ mbus_frame_verify(mbus_frame *frame) {
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_DFC)) &&
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_ACD)) &&
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_DFC | MBUS_CONTROL_MASK_ACD))) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Unknown Control Code 0x%.2x\n",__PRETTY_FUNCTION__, frame->control));
+                    IF_SERIAL_DEBUG(printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
 
                     return -13;
                 }
 
                 if (frame->length1 != frame->length2) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Frame length 1 != 2\n",__PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New("%s:Frame length 1 != 2\n", __PRETTY_FUNCTION__));
 
                     return -14;
                 }
                 int frame_Length;
 // todo correct it RZH
                 frame_Length = frame->length1;
- //               if (frame != NULL)
- //                   frame_Length = calc_length(frame);
+                //               if (frame != NULL)
+                //                   frame_Length = calc_length(frame);
                 if (frame->length1 != frame_Length) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Frame length 1 != calc length length=%x calc=%x\n",__PRETTY_FUNCTION__,frame->length1 ,frame_Length));
+                    IF_SERIAL_DEBUG(
+                            printf_New("%s:Frame length 1 != calc length length=%x calc=%x\n", __PRETTY_FUNCTION__,
+                                      frame->length1, frame_Length));
 
                     return -15;
                 }
@@ -356,13 +358,13 @@ mbus_frame_verify(mbus_frame *frame) {
                 break;
 
             default:
-                IF_SERIAL_DEBUG(ardprintf("%s:Unknown frame type 0x%.2x\n",__PRETTY_FUNCTION__, frame->type));
+                IF_SERIAL_DEBUG(printf_New("%s:Unknown frame type 0x%.2x\n", __PRETTY_FUNCTION__, frame->type));
 
                 return -16;
         }
 
         if (frame->stop != MBUS_FRAME_STOP) {
-            IF_SERIAL_DEBUG(ardprintf("%s:No frame stop frame->stop=%x \n",__PRETTY_FUNCTION__,frame->stop));
+            IF_SERIAL_DEBUG(printf_New("%s:No frame stop frame->stop=%x \n", __PRETTY_FUNCTION__, frame->stop));
 
             return -17;
         }
@@ -370,7 +372,8 @@ mbus_frame_verify(mbus_frame *frame) {
         checksum = frame->checksum;// calc_checksum(frame);
 
         if (frame->checksum != checksum) {
-            IF_SERIAL_DEBUG(ardprintf("%s:Invalid checksum (0x%.2x != 0x%.2x)",__PRETTY_FUNCTION__, frame->checksum, checksum));
+            IF_SERIAL_DEBUG(printf_New("%s:Invalid checksum (0x%.2x != 0x%.2x)", __PRETTY_FUNCTION__, frame->checksum,
+                                      checksum));
 
             return -18;
         }
@@ -378,7 +381,7 @@ mbus_frame_verify(mbus_frame *frame) {
         return 0;
     }
 
-    IF_SERIAL_DEBUG(ardprintf("%s:Got null pointer to frame.",__PRETTY_FUNCTION__));
+    IF_SERIAL_DEBUG(printf_New("%s:Got null pointer to frame.", __PRETTY_FUNCTION__));
 
     return -1;
 }
@@ -1945,8 +1948,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 1 byte integer\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 1 byte integer\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -1965,8 +1968,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                     val = mbus_data_int_decode(record->data, 2);
                     snprintf(buff, sizeof(buff), "%d", val);
                     if (debug)
-                        ardprintf(("%s: DIF 0x%.2x was decoded using 2 byte integer\n"), __PRETTY_FUNCTION__,
-                                 record->drh.dib.dif);
+                        printf_New(("%s: DIF 0x%.2x was decoded using 2 byte integer\n"), __PRETTY_FUNCTION__,
+                                  record->drh.dib.dif);
 
                 }
 
@@ -1979,8 +1982,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 3 byte integer\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 3 byte integer\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2007,8 +2010,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 }
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 4 byte integer\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 4 byte integer\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2019,8 +2022,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%f", val3);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 4 byte Real\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 4 byte Real\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2031,8 +2034,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%lld", val4);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 6 byte integer\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 6 byte integer\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2043,8 +2046,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%lld", val4);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 8 byte integer\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 8 byte integer\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2056,8 +2059,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 2 digit BCD\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 2 digit BCD\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2067,8 +2070,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 4 digit BCD\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 4 digit BCD\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2078,8 +2081,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 6 digit BCD\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 6 digit BCD\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2089,8 +2092,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%d", val);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 8 digit BCD\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 8 digit BCD\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2100,8 +2103,8 @@ mbus_data_record_decode(mbus_data_record *record) {
                 snprintf(buff, sizeof(buff), "%lld", val4);
 
                 if (debug)
-                    ardprintf(("%s: DIF 0x%.2x was decoded using 12 digit BCD\n"), __PRETTY_FUNCTION__,
-                             record->drh.dib.dif);
+                    printf_New(("%s: DIF 0x%.2x was decoded using 12 digit BCD\n"), __PRETTY_FUNCTION__,
+                              record->drh.dib.dif);
 
                 break;
 
@@ -2217,6 +2220,7 @@ mbus_Ndata_record *Mbus_LastListRecord(mbus_Ndata_record *record) {
         Newrecord = record->next;
     return Newrecord;
 }
+
 // add by rzh
 int add_NrecordPackFrame(mbus_frame *replay_frame, mbus_Ndata_record *Nrecord) {
     replay_frame->data[replay_frame->data_size++] = Nrecord->drh.dib.dif;
@@ -2226,7 +2230,7 @@ int add_NrecordPackFrame(mbus_frame *replay_frame, mbus_Ndata_record *Nrecord) {
 
     // pack VIF
     if (parse_debug)
-            IF_SERIAL_DEBUG(ardprintf("%s: packing VIF [%d]", __PRETTY_FUNCTION__, replay_frame->data_size));
+        IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]\n", __PRETTY_FUNCTION__, replay_frame->data_size));
     replay_frame->data[replay_frame->data_size++] = Nrecord->drh.vib.vif;
     for (int j = 0; j < Nrecord->drh.vib.nvife; j++) {
         replay_frame->data[replay_frame->data_size++] = Nrecord->drh.vib.vife[j];
@@ -2234,8 +2238,8 @@ int add_NrecordPackFrame(mbus_frame *replay_frame, mbus_Ndata_record *Nrecord) {
 
     // pack data
     if (parse_debug)
-            IF_SERIAL_DEBUG(ardprintf("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, replay_frame->data_size,
-                                      Nrecord->data_len));
+        IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, replay_frame->data_size,
+                                  Nrecord->data_len));
     for (int j = 0; j < Nrecord->data_len; j++) {
         replay_frame->data[replay_frame->data_size++] = Nrecord->data[j];
     }
@@ -2309,7 +2313,7 @@ int replay_LongRequest() {
     add_NrecordPackFrame(replay_frame, Nrecord);
     mbus_Ndata_record_free(Nrecord);
 
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 2; i++) {
         Nrecord = MBus_ptr_array[0]();
         if (Nrecord) {
             add_NrecordPackFrame(replay_frame, Nrecord);
@@ -2317,6 +2321,103 @@ int replay_LongRequest() {
         }
     }
 
+//   MBUS_MakeArrayOfRequestParameters(replay_frame);
+//   Serial.println(mbus_frame_internal_pack(replay_frame, frame_data_replay));
+    mbus_frame_calc_checksum(replay_frame);
+    mbus_frame_calc_length(replay_frame);
+
+    mbus_serial_send_frame(replay_frame);
+
+//    Serial.print("freeMemory()=");
+//    Serial.println(freeMemory());
+
+//   mbus_data_record_free(mbus_data_record_replay);
+    mbus_frame_data_free(frame_data_replay);
+
+    mbus_frame_free(replay_frame);
+
+}
+
+int replay_RequestUD2() {
+
+    mbus_frame *replay_frame;
+
+    replay_frame = mbus_frame_new(MBUS_FRAME_TYPE_LONG);
+    if (replay_frame == NULL) {
+        Serial.println("Could not get memory for mbus_frame");
+        return 1;
+    }
+    replay_frame->control = 0x08;
+    replay_frame->address = 0x01;
+    replay_frame->control_information = 0x72;
+
+    mbus_frame_data *frame_data_replay;
+    frame_data_replay = mbus_frame_data_new();
+    if (frame_data_replay == NULL) {
+        Serial.println("Could not get memory for frame_data_replay");
+        return 1;
+    }
+    frame_data_replay->type = MBUS_DATA_TYPE_VARIABLE;
+    frame_data_replay->data_var.header.id_bcd[0] = 0x64;
+    frame_data_replay->data_var.header.id_bcd[1] = 0x16;
+    frame_data_replay->data_var.header.id_bcd[2] = 0x10;
+    frame_data_replay->data_var.header.id_bcd[3] = 0x23;
+    frame_data_replay->data_var.header.manufacturer[0] = 0xC4;
+    frame_data_replay->data_var.header.manufacturer[1] = 0x18;
+    frame_data_replay->data_var.header.version = 0x01;
+    frame_data_replay->data_var.header.medium = 0x07;
+    frame_data_replay->data_var.header.access_no = 0x00;
+    frame_data_replay->data_var.header.status = 0x00;
+    frame_data_replay->data_var.header.signature[0] = 0x50;
+    frame_data_replay->data_var.header.signature[1] = 0x05;
+
+
+
+    // MBUS_MakeArrayOfRequestParameters();
+    //   mbus_Ndata_record *mbus_data_record_replay_Last=Mbus_LastListRecord(mbus_data_HDRrecord_replay);
+    // mbus_data_HDRrecord_replay->next->next->next =mbus_data_record_replay;
+    //  frame_data_replay->data_var.Nrecord = mbus_data_HDRrecord_replay;
+////////////////////////////////////////////////
+    replay_frame->data_size = 0;
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.id_bcd[0];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.id_bcd[1];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.id_bcd[2];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.id_bcd[3];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.manufacturer[0];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.manufacturer[1];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.version;
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.medium;
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.access_no;
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.status;
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.signature[0];
+    replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.signature[1];
+
+      mbus_Ndata_record *Nrecord;//=MBUS_CumulativeVolume();
+      ///////////////////////////
+      Nrecord = MBUS_CumulativeVolume();
+      add_NrecordPackFrame(replay_frame, Nrecord);
+        mbus_Ndata_record_free(Nrecord);
+
+      Nrecord = MBUS_MAX_Daily_Volume_Fellow();
+      add_NrecordPackFrame(replay_frame, Nrecord);
+      mbus_Ndata_record_free(Nrecord);
+
+      Nrecord = MBUS_CumulativPumpHourWork();
+      add_NrecordPackFrame(replay_frame, Nrecord);
+      mbus_Ndata_record_free(Nrecord);
+
+      Nrecord = MBUS_CuCurrentInterval();
+      add_NrecordPackFrame(replay_frame, Nrecord);
+      mbus_Ndata_record_free(Nrecord);
+
+   /*   for (int i = 0; i < 2; i++) {
+          Nrecord = MBus_ptr_array[0]();
+          if (Nrecord) {
+              add_NrecordPackFrame(replay_frame, Nrecord);
+              mbus_Ndata_record_free(Nrecord);
+          }
+      }
+  */
 //   MBUS_MakeArrayOfRequestParameters(replay_frame);
 //   Serial.println(mbus_frame_internal_pack(replay_frame, frame_data_replay));
     mbus_frame_calc_checksum(replay_frame);
@@ -2353,13 +2454,13 @@ mbus_parse(uint8_t *data, size_t data_size) {
     if (data && data_size > 0) {
         if (parse_debug) {
             IF_SERIAL_DEBUG(
-                    ardprintf("%s: Attempting to parse binary data [size = %d]\n", __PRETTY_FUNCTION__, data_size));
+                    printf_New("%s: Attempting to parse binary data [size = %d]\n", __PRETTY_FUNCTION__, data_size));
         }
         for (i = 0; i < data_size && parse_debug; i++) {
-            IF_SERIAL_DEBUG(ardprintf("%.2X ", data[i] & 0xFF));
+            IF_SERIAL_DEBUG(printf_New("%.2X ", data[i] & 0xFF));
 
         }
-        //       IF_SERIAL_DEBUG(ardprintf("type = %d ", data[0]));
+        //       IF_SERIAL_DEBUG(printf_New("type = %d ", data[0]));
         mbus_frame *frame;
         switch (data[0]) {
             case MBUS_FRAME_ACK_START:
@@ -2367,13 +2468,13 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 // OK, got a valid ack frame, require no more data
                 //frame->start1   = data[0];
                 //frame->type = MBUS_FRAME_TYPE_ACK;
-                IF_SERIAL_DEBUG(ardprintf("%s:OK, got a valid ack frame, require no more data ",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid ack frame, require no more data ", __PRETTY_FUNCTION__));
 
                 return 0;
                 //return MBUS_FRAME_BASE_SIZE_ACK - 1; // == 0
 
             case MBUS_FRAME_SHORT_START:
-                IF_SERIAL_DEBUG(ardprintf("%s:case MBUS_FRAME_SHORT_START: ",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s:case MBUS_FRAME_SHORT_START: ", __PRETTY_FUNCTION__));
 
                 if (data_size < MBUS_FRAME_BASE_SIZE_SHORT) {
                     // OK, got a valid short packet start, but we need more data
@@ -2381,8 +2482,8 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 }
 
                 if (data_size != MBUS_FRAME_BASE_SIZE_SHORT) {
-                    //                    IF_SERIAL_DEBUG(ardprintf(("Too much data in frame.")));
-                    IF_SERIAL_DEBUG(ardprintf("%s:case MBUS_FRAME_SHORT_START: ",__PRETTY_FUNCTION__));
+                    //                    IF_SERIAL_DEBUG(printf_New(("Too much data in frame.")));
+                    IF_SERIAL_DEBUG(printf_New("%s:case MBUS_FRAME_SHORT_START: ", __PRETTY_FUNCTION__));
 
                     // too much data... ?
                     return -2;
@@ -2419,8 +2520,8 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 }
                 if (frame->control == MBUS_CONTROL_MASK_REQ_UD2) // request class 2 data
                 {
-                    IF_SERIAL_DEBUG(ardprintf("%s: MBUS_CONTROL_MASK_REQ_UD2: \n",__PRETTY_FUNCTION__));
-                    replay_LongRequest();
+                    IF_SERIAL_DEBUG(printf_New("%s: MBUS_CONTROL_MASK_REQ_UD2: \n", __PRETTY_FUNCTION__));
+                    replay_RequestUD2();
 
                 }
                 mbus_frame_free(frame);
@@ -2428,19 +2529,20 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
                 //        mbus_data_record_replay
                 // successfully parsed data
-                IF_SERIAL_DEBUG(ardprintf("%s:OK, got a valid short packet start, but we need more data\n",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid short packet start, but we need more data\n",
+                                          __PRETTY_FUNCTION__));
 
                 return 0;
 
             case MBUS_FRAME_LONG_START: // (also CONTROL)
-                IF_SERIAL_DEBUG(ardprintf("%s:case MBUS_FRAME_LONG_START: \n",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s:case MBUS_FRAME_LONG_START: \n", __PRETTY_FUNCTION__));
                 if (data_size < 3) {
                     // OK, got a valid long/control packet start, but we need
                     // more data to determine the length
                     return 3 - data_size;
                 }
-                   if (data[1] != data[2]) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Invalid M-Bus frame length.\n",__PRETTY_FUNCTION__));
+                if (data[1] != data[2]) {
+                    IF_SERIAL_DEBUG(printf_New("%s:Invalid M-Bus frame length.\n", __PRETTY_FUNCTION__));
 
                     // not a valid M-bus frame
                     return -2;
@@ -2455,7 +2557,7 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 }
 
                 if (data_size > (size_t) (MBUS_FRAME_FIXED_SIZE_LONG + len)) {
-                    IF_SERIAL_DEBUG(ardprintf("%s:Too much data in frame.\n",__PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New("%s:Too much data in frame.\n", __PRETTY_FUNCTION__));
 
                     // too much data... ?
                     return -2;
@@ -2479,22 +2581,61 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 frame->checksum = data[data_size - 2]; // data[6 + frame->data_size + 1]
                 frame->stop = data[data_size - 1]; // data[6 + frame->data_size + 2]
 
-                IF_SERIAL_DEBUG(ardprintf("%s: OK, got Recieve Data ok Check verify\n",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s: OK, got Recieve Data ok Check verify\n", __PRETTY_FUNCTION__));
 
 
 
-                   // verify the frame
+                // verify the frame
                 int Ret;
-                 Ret =mbus_frame_verify(frame);
+                Ret = mbus_frame_verify(frame);
                 if (Ret != 0) {
                     mbus_frame_free(frame);
-                    IF_SERIAL_DEBUG(ardprintf("%s: OK, got Recieve Data check ERROR -------------- %d\n",__PRETTY_FUNCTION__,Ret));
+                    IF_SERIAL_DEBUG(
+                            printf_New("%s: OK, got Recieve Data check ERROR -------------- %d\n", __PRETTY_FUNCTION__,
+                                      Ret));
                     return -3;
                 }
-                IF_SERIAL_DEBUG(ardprintf("%s: OK, got Recieve Data ok **************\n",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s: OK, got Recieve Data ok **************\n", __PRETTY_FUNCTION__));
+///////////////////////////////////////////////////////////////////////
 
 
-                if (frame->control == MBUS_CONTROL_MASK_SND_UD) // initialize Slave by master
+                //
+                // We need to parse the data in the received frame to be able to tell
+                // if more records are available or not.
+                //
+                mbus_frame_data *reply_data;
+
+                //      mbus_frame *frame, ;
+
+                if (frame == NULL || (reply_data = mbus_frame_data_new()) == NULL) {
+                    printf_New(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__, (void *) frame,
+                              (void *) data);
+                    return NULL;
+                }
+
+                if (mbus_frame_data_parse(frame, reply_data) == -1) {
+                    IF_SERIAL_DEBUG(printf_New("%s: M-bus data parse error.\n", "mbus_sendrecv_request"));
+                    return 0;
+                }
+                IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dif =%x.\n", __PRETTY_FUNCTION__, reply_data->data_var.record->drh.dib.dif));
+                IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.vib.vif =%x.\n",  __PRETTY_FUNCTION__,reply_data->data_var.record->drh.vib.vif));
+                for(i=0;i<reply_data->data_var.record->data_len;i++)
+                    IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dife =%x.\n", __PRETTY_FUNCTION__, reply_data->data_var.record->data[i]));
+                Serial.println(mbus_frame_data_xml_normalized(reply_data));
+                mbus_frame_data_free(reply_data);
+
+                //
+                // Continue a cycle of sending requests and reading replies until the
+                // reply do not have DIF=0x1F in the last record (which signals that
+                // more records are available.
+                //
+
+                ///////////////////////////////////////
+                if (frame->control_information == MBUS_CONTROL_INFO_DATA_SEND)//The telegram contains data for the Slave
+                {
+
+                }
+                if (frame->control == MBUS_CONTROL_MASK_SND_UD) // Data send from master to slave
                 {
                     mbus_frame *replay_frame;
                     replay_frame = mbus_frame_new(MBUS_FRAME_TYPE_ACK);
@@ -2502,18 +2643,19 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
                     mbus_frame_free(replay_frame);
                 }
-                       mbus_frame_free(frame);
+                mbus_frame_free(frame);
 
 
                 //        mbus_data_record_replay
                 // successfully parsed data
-                IF_SERIAL_DEBUG(ardprintf("%s: OK, got a valid short packet start, but we need more data\n",__PRETTY_FUNCTION__));
+                IF_SERIAL_DEBUG(printf_New("%s: OK, got a valid short packet start, but we need more data\n",
+                                          __PRETTY_FUNCTION__));
 
                 return 0;
 
             default:
-                //                IF_SERIAL_DEBUG(ardprintf(("Invalid M-Bus frame start.")));
-                IF_SERIAL_DEBUG(ardprintf("Invalid M-Bus frame start."));
+                //                IF_SERIAL_DEBUG(printf_New(("Invalid M-Bus frame start.")));
+                IF_SERIAL_DEBUG(printf_New("Invalid M-Bus frame start."));
 
                 // not a valid M-Bus frame header (start byte)
                 return -4;
@@ -2521,7 +2663,7 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
     }
 
-    IF_SERIAL_DEBUG(ardprintf("Got null pointer to frame, data or zero data_size."));
+    IF_SERIAL_DEBUG(printf_New("Got null pointer to frame, data or zero data_size."));
 
     return -1;
 }
@@ -2553,15 +2695,21 @@ mbus_data_variable_parse(mbus_frame *frame, mbus_data_variable *data) {
 
     if (frame && data) {
         // parse header
+
         data->nrecords = 0;
         data->more_records_follow = 0;
-        i = sizeof(mbus_data_variable_header);
-        if (frame->data_size < i)
-            return -1;
 
-        // first copy the variable data fixed header
-        memcpy((void *) &(data->header), (void *) (frame->data), i);
+        if (frame->control_information == MBUS_CONTROL_INFO_DATA_SEND)//The telegram is command from master to slave
+            // so header is master header
+        { i = 0; }
+        else {
+            i = sizeof(mbus_data_variable_header);
+            if (frame->data_size < i)
+                return -1;
 
+            // first copy the variable data fixed header
+            memcpy((void *) &(data->header), (void *) (frame->data), i);
+        }
         data->record = NULL;
 
         while (i < frame->data_size) {
@@ -2577,6 +2725,7 @@ mbus_data_variable_parse(mbus_frame *frame, mbus_data_variable *data) {
 
             // DIF
             record->drh.dib.dif = frame->data[i];
+//            IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=record->drh.dib.dife =%x.\n",, __PRETTY_FUNCTION__, record->drh.dib.dife[0]));
 
             if (record->drh.dib.dif == 0x0F || record->drh.dib.dif == 0x1F) {
                 if ((record->drh.dib.dif & 0xFF) == 0x1F) {
@@ -2687,30 +2836,32 @@ mbus_frame_data_parse(mbus_frame *frame, mbus_frame_data *data) {
             return 0;
         } else if (frame->control_information == MBUS_CONTROL_INFO_RESP_FIXED) {
             if (frame->data_size == 0) {
-                IF_SERIAL_DEBUG(ardprintf(("Got zero data_size.")));
-
+                IF_SERIAL_DEBUG(printf_New(("Got zero data_size.")));
                 return -1;
             }
 
             data->type = MBUS_DATA_TYPE_FIXED;
             return mbus_data_fixed_parse(frame, &(data->data_fix));
-        } else if (frame->control_information == MBUS_CONTROL_INFO_RESP_VARIABLE) {
+        } else if (frame->control_information == MBUS_CONTROL_INFO_RESP_VARIABLE ||
+                   (frame->control_information == MBUS_CONTROL_INFO_DATA_SEND)) {
             if (frame->data_size == 0) {
-                IF_SERIAL_DEBUG(ardprintf(("Got zero data_size.")));
+                IF_SERIAL_DEBUG(printf_New(("Got zero data_size.")));
 
                 return -1;
             }
 
-            data->type = MBUS_DATA_TYPE_VARIABLE;
+
+                  data->type = MBUS_DATA_TYPE_VARIABLE;
+            IF_SERIAL_DEBUG(printf_New("%s:No 2001 M-bus data parse error\n", "mbus_sendrecv_request"));
             return mbus_data_variable_parse(frame, &(data->data_var));
         } else {
-            IF_SERIAL_DEBUG(ardprintf(("Unknown control information 0x%.2x"), frame->control_information));
+            IF_SERIAL_DEBUG(printf_New(("Unknown control information 0x%.2x"), frame->control_information));
 
             return -1;
         }
     }
 
-    IF_SERIAL_DEBUG(ardprintf(("Got null pointer to frame or data.")));
+    IF_SERIAL_DEBUG(printf_New(("Got null pointer to frame or data.")));
 
     return -1;
 }
@@ -2724,7 +2875,7 @@ int
 mbus_frame_pack(mbus_frame *frame, uint8_t *data, size_t data_size) {
     size_t i, offset = 0;
 
-    //    IF_SERIAL_DEBUG(ardprintf(("%s: Entered\n"), "mbus_frame_pack"));
+    //    IF_SERIAL_DEBUG(printf_New(("%s: Entered\n"), "mbus_frame_pack"));
 
     if (frame && data) {
         if (mbus_frame_calc_length(frame) == -1) {
@@ -2734,7 +2885,7 @@ mbus_frame_pack(mbus_frame *frame, uint8_t *data, size_t data_size) {
         if (mbus_frame_calc_checksum(frame) == -1) {
             return -3;
         }
-        //    IF_SERIAL_DEBUG(ardprintf(("%s: Frame type %d\n"), "mbus_frame_pack",frame->type ));
+        //    IF_SERIAL_DEBUG(printf_New(("%s: Frame type %d\n"), "mbus_frame_pack",frame->type ));
 
         switch (frame->type) {
             case MBUS_FRAME_TYPE_ACK:
@@ -2883,7 +3034,7 @@ mbus_frame_internal_pack(mbus_frame *frame, mbus_frame_data *frame_data) {
             for (Nrecord = frame_data->data_var.Nrecord; Nrecord; Nrecord = reinterpret_cast<mbus_Ndata_record *>( Nrecord->next)) {
                 // pack DIF
                 if (parse_debug)
-                        IF_SERIAL_DEBUG(ardprintf("%s: packing DIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
+                    IF_SERIAL_DEBUG(printf_New("%s: packing DIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
                 frame->data[frame->data_size++] = Nrecord->drh.dib.dif;
                 for (j = 0; j < Nrecord->drh.dib.ndife; j++) {
                     frame->data[frame->data_size++] = Nrecord->drh.dib.dife[j];
@@ -2891,7 +3042,7 @@ mbus_frame_internal_pack(mbus_frame *frame, mbus_frame_data *frame_data) {
 
                 // pack VIF
                 if (parse_debug)
-                        IF_SERIAL_DEBUG(ardprintf("%s: packing VIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
+                    IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
                 frame->data[frame->data_size++] = Nrecord->drh.vib.vif;
                 for (j = 0; j < Nrecord->drh.vib.nvife; j++) {
                     frame->data[frame->data_size++] = Nrecord->drh.vib.vife[j];
@@ -2899,8 +3050,8 @@ mbus_frame_internal_pack(mbus_frame *frame, mbus_frame_data *frame_data) {
 
                 // pack data
                 if (parse_debug)
-                        IF_SERIAL_DEBUG(ardprintf("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, frame->data_size,
-                                                  Nrecord->data_len));
+                    IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, frame->data_size,
+                                              Nrecord->data_len));
                 for (j = 0; j < Nrecord->data_len; j++) {
                     frame->data[frame->data_size++] = Nrecord->data[j];
                 }
@@ -2947,11 +3098,11 @@ mbus_frame_print(mbus_frame *frame) {
         }
 
         IF_SERIAL_DEBUG(
-                ardprintf(("%s: Dumping M-Bus frame [type %d, %d bytes]: "), __PRETTY_FUNCTION__, iter->type, len));
+                printf_New(("%s: Dumping M-Bus frame [type %d, %d bytes]: "), __PRETTY_FUNCTION__, iter->type, len));
         for (i = 0; i < len; i++) {
-            IF_SERIAL_DEBUG(ardprintf(("%.2X "), data_buff[i]));
+            IF_SERIAL_DEBUG(printf_New(("%.2X "), data_buff[i]));
         }
-        IF_SERIAL_DEBUG(ardprintf(("\n")));
+        IF_SERIAL_DEBUG(printf_New(("\n")));
     }
 
     return 0;
@@ -2987,22 +3138,22 @@ mbus_frame_data_print(mbus_frame_data *data) {
 int
 mbus_data_variable_header_print(mbus_data_variable_header *header) {
     if (header) {
-        IF_SERIAL_DEBUG(ardprintf(("%s: ID           = %lld\n"), __PRETTY_FUNCTION__,
-                                 mbus_data_bcd_decode(header->id_bcd, 4)));
+        IF_SERIAL_DEBUG(printf_New(("%s: ID           = %lld\n"), __PRETTY_FUNCTION__,
+                                  mbus_data_bcd_decode(header->id_bcd, 4)));
 
-        IF_SERIAL_DEBUG(ardprintf(("%s: Manufacturer = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
-                                 header->manufacturer[1], header->manufacturer[0]));
+        IF_SERIAL_DEBUG(printf_New(("%s: Manufacturer = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
+                                  header->manufacturer[1], header->manufacturer[0]));
 
-        IF_SERIAL_DEBUG(ardprintf(("%s: Manufacturer = %s\n"), __PRETTY_FUNCTION__,
-                                 mbus_decode_manufacturer(header->manufacturer[0], header->manufacturer[1])));
+        IF_SERIAL_DEBUG(printf_New(("%s: Manufacturer = %s\n"), __PRETTY_FUNCTION__,
+                                  mbus_decode_manufacturer(header->manufacturer[0], header->manufacturer[1])));
 
-        IF_SERIAL_DEBUG(ardprintf(("%s: Version      = 0x%.2X\n"), __PRETTY_FUNCTION__, header->version));
-        IF_SERIAL_DEBUG(ardprintf(("%s: Medium       = %s (0x%.2X)\n"), __PRETTY_FUNCTION__,
-                                 mbus_data_variable_medium_lookup(header->medium), header->medium));
-        IF_SERIAL_DEBUG(ardprintf(("%s: Access #     = 0x%.2X\n"), __PRETTY_FUNCTION__, header->access_no));
-        IF_SERIAL_DEBUG(ardprintf(("%s: Status       = 0x%.2X\n"), __PRETTY_FUNCTION__, header->status));
-        IF_SERIAL_DEBUG(ardprintf(("%s: Signature    = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
-                                 header->signature[1], header->signature[0]));
+        IF_SERIAL_DEBUG(printf_New(("%s: Version      = 0x%.2X\n"), __PRETTY_FUNCTION__, header->version));
+        IF_SERIAL_DEBUG(printf_New(("%s: Medium       = %s (0x%.2X)\n"), __PRETTY_FUNCTION__,
+                                  mbus_data_variable_medium_lookup(header->medium), header->medium));
+        IF_SERIAL_DEBUG(printf_New(("%s: Access #     = 0x%.2X\n"), __PRETTY_FUNCTION__, header->access_no));
+        IF_SERIAL_DEBUG(printf_New(("%s: Status       = 0x%.2X\n"), __PRETTY_FUNCTION__, header->status));
+        IF_SERIAL_DEBUG(printf_New(("%s: Signature    = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
+                                  header->signature[1], header->signature[0]));
 
     }
 
@@ -3019,41 +3170,41 @@ mbus_data_variable_print(mbus_data_variable *data) {
 
         for (record = data->record; record; record = record->next) {
             // DIF
-            IF_SERIAL_DEBUG(ardprintf(("DIF           = %.2X\n"), record->drh.dib.dif));
-            IF_SERIAL_DEBUG(ardprintf(("DIF.Extension = %s\n"),
-                                     (record->drh.dib.dif & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
-            IF_SERIAL_DEBUG(ardprintf(("DIF.Function  = %s\n"),
-                                     (record->drh.dib.dif & 0x30) ? "Minimum value" : "Instantaneous value"));
-            IF_SERIAL_DEBUG(ardprintf(("DIF.Data      = %.2X\n"), record->drh.dib.dif & 0x0F));
+            IF_SERIAL_DEBUG(printf_New(("DIF           = %.2X\n"), record->drh.dib.dif));
+            IF_SERIAL_DEBUG(printf_New(("DIF.Extension = %s\n"),
+                                      (record->drh.dib.dif & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
+            IF_SERIAL_DEBUG(printf_New(("DIF.Function  = %s\n"),
+                                      (record->drh.dib.dif & 0x30) ? "Minimum value" : "Instantaneous value"));
+            IF_SERIAL_DEBUG(printf_New(("DIF.Data      = %.2X\n"), record->drh.dib.dif & 0x0F));
 
             // VENDOR SPECIFIC
             if (record->drh.dib.dif == 0x0F || record->drh.dib.dif == 0x1F) //MBUS_DIB_DIF_VENDOR_SPECIFIC)
             {
-                IF_SERIAL_DEBUG(ardprintf(("%s: VENDOR DATA [size=%zd] = "), __PRETTY_FUNCTION__, record->data_len));
+                IF_SERIAL_DEBUG(printf_New(("%s: VENDOR DATA [size=%zd] = "), __PRETTY_FUNCTION__, record->data_len));
                 for (j = 0; j < record->data_len; j++) {
-                    IF_SERIAL_DEBUG(ardprintf(("%.2X "), record->data[j]));
+                    IF_SERIAL_DEBUG(printf_New(("%.2X "), record->data[j]));
                 }
-                IF_SERIAL_DEBUG(ardprintf(("\n")));
+                IF_SERIAL_DEBUG(printf_New(("\n")));
 
                 if (record->drh.dib.dif == 0x1F) {
-                    IF_SERIAL_DEBUG(ardprintf(("%s: More records follow in next telegram\n"), __PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(printf_New(("%s: More records follow in next telegram\n"), __PRETTY_FUNCTION__));
                 }
                 continue;
             }
 
             // calculate length of data record
-            IF_SERIAL_DEBUG(ardprintf(("DATA LENGTH = %zd\n"), record->data_len));
+            IF_SERIAL_DEBUG(printf_New(("DATA LENGTH = %zd\n"), record->data_len));
 
             // DIFE
             for (j = 0; j < record->drh.dib.ndife; j++) {
                 uint8_t dife = record->drh.dib.dife[j];
 
-                IF_SERIAL_DEBUG(ardprintf(("DIFE[%zd]           = %.2X\n"), j, dife));
-                IF_SERIAL_DEBUG(ardprintf(("DIFE[%zd].Extension = %s\n"), j,
-                                         (dife & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
-                IF_SERIAL_DEBUG(ardprintf(("DIFE[%zd].Function  = %s\n"), j,
-                                         (dife & 0x30) ? "Minimum value" : "Instantaneous value"));
-                IF_SERIAL_DEBUG(ardprintf(("DIFE[%zd].Data      = %.2X\n"), j, dife & 0x0F));
+                IF_SERIAL_DEBUG(printf_New(("DIFE[%zd]           = %.2X\n"), j, dife));
+                IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Extension = %s\n"), j,
+                                          (dife & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
+                IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Function  = %s\n"), j,
+                                          (dife & 0x30) ? "Minimum value" : "Instantaneous value"));
+                IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Data      = %.2X\n"), j, dife & 0x0F));
             }
 
         }
@@ -3065,25 +3216,25 @@ mbus_data_variable_print(mbus_data_variable *data) {
 int
 mbus_data_fixed_print(mbus_data_fixed *data) {
     if (data) {
-        ardprintf(("%s: ID       = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->id_bcd, 4));
-        ardprintf(("%s: Access # = 0x%.2X\n"), __PRETTY_FUNCTION__, data->tx_cnt);
-        ardprintf(("%s: Status   = 0x%.2X\n"), __PRETTY_FUNCTION__, data->status);
-        ardprintf(("%s: Function = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_function(data->status));
+        printf_New(("%s: ID       = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->id_bcd, 4));
+        printf_New(("%s: Access # = 0x%.2X\n"), __PRETTY_FUNCTION__, data->tx_cnt);
+        printf_New(("%s: Status   = 0x%.2X\n"), __PRETTY_FUNCTION__, data->status);
+        printf_New(("%s: Function = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_function(data->status));
 
-        ardprintf(("%s: Medium1  = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_medium(data));
-        ardprintf(("%s: Unit1    = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_unit(data->cnt1_type));
+        printf_New(("%s: Medium1  = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_medium(data));
+        printf_New(("%s: Unit1    = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_unit(data->cnt1_type));
         if ((data->status & MBUS_DATA_FIXED_STATUS_FORMAT_MASK) == MBUS_DATA_FIXED_STATUS_FORMAT_BCD) {
-            ardprintf(("%s: Counter1 = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->cnt1_val, 4));
+            printf_New(("%s: Counter1 = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->cnt1_val, 4));
         } else {
-            ardprintf(("%s: Counter1 = %d\n"), __PRETTY_FUNCTION__, mbus_data_int_decode(data->cnt1_val, 4));
+            printf_New(("%s: Counter1 = %d\n"), __PRETTY_FUNCTION__, mbus_data_int_decode(data->cnt1_val, 4));
         }
 
-        ardprintf(("%s: Medium2  = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_medium(data));
-        ardprintf(("%s: Unit2    = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_unit(data->cnt2_type));
+        printf_New(("%s: Medium2  = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_medium(data));
+        printf_New(("%s: Unit2    = %s\n"), __PRETTY_FUNCTION__, mbus_data_fixed_unit(data->cnt2_type));
         if ((data->status & MBUS_DATA_FIXED_STATUS_FORMAT_MASK) == MBUS_DATA_FIXED_STATUS_FORMAT_BCD) {
-            ardprintf(("%s: Counter2 = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->cnt2_val, 4));
+            printf_New(("%s: Counter2 = %d\n"), __PRETTY_FUNCTION__, (int) mbus_data_bcd_decode(data->cnt2_val, 4));
         } else {
-            ardprintf(("%s: Counter2 = %d\n"), __PRETTY_FUNCTION__, mbus_data_int_decode(data->cnt2_val, 4));
+            printf_New(("%s: Counter2 = %d\n"), __PRETTY_FUNCTION__, mbus_data_int_decode(data->cnt2_val, 4));
         }
     }
 
@@ -3092,19 +3243,19 @@ mbus_data_fixed_print(mbus_data_fixed *data) {
 
 void
 mbus_hex_dump(const char *label, const uint8_t *buff, size_t len) {
-    IF_SERIAL_DEBUG(ardprintf(("[%lu] %s (%03d):"), millis(), label, len));
+    IF_SERIAL_DEBUG(printf_New(("[%lu] %s (%03d):"), millis(), label, len));
 
 
     for (int i = 0; i < len; i++) {
-        // 	IF_SERIAL_DEBUG(ardprintf(( " %02X"), (uint8_t) buff[i]));
+        // 	IF_SERIAL_DEBUG(printf_New(( " %02X"), (uint8_t) buff[i]));
     }
 
-    // IF_SERIAL_DEBUG(ardprintf(("\n")));
+    // IF_SERIAL_DEBUG(printf_New(("\n")));
 }
 
 int
 mbus_data_error_print(int error) {
-    ardprintf(("%s: Error = %d\n"), __PRETTY_FUNCTION__, error);
+    printf_New(("%s: Error = %d\n"), __PRETTY_FUNCTION__, error);
 
     return -1;
 }
@@ -3662,13 +3813,13 @@ mbus_frame_get_secondary_address(mbus_frame *frame) {
     long id;
 
     if (frame == NULL || (data = mbus_frame_data_new()) == NULL) {
-        ardprintf(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__, (void *) frame,
-                 (void *) data);
+        printf_New(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__, (void *) frame,
+                  (void *) data);
         return NULL;
     }
 
     if (frame->control_information != MBUS_CONTROL_INFO_RESP_VARIABLE) {
-        IF_SERIAL_DEBUG(ardprintf(("Non-variable data response (can't get secondary address from response).")));
+        IF_SERIAL_DEBUG(printf_New(("Non-variable data response (can't get secondary address from response).")));
         return NULL;
     }
 
@@ -3701,7 +3852,7 @@ mbus_frame_select_secondary_pack(mbus_frame *frame, char *address) {
 
     if (frame == NULL || address == NULL || strlen(address) != 16) {
 
-//    IF_SERIAL_DEBUG(ardprintf(("%s: frame or address arguments are NULL or invalid."), "mbus_frame_select_secondary_pack"));
+//    IF_SERIAL_DEBUG(printf_New(("%s: frame or address arguments are NULL or invalid."), "mbus_frame_select_secondary_pack"));
         return -1;
     }
 

@@ -41,7 +41,7 @@
 #include <stdarg.h>
 
 //#include <Arduino.h>
-int ardprintf(char *str, ...);
+int printf_New(char *str, ...);
 int MY_ModBus_Adress();
 
 //
@@ -117,6 +117,7 @@ int mbus_init();
 mbus_Ndata_record *MBUS_CumulativeVolume();
 mbus_Ndata_record *MBUS_MAX_Daily_Volume_Fellow();
 mbus_Ndata_record *MBUS_CumulativPumpHourWork();
+mbus_Ndata_record *MBUS_CuCurrentInterval();
 mbus_Ndata_record *MBUS_RemainingVolume();
 
 mbus_Ndata_record *MBUS_MakeHeaderOfRequestParameters();
