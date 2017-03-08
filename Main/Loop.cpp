@@ -10,8 +10,10 @@
 #include "loop.h"
 #include "DuePWM_P/DuePWM.h"
 #include "IEC_C_Com/IEC_C_protocol.h"
+#include <DueTimer.h>
 //#include "Loop.h"
 
+#define IF_SERIAL_DEBUG_LOOP(x)
 
 #if defined (_VARIANT_ARDUINO_DUE_X_)
 // your Arduino Due code here
@@ -71,7 +73,7 @@ unsigned long FlowMicroSecDiff = 0;
 unsigned long PreFlowMicroSecDiff = 0;
 unsigned long LastCallMillisCountFlowInterrupt20 = 0;
 float CurrentFlow, MovingAvgFlow[110];
-
+unsigned int TestCounterFlow=0;
 #define PWM_FREQ1  200
 #define PWM_FREQ2  4000
 
@@ -290,10 +292,10 @@ void Get_ObisValue(char *Obis, char *RetVal) {
 
             sprintf(StrOut, "--> %d,%d,%d", DateFromTimeStruct->tm_year, DateFromTimeStruct->tm_mon,
                     DateFromTimeStruct->tm_mday);
-            IF_SERIAL_DEBUG(printf_New("%s", StrOut));
+            IF_SERIAL_DEBUG_LOOP(printf_New("%s", StrOut));
             sprintf(StrOut, "--> %d,%d,%d", DateToTimeStruct->tm_year, DateToTimeStruct->tm_mon,
                     DateToTimeStruct->tm_mday);
-            IF_SERIAL_DEBUG(printf_New("%s", StrOut));
+            IF_SERIAL_DEBUG_LOOP(printf_New("%s", StrOut));
 
 
             //        SendOBIS_Value("0-4:24,0,3,255(", RetVal); //I-Meter Log file
@@ -387,10 +389,11 @@ unsigned int V_PompTotalSec = 0;
 
 
 void SimulateFllow(void) {
-    SumTotal(100000, TotalValues);
+    SumTotal(1, TotalValues);
 }
 
 void CountFlowInterrupt20() {
+    TestCounterFlow++;
     buttonState = digitalRead(Pulse1Pin);
     if (buttonState != lastButtonState) {
         // if the state has changed, increment the counter
@@ -456,7 +459,7 @@ bool FirsTimeLoadFlashMemory() {
                                            PreCheckValueInMmory);
 //    if (!strcmp(KodeVersion, PreCheckValueInMmory.KodeVersion))
     //       setEvent(true, FirmwareActivated);
-    IF_SERIAL_DEBUG(printf_New("First Time loading flash = %d", (PreCheckValueInMmory.kk == 12345) ? 0 : 1));
+    IF_SERIAL_DEBUG_LOOP(printf_New("First Time loading flash = %d", (PreCheckValueInMmory.kk == 12345) ? 0 : 1));
 
 
     if (PreCheckValueInMmory.kk == 12345)
@@ -480,12 +483,12 @@ void SaveFirstInitialaizeFlashMemory() {
 void LoadSavedTotalInFlashMemory() {
     EEProm_Get<StructTotalValues>(Add_TotalValues_EEP, TotalValues);
 
-    IF_SERIAL_DEBUG(printf_New("load flash %f \n", TotalValues.Litre_Volume));
+    IF_SERIAL_DEBUG_LOOP(printf_New("load flash %f \n", TotalValues.Litre_Volume));
 }
 
 void SaveTotalsInFlash() {
     EEProm_Put<StructTotalValues>(Add_TotalValues_EEP, TotalValues);
-    IF_SERIAL_DEBUG(printf_New("Save flash %f \n", TotalValues.Litre_Volume));
+    IF_SERIAL_DEBUG_LOOP(printf_New("Save flash %f \n", TotalValues.Litre_Volume));
 
     return;
 }
@@ -611,6 +614,7 @@ void LCDShowCurrFlow() {
     unsigned long TempTotal_UsedVolume = TotalValues.Total_UsedVolume;
     unsigned long TempLitre_Volume = TotalValues.Litre_Volume;
 
+    IF_SERIAL_DEBUG_LOOP(printf_New("90300:%u\n", millis()));
 
     myGLCD.setFont(PNumFontB24);
     myGLCD.setColor(255, 255, 255);
@@ -622,6 +626,7 @@ void LCDShowCurrFlow() {
     memcpy(FFstr, TotalValues.DateEnd, 10);
     FFstr[10] = 0;
     myGLCD.print(FFstr, 15, 45);
+    IF_SERIAL_DEBUG_LOOP(printf_New("90301:%u\n", millis()));
 
     myGLCD.setColor(255, 255, 255);
     char TotalDuSign = (TempTotalDuration_Charzh >= 0) ? ' ' : '-';
@@ -656,21 +661,27 @@ void LCDShowCurrFlow() {
         myGLCD.setFont(PNumFontB24);
         myGLCD.print(FFstr, 15, 105);
     }
+    IF_SERIAL_DEBUG_LOOP(printf_New("90302:%u\n", millis()));
 
     /////////////////////////////////////////////////////////OK
     // مصرف دوره
     for (int i = 0; i < 20; i++)
         FFstr[i] = '\0';
-    if ((int) TempLitre_Volume / 10 < 100)
-        sprintf(FFstr, "%ld.%ld", TempDuration_Volume,
-                (long) ((int) TempLitre_Volume / 100));
-    else
+    if ((int) TempLitre_Volume  < 10)
+        sprintf(FFstr, "%ld.00%ld", TempDuration_Volume,
+                (long) ((int) TempLitre_Volume ));
+    else if ((int) TempLitre_Volume  < 100)
         sprintf(FFstr, "%ld.0%ld", TempDuration_Volume,
-                (long) ((int) TempLitre_Volume / 10));
+                (long) ((int) TempLitre_Volume));
+    else
+        sprintf(FFstr, "%ld.%ld", TempDuration_Volume,
+                (long) ((int) TempLitre_Volume));
 
     for (int i = strlen(FFstr); i < 13; i++)
         FFstr[i] = '-';
     myGLCD.print(FFstr, 15, FontRowPos(1));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90303:%u\n", millis()));
+
     // Serial.println(TempDuration_Volume);
     // مصرف کل
     for (int i = 0; i < 20; i++)
@@ -679,6 +690,7 @@ void LCDShowCurrFlow() {
     for (int i = strlen(FFstr); i < 13; i++)
         FFstr[i] = '-';
     myGLCD.print(FFstr, 15, FontRowPos(2));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90304:%u\n", millis()));
 
     // جریان
     myGLCD.setFont(Text_9_m3_h);  //  (m3/m)
@@ -692,6 +704,7 @@ void LCDShowCurrFlow() {
     for (int i = strlen(FFstr); i < 7; i++)
         FFstr[i] = '-';
     myGLCD.print(FFstr, 225, FontRowPos(3));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90305:%u\n", millis()));
 
     //  بیشینه  جریان
     char F2str[20];
@@ -704,6 +717,7 @@ void LCDShowCurrFlow() {
     FFstr[strlen(F2str)] = 0;
     sprintf(F2str,"%u",TotalValues.V_MaxFlowIn24Hour);
     myGLCD.print(F2str, 15, FontRowPos(3));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90306:%u\n", millis()));
 
     memset(F2str, 0, 20);
     //  ساعات کارکرد پمپ
@@ -713,6 +727,7 @@ void LCDShowCurrFlow() {
     sprintf(F2str, "%d", TotalValues.Total_UsedHourPump);
     FFstr[strlen(F2str)] = 0;
     myGLCD.print(F2str, 15, FontRowPos(4));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90307:%u\n", millis()));
 
     ///////////////////////////////////////////////////
 
@@ -796,9 +811,13 @@ void ShowIconBattery(boolean Show) {
 }
 
 void ShowData() {
+    IF_SERIAL_DEBUG_LOOP(printf_New("90010:%u\n", millis()));
     LCDShowCurrDateTime();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90011:%u\n", millis()));
     LCDShowCurrFlow();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90012:%u\n", millis()));
     ShowIconAlarm(false);
+    IF_SERIAL_DEBUG_LOOP(printf_New("90013:%u\n", millis()));
     printf_New("O=%d,C=%d", get_ValvePosition() == OPEN_VALVE, get_ValvePosition() == CLOSE_VALVE);
     if (get_ValvePosition() != OPEN_VALVE && get_ValvePosition() != CLOSE_VALVE) {
         ShowIconRelayOpen(false);
@@ -811,6 +830,7 @@ void ShowData() {
         if (get_ValvePosition() == CLOSE_VALVE)
             ShowIconRelayClose(true);
     }
+    IF_SERIAL_DEBUG_LOOP(printf_New("90014:%u\n", millis()));
 
 }
 //////////////////[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]
@@ -837,7 +857,7 @@ void FirstGetDateTime() {
 
     sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, hour(),
             minute(), second());
-    IF_SERIAL_DEBUG(Serial__println(CurrSPDate));
+    IF_SERIAL_DEBUG_LOOP(Serial__println(CurrSPDate));
 
 }
 
@@ -847,8 +867,7 @@ void GetDateTime() {
 
     sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, hour(),
             minute(), second());
-    // IF_SERIAL_DEBUG()
-    printf_New(CurrSPDate, 0);
+     IF_SERIAL_DEBUG(printf_New(CurrSPDate, 0));
 }
 
 void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_,
@@ -920,8 +939,9 @@ void SendSMS(String Value) {
 
 const int MinimumForBatteryCharzhe = 700;
 const int MaximumForBatteryCharzhe = 1000;
-
+bool SimulatrPermitPumpOn=false;
 bool PermitPumpOn() {
+    return  SimulatrPermitPumpOn;
     return (get_MainPower() == true && TotalValues.TotalDuration_Charzh > 1.0) ?
            true : false;
 }
@@ -1100,9 +1120,11 @@ int button_11_prevVal;
 uint32_t pwm_duty = 127; // 50% duty cycle
 void SetDisplayPWM() {
     pwm.pinDuty(Display_LED_PWM_PIN, pwm_duty); // 100% duty cycle on Pin 6
-    if (button_11_prevVal != BtnDisplayLight) {
-        button_11_prevVal = BtnDisplayLight;
-        if (BtnDisplayLight == 0)
+    boolean BtnPress=digitalRead(BtnDisplayLight);
+    if (button_11_prevVal != BtnPress) {
+        IF_SERIAL_DEBUG(printf_New("BtnPress==----->>:%u , \n",BtnPress));
+        button_11_prevVal = BtnPress;
+        if ( BtnPress == 0)
             pwm_duty = (pwm_duty <= 200) ? (pwm_duty + 50) : 100;
     }
 
@@ -1141,7 +1163,7 @@ void TimeStartup() {
         WaitForLoop += 3;
     }
 //    LoadParameters();
-    IF_SERIAL_DEBUG(printf_New("load flash %f \n", TotalValues.Litre_Volume));
+    IF_SERIAL_DEBUG_LOOP(printf_New("load flash %f \n", TotalValues.Litre_Volume));
     LoadSavedTotalInFlashMemory();
 
 
@@ -1177,9 +1199,11 @@ void TimeStartup() {
     delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
-    TotalValues.K_param = 0.7;
-//        Timer1.initialize(100000);
-//        Timer1.attachInterrupt(SimulateFllow);//CountFlowInterrupt43);//
+   // TotalValues.K_param = 0.29;
+    TotalValues.K_param =0.1;
+
+    Timer5.attachInterrupt(SimulateFllow).setFrequency(1);
+    Timer5.start();
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
                     CHANGE);
     interrupts();
@@ -1225,6 +1249,9 @@ void TimeLoop() {
    */   if (get_MilliSecondDiff(LastCallMillisCountFlowInterrupt20) > 5000)
         CurrentFlow = 0;
 
+    IF_SERIAL_DEBUG(printf_New("------>:%u\n",TestCounterFlow));
+    IF_SERIAL_DEBUG_LOOP(printf_New("90001:%u\n", millis()));
+
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 0);
         freememoryTrace = freemeMory();
@@ -1237,18 +1264,21 @@ void TimeLoop() {
 
 
     GetDateTime();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90002  get date time:%u\n", millis()));
 //    CheckAlarmEvents();
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 2);
         freememoryTrace = freemeMory();
     }
     SaveTotalsInFlash();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90003 SaveTotalsInFlash():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 3);
         freememoryTrace = freemeMory();
     }
 
     ShowData();   // ERRRRRRRRRRRRRRRorr
+    IF_SERIAL_DEBUG_LOOP(printf_New("90004  ShowData():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 4);
         freememoryTrace = freemeMory();
@@ -1271,20 +1301,24 @@ void TimeLoop() {
 
 
     NFC_Loop();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90005  NFC_Loop():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 5);
         freememoryTrace = freemeMory();
     }
     OpenPermitRelay();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90006  OpenPermitRelay():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 6);
         freememoryTrace = freemeMory();
     }
     CheckAndCharzheBattery();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90007  CheckAndCharzheBattery():%u\n", millis()));
 
     //if mainrelay is on and felo
     Log_Total_UsedHourPump(1);
     CheckMaxFellowVolumeUSeWhenPowerOff();
+    IF_SERIAL_DEBUG_LOOP(printf_New("90008  CheckMaxFellowVolumeUSeWhenPowerOff():%u\n", millis()));
     //  SaveTotalsInFlash(TotalValues);
     // CheckMainPower();
     //  int sensorValue = analogRead(A8);
@@ -1301,6 +1335,7 @@ void TimeLoop() {
     }
     SetDisplayPWM();
     IEC_C_CheckModeTimeOut(false);
+    IF_SERIAL_DEBUG_LOOP(printf_New("90009  EEEEEEEEEEEEEE):%u\n", millis()));
 
     Serial.print("Freememory_ =");
     Serial.println(freemeMory());
@@ -1329,8 +1364,8 @@ void serialEvent() {
     if (inChar == 'a');//TotalValues.TotalDuration_Charzh=;
     if (inChar == 'b')SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
-    if (inChar == '1')Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
-    if (inChar == '2')Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
+    if (inChar == '1')SimulatrPermitPumpOn = !SimulatrPermitPumpOn;//ForceCloseValve();//Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
+  //  if (inChar == '2')ForceOpenValve();//Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
     if (inChar == '3')DemoSaveGetEventFile();
     //  if (inChar == '3')readFileTestEvent();
     // if (inChar == '4')//readFileTestHourly();

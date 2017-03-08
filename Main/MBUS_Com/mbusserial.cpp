@@ -255,6 +255,7 @@ mbus_serial_recv()
     while (SerialMBUS.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis ) < 7))
 
     {
+
       buff[len] = SerialMBUS.read();
       len++;
 

@@ -11,9 +11,10 @@
 #include <assert.h>
 #include <math.h>
 #include "mbusprotocol.h"
-#include "mbus_config.h"
 #include "mbus.h"
 #include <MemoryFree.h>
+
+unsigned int freemeMory();
 
 static int parse_debug = 1, debug = 1;
 
@@ -24,6 +25,12 @@ extern int LogerCount;
 
 extern mbus_Ndata_record *(*MBus_ptr_array[32])();
 
+int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real, char **value_out_str,
+                               int *value_out_str_size);
+
+int
+mbus_parse_MasterPacketCmnd_variable_record(mbus_data_record *data);
+void Mbus_CheckRequesPS(char PSS[]);
 //------------------------------------------------------------------------------
 // internal data
 //------------------------------------------------------------------------------
@@ -310,7 +317,8 @@ mbus_frame_verify(mbus_frame *frame) {
                     (frame->control != (MBUS_CONTROL_MASK_REQ_UD1 | MBUS_CONTROL_MASK_FCB)) &&
                     (frame->control != MBUS_CONTROL_MASK_REQ_UD2) &&
                     (frame->control != (MBUS_CONTROL_MASK_REQ_UD2 | MBUS_CONTROL_MASK_FCB))) {
-                    IF_SERIAL_DEBUG(printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
+                    IF_SERIAL_DEBUG(
+                            printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
 
                     return -11;
                 }
@@ -332,7 +340,8 @@ mbus_frame_verify(mbus_frame *frame) {
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_DFC)) &&
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_ACD)) &&
                     (frame->control != (MBUS_CONTROL_MASK_RSP_UD | MBUS_CONTROL_MASK_DFC | MBUS_CONTROL_MASK_ACD))) {
-                    IF_SERIAL_DEBUG(printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
+                    IF_SERIAL_DEBUG(
+                            printf_New("%s:Unknown Control Code 0x%.2x\n", __PRETTY_FUNCTION__, frame->control));
 
                     return -13;
                 }
@@ -350,7 +359,7 @@ mbus_frame_verify(mbus_frame *frame) {
                 if (frame->length1 != frame_Length) {
                     IF_SERIAL_DEBUG(
                             printf_New("%s:Frame length 1 != calc length length=%x calc=%x\n", __PRETTY_FUNCTION__,
-                                      frame->length1, frame_Length));
+                                       frame->length1, frame_Length));
 
                     return -15;
                 }
@@ -373,7 +382,7 @@ mbus_frame_verify(mbus_frame *frame) {
 
         if (frame->checksum != checksum) {
             IF_SERIAL_DEBUG(printf_New("%s:Invalid checksum (0x%.2x != 0x%.2x)", __PRETTY_FUNCTION__, frame->checksum,
-                                      checksum));
+                                       checksum));
 
             return -18;
         }
@@ -1949,7 +1958,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 1 byte integer\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -1969,7 +1978,7 @@ mbus_data_record_decode(mbus_data_record *record) {
                     snprintf(buff, sizeof(buff), "%d", val);
                     if (debug)
                         printf_New(("%s: DIF 0x%.2x was decoded using 2 byte integer\n"), __PRETTY_FUNCTION__,
-                                  record->drh.dib.dif);
+                                   record->drh.dib.dif);
 
                 }
 
@@ -1983,7 +1992,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 3 byte integer\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2011,7 +2020,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 4 byte integer\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2023,7 +2032,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 4 byte Real\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2035,7 +2044,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 6 byte integer\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2047,7 +2056,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 8 byte integer\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2060,7 +2069,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 2 digit BCD\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2071,7 +2080,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 4 digit BCD\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2082,7 +2091,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 6 digit BCD\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2093,7 +2102,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 8 digit BCD\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2104,7 +2113,7 @@ mbus_data_record_decode(mbus_data_record *record) {
 
                 if (debug)
                     printf_New(("%s: DIF 0x%.2x was decoded using 12 digit BCD\n"), __PRETTY_FUNCTION__,
-                              record->drh.dib.dif);
+                               record->drh.dib.dif);
 
                 break;
 
@@ -2229,17 +2238,15 @@ int add_NrecordPackFrame(mbus_frame *replay_frame, mbus_Ndata_record *Nrecord) {
     }
 
     // pack VIF
-    if (parse_debug)
-        IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]\n", __PRETTY_FUNCTION__, replay_frame->data_size));
+    IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]\n", __PRETTY_FUNCTION__, replay_frame->data_size));
     replay_frame->data[replay_frame->data_size++] = Nrecord->drh.vib.vif;
     for (int j = 0; j < Nrecord->drh.vib.nvife; j++) {
         replay_frame->data[replay_frame->data_size++] = Nrecord->drh.vib.vife[j];
     }
 
     // pack data
-    if (parse_debug)
-        IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, replay_frame->data_size,
-                                  Nrecord->data_len));
+    IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, replay_frame->data_size,
+                               Nrecord->data_len));
     for (int j = 0; j < Nrecord->data_len; j++) {
         replay_frame->data[replay_frame->data_size++] = Nrecord->data[j];
     }
@@ -2392,49 +2399,47 @@ int replay_RequestUD2() {
     replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.signature[0];
     replay_frame->data[replay_frame->data_size++] = frame_data_replay->data_var.header.signature[1];
 
-      mbus_Ndata_record *Nrecord;//=MBUS_CumulativeVolume();
-      ///////////////////////////
-      Nrecord = MBUS_CumulativeVolume();
-      add_NrecordPackFrame(replay_frame, Nrecord);
-        mbus_Ndata_record_free(Nrecord);
+    mbus_Ndata_record *Nrecord;//=MBUS_CumulativeVolume();
+    ///////////////////////////
+    Nrecord = MBUS_CumulativeVolume();
+    add_NrecordPackFrame(replay_frame, Nrecord);
+    mbus_Ndata_record_free(Nrecord);
 
-      Nrecord = MBUS_MAX_Daily_Volume_Fellow();
-      add_NrecordPackFrame(replay_frame, Nrecord);
-      mbus_Ndata_record_free(Nrecord);
+    Nrecord = MBUS_MAX_Daily_Volume_Fellow();
+    add_NrecordPackFrame(replay_frame, Nrecord);
+    mbus_Ndata_record_free(Nrecord);
 
-      Nrecord = MBUS_CumulativPumpHourWork();
-      add_NrecordPackFrame(replay_frame, Nrecord);
-      mbus_Ndata_record_free(Nrecord);
+    Nrecord = MBUS_CumulativPumpHourWork();
+    add_NrecordPackFrame(replay_frame, Nrecord);
+    mbus_Ndata_record_free(Nrecord);
 
-      Nrecord = MBUS_CuCurrentInterval();
-      add_NrecordPackFrame(replay_frame, Nrecord);
-      mbus_Ndata_record_free(Nrecord);
+    Nrecord = MBUS_CuCurrentInterval();
+    add_NrecordPackFrame(replay_frame, Nrecord);
+    mbus_Ndata_record_free(Nrecord);
+    delay(1000);
 
-   /*   for (int i = 0; i < 2; i++) {
-          Nrecord = MBus_ptr_array[0]();
-          if (Nrecord) {
-              add_NrecordPackFrame(replay_frame, Nrecord);
-              mbus_Ndata_record_free(Nrecord);
-          }
-      }
-  */
+    Serial.print("\r\n----> free memorry=");
+    Serial.println(freemeMory());
+    delay(1000);
+
+    /*   for (int i = 0; i < 2; i++) {
+           Nrecord = MBus_ptr_array[0]();
+           if (Nrecord) {
+               add_NrecordPackFrame(replay_frame, Nrecord);
+               mbus_Ndata_record_free(Nrecord);
+           }
+       }
+   */
 //   MBUS_MakeArrayOfRequestParameters(replay_frame);
 //   Serial.println(mbus_frame_internal_pack(replay_frame, frame_data_replay));
     mbus_frame_calc_checksum(replay_frame);
     mbus_frame_calc_length(replay_frame);
 
     mbus_serial_send_frame(replay_frame);
-
-//    Serial.print("freeMemory()=");
-//    Serial.println(freeMemory());
-
-//   mbus_data_record_free(mbus_data_record_replay);
     mbus_frame_data_free(frame_data_replay);
-
     mbus_frame_free(replay_frame);
 
 }
-
 
 
 //------------------------------------------------------------------------------
@@ -2442,6 +2447,170 @@ int replay_RequestUD2() {
 // PARSER FUNCTIONS
 //
 //------------------------------------------------------------------------------
+int GetRealVib(mbus_value_information_block *vib, int *VibValue) {
+    if (vib == NULL) {
+        IF_SERIAL_DEBUG(printf_New("%s: Invalid parameter.\n", __PRETTY_FUNCTION__));
+        return -1;
+    }
+
+    IF_SERIAL_DEBUG(printf_New("%s: vib_unit_normalize - VIF=0x%02X\n", __PRETTY_FUNCTION__, vib->vif));
+
+    if (vib->vif == 0xFD) /* first type of VIF extention: see table 8.4.4 a */
+    {
+        if (vib->nvife == 0) {
+            IF_SERIAL_DEBUG(printf_New("%s: Missing VIF extension\n", __PRETTY_FUNCTION__));
+            return -1;
+        }
+
+        *VibValue = ((vib->vife[0]) & 0x7f) | 0x100;
+    } else {
+        if (vib->vif == 0xFB) /* second type of VIF extention: see table 8.4.4 b */
+        {
+            if (vib->nvife == 0) {
+                IF_SERIAL_DEBUG(printf_New("%s: Missing VIF extension\n", __PRETTY_FUNCTION__));
+                return -1;
+            }
+
+            *VibValue = ((vib->vife[0]) & 0x7f) | 0x200;
+        } else if (vib->vif == 0x7C) {
+            // custom VIF
+            *VibValue = 0;
+        } else {
+            *VibValue = (vib->vif) & 0x7f;
+        }
+    }
+
+    return 0;
+}
+
+int
+mbus_parse_MasterPacketCmnd_variable_record(mbus_data_record *record) {
+    //  mbus_record *record = NULL;
+    double value_out_real = 0.0;  /**< raw value */
+    char *record_quantity, *record_unit;
+    char *value_out_str = NULL;
+    int value_out_str_size = 0;
+    double real_val = 0.0;  /**< normalized value */
+
+    if (record == NULL) {
+        IF_SERIAL_DEBUG(printf_New("%s: Invalid record.\n", __PRETTY_FUNCTION__));
+        return NULL;
+    }
+
+
+    if (record->drh.dib.dif == 0x0F || record->drh.dib.dif == 0x1F) /* MBUS_DIB_DIF_VENDOR_SPECIFIC */
+    {
+        if (mbus_variable_value_decode(record, &value_out_real, &value_out_str, &value_out_str_size) != 0) {
+            IF_SERIAL_DEBUG(printf_New("%s: problem with mbus_variable_value_decode\n", __PRETTY_FUNCTION__));
+            return NULL;
+        }
+
+    } else {
+
+        if (mbus_variable_value_decode(record, &value_out_real, &value_out_str, &value_out_str_size) != 0) {
+            IF_SERIAL_DEBUG(printf_New("%s: problem with mbus_variable_value_decode\n", __PRETTY_FUNCTION__));
+            return NULL;
+        }
+        IF_SERIAL_DEBUG(printf_New("%s: value_out_real = %f \n", __PRETTY_FUNCTION__, value_out_real));
+        IF_SERIAL_DEBUG(
+                printf_New("%s: value_out_real=%f, value_out_str=%s, value_out_str_size = %d ,data->drh.vib.vif=%02X\n",
+                           __PRETTY_FUNCTION__, value_out_real, value_out_str, value_out_str_size, record->drh.vib.vif));
+        IF_SERIAL_DEBUG(printf_New("%s: real_val = %u \n", __PRETTY_FUNCTION__, real_val));
+
+    }
+//////////////////////////////////////
+    int VifValue;
+    if (GetRealVib(&record->drh.vib, &VifValue) < 0) {
+        IF_SERIAL_DEBUG(printf_New("%s: problem with mbus_Vib Value\n", __PRETTY_FUNCTION__));
+        return NULL;
+    }
+    IF_SERIAL_DEBUG(printf_New("%s: record->drh.vib=%02x\n", __PRETTY_FUNCTION__));
+    if(VifValue==0x10B)// parameter for set PS
+    {
+         Mbus_CheckRequesPS((char *)record->data);
+
+    }
+/////////////////////////////////////
+
+
+    return NULL;
+
+}
+
+//------------------------------------------------------------------------------
+/// Parse the command from Slave should be decision
+//------------------------------------------------------------------------------
+
+void MakeDecisionForMbusCommand(mbus_data_variable *data) {
+    mbus_data_record *record;
+    mbus_record *norm_record;
+    char *buff = NULL;
+    char str_encoded[768];
+    size_t len = 0, buff_size = 8192;
+    size_t i;
+
+    if (data) {
+        //   buff = (char *) malloc(buff_size);
+
+        //   if (buff == NULL)
+        //       return ;
+
+        //       len += snprintf(&buff[len], buff_size - len, "<MBusData>\n\n");
+
+//        len += snprintf(&buff[len], buff_size - len, "%s", mbus_data_variable_header_xml(&(data->header)));
+
+        for (record = data->record, i = 0; record; record = record->next, i++) {
+            mbus_parse_MasterPacketCmnd_variable_record(record);
+            IF_SERIAL_DEBUG(
+                    printf_New("%s:--------->mbus_data_record_value = %s\n", __PRETTY_FUNCTION__,
+                               mbus_data_record_value(record)));
+
+
+            /*          if ((buff_size - len) < 1024) {
+                          buff_size *= 2;
+                          buff = (char *) realloc(buff, buff_size);
+
+                          if (buff == NULL)
+                              return NULL;
+                      }
+
+                      len += snprintf(&buff[len], buff_size - len, "    <DataRecord id=\"%zd\">\n", i);
+          */
+            if (norm_record != NULL) {
+                if ((norm_record->value).real_val == 0x7a)
+                    /*               mbus_str_xml_encode(str_encoded, norm_record->function_medium, sizeof(str_encoded));
+                    //               len += snprintf(&buff[len], buff_size - len, "        <Function>%s</Function>\n", str_encoded);
+
+                      //             mbus_str_xml_encode(str_encoded, norm_record->unit, sizeof(str_encoded));
+
+                                   len += snprintf(&buff[len], buff_size - len, "        <Unit>%s</Unit>\n", str_encoded);
+
+                                   mbus_str_xml_encode(str_encoded, norm_record->quantity, sizeof(str_encoded));
+                                   len += snprintf(&buff[len], buff_size - len, "        <Quantity>%s</Quantity>\n", str_encoded);
+
+                   */
+                    if (norm_record->is_numeric) {
+                        //      len += snprintf(&buff[len], buff_size - len, "        <Value>%f</Value>\n",
+                        //                      norm_record->value.real_val);
+                    } else {
+                        //              mbus_str_xml_encode(str_encoded, norm_record->value.str_val.value, sizeof(str_encoded));
+                        //            len += snprintf(&buff[len], buff_size - len, "        <Value>%s</Value>\n", str_encoded);
+                    }
+
+                mbus_record_free(norm_record);
+            } else {
+            }
+
+            //           len += snprintf(&buff[len], buff_size - len, "    </DataRecord>\n\n");
+        }
+
+        //       len += snprintf(&buff[len], buff_size - len, "</MBusData>\n");
+
+        //       return buff;
+    }
+
+    return;
+}
 
 //------------------------------------------------------------------------------
 /// PARSE M-BUS frame data structures from binary data.
@@ -2452,14 +2621,13 @@ mbus_parse(uint8_t *data, size_t data_size) {
     char Tmsg[100];
 
     if (data && data_size > 0) {
-        if (parse_debug) {
-            IF_SERIAL_DEBUG(
-                    printf_New("%s: Attempting to parse binary data [size = %d]\n", __PRETTY_FUNCTION__, data_size));
-        }
-        for (i = 0; i < data_size && parse_debug; i++) {
+
+        IF_SERIAL_DEBUG(
+                printf_New("%s: Attempting to parse binary data [size = %d]\n", __PRETTY_FUNCTION__, data_size));
+
+        for (i = 0; i < data_size; i++)
             IF_SERIAL_DEBUG(printf_New("%.2X ", data[i] & 0xFF));
 
-        }
         //       IF_SERIAL_DEBUG(printf_New("type = %d ", data[0]));
         mbus_frame *frame;
         switch (data[0]) {
@@ -2530,7 +2698,7 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 //        mbus_data_record_replay
                 // successfully parsed data
                 IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid short packet start, but we need more data\n",
-                                          __PRETTY_FUNCTION__));
+                                           __PRETTY_FUNCTION__));
 
                 return 0;
 
@@ -2583,8 +2751,6 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
                 IF_SERIAL_DEBUG(printf_New("%s: OK, got Recieve Data ok Check verify\n", __PRETTY_FUNCTION__));
 
-
-
                 // verify the frame
                 int Ret;
                 Ret = mbus_frame_verify(frame);
@@ -2592,12 +2758,11 @@ mbus_parse(uint8_t *data, size_t data_size) {
                     mbus_frame_free(frame);
                     IF_SERIAL_DEBUG(
                             printf_New("%s: OK, got Recieve Data check ERROR -------------- %d\n", __PRETTY_FUNCTION__,
-                                      Ret));
+                                       Ret));
                     return -3;
                 }
                 IF_SERIAL_DEBUG(printf_New("%s: OK, got Recieve Data ok **************\n", __PRETTY_FUNCTION__));
 ///////////////////////////////////////////////////////////////////////
-
 
                 //
                 // We need to parse the data in the received frame to be able to tell
@@ -2608,21 +2773,42 @@ mbus_parse(uint8_t *data, size_t data_size) {
                 //      mbus_frame *frame, ;
 
                 if (frame == NULL || (reply_data = mbus_frame_data_new()) == NULL) {
-                    printf_New(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__, (void *) frame,
-                              (void *) data);
-                    return NULL;
+                    printf_New(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__,
+                               (void *) frame,
+                               (void *) data);
+                    mbus_frame_free(frame);
+                    return 0;
                 }
 
                 if (mbus_frame_data_parse(frame, reply_data) == -1) {
                     IF_SERIAL_DEBUG(printf_New("%s: M-bus data parse error.\n", "mbus_sendrecv_request"));
+                    mbus_frame_free(frame);
                     return 0;
                 }
-                IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dif =%x.\n", __PRETTY_FUNCTION__, reply_data->data_var.record->drh.dib.dif));
-                IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.vib.vif =%x.\n",  __PRETTY_FUNCTION__,reply_data->data_var.record->drh.vib.vif));
-                for(i=0;i<reply_data->data_var.record->data_len;i++)
-                    IF_SERIAL_DEBUG(printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dife =%x.\n", __PRETTY_FUNCTION__, reply_data->data_var.record->data[i]));
-                Serial.println(mbus_frame_data_xml_normalized(reply_data));
+                IF_SERIAL_DEBUG(
+                        printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dif =%x.\n",
+                                   __PRETTY_FUNCTION__, reply_data->data_var.record->drh.dib.dif));
+                IF_SERIAL_DEBUG(
+                        printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.vib.vif =%x.\n",
+                                   __PRETTY_FUNCTION__, reply_data->data_var.record->drh.vib.vif));
+                for (i = 0; i < reply_data->data_var.record->data_len; i++)
+                    IF_SERIAL_DEBUG(
+                            printf_New("%s: M-bus Replayyyyyyyyyyyyyy=reply_data->data_var.record->drh.dib.dife =%x.\n",
+                                       __PRETTY_FUNCTION__, reply_data->data_var.record->data[i]));
+                //               MakeDecisionForMbusCommand(reply_data);
+                char *ShowByXml;
+                ShowByXml = mbus_frame_data_xml_normalized(reply_data);
+                Serial.println(ShowByXml);
+                MakeDecisionForMbusCommand(&reply_data->data_var);
+                free(ShowByXml);
                 mbus_frame_data_free(reply_data);
+                mbus_frame_free(frame);
+
+                mbus_frame *replay_frame;
+                replay_frame = mbus_frame_new(MBUS_FRAME_TYPE_ACK);
+                mbus_serial_send_frame(replay_frame);
+
+                mbus_frame_free(replay_frame);
 
                 //
                 // Continue a cycle of sending requests and reading replies until the
@@ -2643,13 +2829,12 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
                     mbus_frame_free(replay_frame);
                 }
-                mbus_frame_free(frame);
 
 
                 //        mbus_data_record_replay
                 // successfully parsed data
                 IF_SERIAL_DEBUG(printf_New("%s: OK, got a valid short packet start, but we need more data\n",
-                                          __PRETTY_FUNCTION__));
+                                           __PRETTY_FUNCTION__));
 
                 return 0;
 
@@ -2851,7 +3036,7 @@ mbus_frame_data_parse(mbus_frame *frame, mbus_frame_data *data) {
             }
 
 
-                  data->type = MBUS_DATA_TYPE_VARIABLE;
+            data->type = MBUS_DATA_TYPE_VARIABLE;
             IF_SERIAL_DEBUG(printf_New("%s:No 2001 M-bus data parse error\n", "mbus_sendrecv_request"));
             return mbus_data_variable_parse(frame, &(data->data_var));
         } else {
@@ -3033,25 +3218,25 @@ mbus_frame_internal_pack(mbus_frame *frame, mbus_frame_data *frame_data) {
             //
             for (Nrecord = frame_data->data_var.Nrecord; Nrecord; Nrecord = reinterpret_cast<mbus_Ndata_record *>( Nrecord->next)) {
                 // pack DIF
-                if (parse_debug)
-                    IF_SERIAL_DEBUG(printf_New("%s: packing DIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
+
+                IF_SERIAL_DEBUG(printf_New("%s: packing DIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
                 frame->data[frame->data_size++] = Nrecord->drh.dib.dif;
                 for (j = 0; j < Nrecord->drh.dib.ndife; j++) {
                     frame->data[frame->data_size++] = Nrecord->drh.dib.dife[j];
                 }
 
                 // pack VIF
-                if (parse_debug)
-                    IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
+
+                IF_SERIAL_DEBUG(printf_New("%s: packing VIF [%d]", __PRETTY_FUNCTION__, frame->data_size));
                 frame->data[frame->data_size++] = Nrecord->drh.vib.vif;
                 for (j = 0; j < Nrecord->drh.vib.nvife; j++) {
                     frame->data[frame->data_size++] = Nrecord->drh.vib.vife[j];
                 }
 
                 // pack data
-                if (parse_debug)
-                    IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, frame->data_size,
-                                              Nrecord->data_len));
+
+                IF_SERIAL_DEBUG(printf_New("%s: packing data [%d : %d]", __PRETTY_FUNCTION__, frame->data_size,
+                                           Nrecord->data_len));
                 for (j = 0; j < Nrecord->data_len; j++) {
                     frame->data[frame->data_size++] = Nrecord->data[j];
                 }
@@ -3098,7 +3283,8 @@ mbus_frame_print(mbus_frame *frame) {
         }
 
         IF_SERIAL_DEBUG(
-                printf_New(("%s: Dumping M-Bus frame [type %d, %d bytes]: "), __PRETTY_FUNCTION__, iter->type, len));
+                printf_New(("%s: Dumping M-Bus frame [type %d, %d bytes]: "), __PRETTY_FUNCTION__, iter->type,
+                           len));
         for (i = 0; i < len; i++) {
             IF_SERIAL_DEBUG(printf_New(("%.2X "), data_buff[i]));
         }
@@ -3139,21 +3325,21 @@ int
 mbus_data_variable_header_print(mbus_data_variable_header *header) {
     if (header) {
         IF_SERIAL_DEBUG(printf_New(("%s: ID           = %lld\n"), __PRETTY_FUNCTION__,
-                                  mbus_data_bcd_decode(header->id_bcd, 4)));
+                                   mbus_data_bcd_decode(header->id_bcd, 4)));
 
         IF_SERIAL_DEBUG(printf_New(("%s: Manufacturer = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
-                                  header->manufacturer[1], header->manufacturer[0]));
+                                   header->manufacturer[1], header->manufacturer[0]));
 
         IF_SERIAL_DEBUG(printf_New(("%s: Manufacturer = %s\n"), __PRETTY_FUNCTION__,
-                                  mbus_decode_manufacturer(header->manufacturer[0], header->manufacturer[1])));
+                                   mbus_decode_manufacturer(header->manufacturer[0], header->manufacturer[1])));
 
         IF_SERIAL_DEBUG(printf_New(("%s: Version      = 0x%.2X\n"), __PRETTY_FUNCTION__, header->version));
         IF_SERIAL_DEBUG(printf_New(("%s: Medium       = %s (0x%.2X)\n"), __PRETTY_FUNCTION__,
-                                  mbus_data_variable_medium_lookup(header->medium), header->medium));
+                                   mbus_data_variable_medium_lookup(header->medium), header->medium));
         IF_SERIAL_DEBUG(printf_New(("%s: Access #     = 0x%.2X\n"), __PRETTY_FUNCTION__, header->access_no));
         IF_SERIAL_DEBUG(printf_New(("%s: Status       = 0x%.2X\n"), __PRETTY_FUNCTION__, header->status));
         IF_SERIAL_DEBUG(printf_New(("%s: Signature    = 0x%.2X%.2X\n"), __PRETTY_FUNCTION__,
-                                  header->signature[1], header->signature[0]));
+                                   header->signature[1], header->signature[0]));
 
     }
 
@@ -3172,22 +3358,24 @@ mbus_data_variable_print(mbus_data_variable *data) {
             // DIF
             IF_SERIAL_DEBUG(printf_New(("DIF           = %.2X\n"), record->drh.dib.dif));
             IF_SERIAL_DEBUG(printf_New(("DIF.Extension = %s\n"),
-                                      (record->drh.dib.dif & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
+                                       (record->drh.dib.dif & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
             IF_SERIAL_DEBUG(printf_New(("DIF.Function  = %s\n"),
-                                      (record->drh.dib.dif & 0x30) ? "Minimum value" : "Instantaneous value"));
+                                       (record->drh.dib.dif & 0x30) ? "Minimum value" : "Instantaneous value"));
             IF_SERIAL_DEBUG(printf_New(("DIF.Data      = %.2X\n"), record->drh.dib.dif & 0x0F));
 
             // VENDOR SPECIFIC
             if (record->drh.dib.dif == 0x0F || record->drh.dib.dif == 0x1F) //MBUS_DIB_DIF_VENDOR_SPECIFIC)
             {
-                IF_SERIAL_DEBUG(printf_New(("%s: VENDOR DATA [size=%zd] = "), __PRETTY_FUNCTION__, record->data_len));
+                IF_SERIAL_DEBUG(
+                        printf_New(("%s: VENDOR DATA [size=%zd] = "), __PRETTY_FUNCTION__, record->data_len));
                 for (j = 0; j < record->data_len; j++) {
                     IF_SERIAL_DEBUG(printf_New(("%.2X "), record->data[j]));
                 }
                 IF_SERIAL_DEBUG(printf_New(("\n")));
 
                 if (record->drh.dib.dif == 0x1F) {
-                    IF_SERIAL_DEBUG(printf_New(("%s: More records follow in next telegram\n"), __PRETTY_FUNCTION__));
+                    IF_SERIAL_DEBUG(
+                            printf_New(("%s: More records follow in next telegram\n"), __PRETTY_FUNCTION__));
                 }
                 continue;
             }
@@ -3201,9 +3389,9 @@ mbus_data_variable_print(mbus_data_variable *data) {
 
                 IF_SERIAL_DEBUG(printf_New(("DIFE[%zd]           = %.2X\n"), j, dife));
                 IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Extension = %s\n"), j,
-                                          (dife & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
+                                           (dife & MBUS_DIB_DIF_EXTENSION_BIT) ? "Yes" : "No"));
                 IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Function  = %s\n"), j,
-                                          (dife & 0x30) ? "Minimum value" : "Instantaneous value"));
+                                           (dife & 0x30) ? "Minimum value" : "Instantaneous value"));
                 IF_SERIAL_DEBUG(printf_New(("DIFE[%zd].Data      = %.2X\n"), j, dife & 0x0F));
             }
 
@@ -3344,7 +3532,8 @@ mbus_data_variable_header_xml(mbus_data_variable_header *header) {
         mbus_str_xml_encode(str_encoded, mbus_data_variable_medium_lookup(header->medium), sizeof(str_encoded));
 
         len += snprintf(&buff[len], sizeof(buff) - len, "        <Medium>%s</Medium>\n", str_encoded);
-        len += snprintf(&buff[len], sizeof(buff) - len, "        <AccessNumber>%d</AccessNumber>\n", header->access_no);
+        len += snprintf(&buff[len], sizeof(buff) - len, "        <AccessNumber>%d</AccessNumber>\n",
+                        header->access_no);
         len += snprintf(&buff[len], sizeof(buff) - len, "        <Status>%.2X</Status>\n", header->status);
         len += snprintf(&buff[len], sizeof(buff) - len, "        <Signature>%.2X%.2X</Signature>\n",
                         header->signature[1], header->signature[0]);
@@ -3402,7 +3591,8 @@ mbus_data_variable_record_xml(mbus_data_record *record, int record_cnt, int fram
 
         //timeinfo = gmtime ( &(record->timestamp) );
         //strftime(timestamp,20,"%Y-%m-%dT%H:%M:%S",timeinfo);
-        len += snprintf(&buff[len], sizeof(buff) - len, "        <Timestamp>%s</Timestamp>\n", /*timestamp*/millis());
+        len += snprintf(&buff[len], sizeof(buff) - len, "        <Timestamp>%s</Timestamp>\n", /*timestamp*/
+                        millis());
 
         len += snprintf(&buff[len], sizeof(buff) - len, "    </DataRecord>\n\n");
 
@@ -3814,7 +4004,7 @@ mbus_frame_get_secondary_address(mbus_frame *frame) {
 
     if (frame == NULL || (data = mbus_frame_data_new()) == NULL) {
         printf_New(("%s: Failed to allocate data structure [%p, %p].\n"), __PRETTY_FUNCTION__, (void *) frame,
-                  (void *) data);
+                   (void *) data);
         return NULL;
     }
 

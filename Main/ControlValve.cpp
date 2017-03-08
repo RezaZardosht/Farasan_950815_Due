@@ -1,7 +1,7 @@
 #include "ControlValve.h"
 
 #define DEBUG_ControlValve false
-
+#define MainRelayValveTimeOUTSec 15000
 bool Prev_MainRelayValVePosition_DO = DO_Off_Relay;
 bool MainRelayValVePosition_DO = DO_Off_Relay;
 bool SelectRelaysValvesPosition_DO = CLOSE_VALVE;
@@ -40,7 +40,8 @@ void CheckMainRelayValveTimeOut() {
         Prev_MainRelayValVePosition_DO = get_MainRelayValVePosition();
         return;
     }
-    if ((millis() > MainRelayValveTimeOUT + 10000) || (millis() > 10000 && millis() < 11000)) {
+    if ((millis() > MainRelayValveTimeOUT + MainRelayValveTimeOUTSec))// || (millis() > 10000 && millis() < 11000))
+    {
         turnMainRelayValve(DO_Off_Relay);
         // todo SetAlarm()
     }
@@ -69,35 +70,18 @@ bool SetSelectRelaysValvesPosition(bool Value) {
     SelectRelaysValvesPosition_DO = Value;
     digitalWrite(SelectRelayValve_1_, SelectRelaysValvesPosition_DO);
     digitalWrite(SelectRelayValve_2_, SelectRelaysValvesPosition_DO);
-#if    DEBUG_ControlValve
-    char msg[50];
-      sprintf(msg,"SetSelectRelaysValvesPosition  ----> %d", (Value>0)?1:0);
-    Serial__println(msg);
-#endif
 
 }
 
 void ForceOpenValve() {
-#if    DEBUG_ControlValve
-    Serial__println("Force OPEN_VALVE");
-#endif
     if (get_ValvePosition() == OPEN_VALVE) {
         turnMainRelayValve(DO_Off_Relay);
         return;
     }
     if (PrevRequetMode != OPEN_VALVE) {
-#if    DEBUG_ControlValve
-        Serial__println("PrevForceMode =Close_VALVE Change it to OPEN_VALVE");
-#endif
         PrevRequetMode = OPEN_VALVE;
         ValveOpenDesicion = 0;
     }
-#if    DEBUG_ControlValve
-    char FFstr[50];
-    sprintf(FFstr, "Open Valve ValveOpenDesicion = %d ", ValveOpenDesicion);
-    Serial__println(FFstr);
-#endif
-
     switch (ValveOpenDesicion) {
         case 0:
             if (get_MainRelayValVePosition() == DO_On_Relay) {
@@ -133,25 +117,17 @@ void ForceOpenValve() {
 }
 
 void ForceCloseValve() {
-#if    DEBUG_ControlValve
-    Serial__println("Force CLOSE_VALVE");
-#endif
+
     if (get_ValvePosition() == CLOSE_VALVE) {
         turnMainRelayValve(DO_Off_Relay);
         return;
     }
     if (PrevRequetMode != CLOSE_VALVE) {
-#if    DEBUG_ControlValve
-        Serial__println("PrevForceMode =OPEN_VALVE Change it to CLOSE_VALVE");
-#endif
+
         PrevRequetMode = CLOSE_VALVE;
         ValveCloseDesicion = 0;
     }
-#if    DEBUG_ControlValve
-    char FFstr[50];
-    sprintf(FFstr, "Close Valve ValveCloseDesicion = %d", ValveCloseDesicion);
-    Serial__println(FFstr);
-#endif
+
 
     switch (ValveCloseDesicion) {
         case 0:

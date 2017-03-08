@@ -168,22 +168,22 @@ char *Get_I_Meter_serial_number();
 // define DEBUG to one serial UART to enable debug information output
 #define DEBUG Serial
 
-const int MainRelayValve = 43;      // the number of the LED pin
+const int Pulse1Pin = 2;   // the pin that the pushbutton is attached to
+const int StrongDCMagneticFieldDetected_Pin = 3;
+const int MeterCoverRemoved_Pin = 4;
+const int Display_LED_PWM_PIN = 9;
+const int BtnDisplayLight = 11;
+const int ElectroMagneticPin = 12;
+const int CharzheBatteryRelay = 43;    // the number of the LED pin
+const int MainRelayValve = 45;      // the number of the LED pin
+const int MainPowerOnRelay = 46;    // the number of the LED pin
 const int SelectRelayValve_1_ = 47;      // the number of the LED pin
+const int PositionSwitchCLOSE = 48;    // the number of the LED pin
 const int SelectRelayValve_2_ = 49;      // the number of the LED pin
 const int AIBattery = 54 + 8;    // the number of the LED pin
 const int AIAmperMotor = 54 + 9;    // the number of the LED pin
 const int PositionSwitchOPEN = 52;    // the number of the LED pin
-const int PositionSwitchCLOSE = 4;    // the number of the LED pin
-const int MainPowerOnRelay = 53;    // the number of the LED pin
-const int CharzheBatteryRelay = 45;    // the number of the LED pin
-const int Pulse1Pin = 2;   // the pin that the pushbutton is attached to
-const int ElectroMagneticPin = 12;
-const int BtnDisplayLight = 11;
 
-const int StrongDCMagneticFieldDetected_Pin = 3;
-const int MeterCoverRemoved_Pin = 4;
-const int Display_LED_PWM_PIN = 9;
 //const int  Pulse2Pin = 45;   // the pin that the pushbutton is attached to
 //const int  SelectorKeyPin = 47;   // the pin that the pushbutton is attached to
 //const int  MainPowerPin = 49;   // the pin that the pushbutton is attached to
@@ -267,6 +267,6 @@ void ShowErrorsOnScreen();
 void SetCharzhe(int Value);
 void GetStartEndDateFromObisValue(char *OBIS_Value, char *DateFrom, char *DateTo) ;
 
-
+unsigned int freemeMory();
 
 #endif //FARASAN_950815_DUE_PUBLICFUNCVAR_H_H

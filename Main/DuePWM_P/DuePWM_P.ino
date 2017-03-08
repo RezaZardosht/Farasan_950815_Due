@@ -18,8 +18,27 @@ int button_52, button_48, button_46, button_2, button_11;
 int button_11_prevVal = false;
 boolean   out_49 = false, out_47 = false, out_45 = false, out_43 = false, out_51 = false;
 char inputString[100];
+unsigned int countPulse=0;
+void CountFlowInterrupt20() {
+  countPulse++;
+   /* buttonState = digitalRead(Pulse1Pin);
+    if (buttonState != lastButtonState) {
+        // if the state has changed, increment the counter
+        if (buttonState == LOW) {
 
-void setup__()
+            SumTotal(1, TotalValues);
+        }
+        // Delay a little bit to avoid bouncing
+    }
+    // save the current state as the last state,
+    //for next time through the loop
+    lastButtonState = buttonState;
+    get_MicroSecondDiff(LastCallMillisCountFlowInterrupt20);
+
+    //CurunCalibrateFlow++;*/
+}
+
+void setup()
 {
   pinMode(52, INPUT);
   pinMode(48, INPUT);
@@ -62,9 +81,12 @@ void setup__()
      pwm.stop( 7 );
      pwm.stop( 8 );
      pwm.stop( 9 );*/
+        attachInterrupt(digitalPinToInterrupt(2), CountFlowInterrupt20,
+                    CHANGE);
+
 }
 
-void loop__()
+void loop()
 {
   char msg[200];
   button_52 = digitalRead(52);//52
@@ -72,7 +94,7 @@ void loop__()
   button_46 = digitalRead(46);//46
   button_2 = digitalRead(2);//2
   button_11 = digitalRead(11);
-  sprintf(msg, "52=%d,48=%d,46=%d,2=%d,11=%d,49=%d,inputstring[0]=%c", button_52, button_48, button_46, button_2, button_11, out_51, inputString[0]);
+  sprintf(msg, "52=%d,48=%d,46=%d,2=%d,11=%d,49=%d,inputstring[0]=%c XXXX=%d", button_52, button_48, button_46, button_2, button_11, out_51, inputString[0],countPulse);
    Serial.println(msg);
   if (inputString[0] == '1')
   {
@@ -96,7 +118,7 @@ void loop__()
   //  pwm.setFreq2( 4000 );
 
   //  pwm_duty = 125;
- //////////////////////////// pwm.pinDuty( 9, pwm_duty ); // 100% duty cycle on Pin 6
+  pwm.pinDuty( 9, pwm_duty ); // 100% duty cycle on Pin 6
   if ( button_11_prevVal != button_11)
   {
     button_11_prevVal = button_11 ;
@@ -111,7 +133,7 @@ void loop__()
     pwm.pinDuty( 9, 250 );  // 100% duty cycle on Pin 9
   */    delay(100);
 }
-void serialEvent___________() {
+void serialEvent() {
   int countInp = 0;
   while (Serial.available()) {
     // get the new byte:

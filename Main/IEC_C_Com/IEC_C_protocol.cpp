@@ -9,9 +9,7 @@
 //------------------------------------------------------------------------------
 
 
-#include <math.h>
 #include "IEC_C_protocol.h"
-#include "IEC_Cconfig.h"
 #include "IEC_C.h"
 
 
@@ -437,9 +435,9 @@ IEC_C_frame_calc_length(IEC_C_frame *frame) {
 ///////////////////////
 void Set_IEC_state(_IEC_state st) {
     if (st == Wait_SignOn) {
-        if (IEC_state != Wait_SignOn)
-        {
-                IF_SERIAL_DEBUG(printf_New("IEC_RESET to wait sign in))))st=%d)))))),IEC_state=%d)))))))))))", st,IEC_state));
+        if (IEC_state != Wait_SignOn) {
+            IF_SERIAL_DEBUG(
+                    printf_New("IEC_RESET to wait sign in))))st=%d)))))),IEC_state=%d)))))))))))", st, IEC_state));
 
             HandHeldRFID_Communication = nothing;
             IEC_C_serial_set_baudrate('0');
@@ -458,11 +456,11 @@ void Set_IEC_state(_IEC_state st) {
 /// check if time out elapsed from last time recieved data
 //------------------------------------------------------------------------------
 unsigned long IEC_C_CheckModeTimeOutMillis;
-#define MaxSecondElapsedForNewLogIn 30//300
-#define MaxSecondWaitdForProgMode 20//60
+#define MaxSecondElapsedForNewLogIn 300
+#define MaxSecondWaitdForProgMode 30//60
 
 void IEC_C_CheckModeTimeOut(boolean reset) {
-    //
+
     if (reset == true) {
         IEC_C_CheckModeTimeOutMillis = millis();
         return;
@@ -477,6 +475,7 @@ void IEC_C_CheckModeTimeOut(boolean reset) {
             Set_IEC_state(Wait_SignOn);
         }
     }
+     //
     //  IEC_C_CheckModeTimeOutMillis = millis();
 }
 
@@ -555,10 +554,10 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
     int FrameCompleteSize = -1;
 
     if (data && data_size > 0) {
-        if (parse_debug) {
-            IF_SERIAL_DEBUG(
-                    printf_New("%s: Attempting to parse binary data [size = %c]\n", __PRETTY_FUNCTION__, data_size));
-        }
+
+        IF_SERIAL_DEBUG(
+                printf_New("%s: Attempting to parse binary data [size = %d]\n", __PRETTY_FUNCTION__, data_size));
+
         for (i = 0; i < data_size && parse_debug; i++) {
             IF_SERIAL_DEBUG(printf_New("%c[%d],", data[i], data[i]));
         }
@@ -584,8 +583,9 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
             return 5 - 4;
 
         if (data_size >= CommunicateEndRequestPacketLen) {
-            if (data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0' && data[3] == IEC_C_ETX_Const   ) {
-                IF_SERIAL_DEBUG(printf_New("%s:Xor End:%x ", __PRETTY_FUNCTION__,data[0]^data[1]^data[2]^data[3]));
+            if (data[0] == IEC_C_SOH_Const && data[1] == 'B' && data[2] == '0' && data[3] == IEC_C_ETX_Const) {
+                IF_SERIAL_DEBUG(
+                        printf_New("%s:Xor End:%x ", __PRETTY_FUNCTION__, data[0] ^ data[1] ^ data[2] ^ data[3]));
 
                 Set_IEC_state(Wait_SignOn);
 
@@ -669,8 +669,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
                 IF_SERIAL_DEBUG(printf_New("%s:case IEC_REQUEST ", __PRETTY_FUNCTION__));
                 if (data_size < IEC_C_FRAME_SELECT_MODE_SIZE) {
 // OK, got a valid short packet start, but we need more data
-                    return IEC_C_FRAME_SELECT_MODE_SIZE -
-                           data_size;
+                    return IEC_C_FRAME_SELECT_MODE_SIZE -    data_size;
                 }
                 FrameCompleteSize = -1;
 
@@ -714,8 +713,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
             if (data[0] == IEC_C_SOH_Const) {
                 if (data_size < IEC_C_FRAME_PASSWORD_MIN_SIZE) {
 // OK, got a valid short packet start, but we need more data
-                    return IEC_C_FRAME_PASSWORD_MIN_SIZE -
-                           data_size;
+                    return IEC_C_FRAME_PASSWORD_MIN_SIZE -    data_size;
                 }
 
                 if (data[1] != 'P' || (data[2] != '1' && data[2] == '2') || data[3] != IEC_C_STX_Const ||
@@ -770,8 +768,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
             if (data[0] == IEC_C_SOH_Const) {
                 if (data_size < IEC_C_FRAME_PASSWORD_MIN_SIZE) {
 // OK, got a valid short packet start, but we need more data
-                    return IEC_C_FRAME_PASSWORD_MIN_SIZE -
-                           data_size;
+                    return IEC_C_FRAME_PASSWORD_MIN_SIZE -  data_size;
                 }
 
                 if ((data[1] != 'W' && data[1] != 'R') || (data[2] != '5') || data[3] != IEC_C_STX_Const) {
@@ -846,7 +843,7 @@ IEC_C_parse(uint8_t *data, size_t data_size) {
         }
         if (data[0] == -1) {
 //                IF_SERIAL_DEBUG(printf_New(("Invalid M-Bus frame start.")));
-            IF_SERIAL_DEBUG(printf_New("Invalid M-Bus frame start."));
+            IF_SERIAL_DEBUG(printf_New("Invalid IEC_C  frame start."));
 
 // not a valid M-Bus frame header (start byte)
             return -4;
