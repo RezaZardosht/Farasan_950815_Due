@@ -4,6 +4,8 @@
 
 #ifndef FARASAN_950815_DUE_PUBLICFUNCVAR_H_H
 #define FARASAN_950815_DUE_PUBLICFUNCVAR_H_H
+#define  IECuseSerial Serial1
+#define  DebugSerial Serial
 #define SerialIR Serial1
 #define SerialIREvent serialEvent1
 #define SerialMBUS Serial2
@@ -58,11 +60,12 @@ typedef struct {
     char V_MaxFlowIn24Hour_LogDay[7];
 
     unsigned long MaxVolumeAllow = 1000;
-    char DateStart[8];// current duration Date start
-    char DateEnd[8];  // Current duration Date End
+    char DateStart[12];// current duration Date start
+    char DateEnd[12];  // Current duration Date End
 
     int  DateTaarefe[4];// number of date from wate year duratoin
     float Taarefe[4];
+    unsigned long DateStartKeshavarzi;
     int DateHourSaveTime;// hour that log daily data shuld be save
     int MonthDaySaveTime;// day that log monthly data shuld be save
     float K_param = 0.54;
@@ -268,5 +271,18 @@ void SetCharzhe(int Value);
 void GetStartEndDateFromObisValue(char *OBIS_Value, char *DateFrom, char *DateTo) ;
 
 unsigned int freemeMory();
+typedef struct {
+   unsigned long SatartDay;
+    long UsedScharzhe;
+    int  DateTaarefePassed[4];// number of date from wate year duratoin
+    float Taarefe[4];
+    long  CharzheDore[4];
+    byte  XorSum;
+
+}_RFIDCardInform;
+int ReadInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
+int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
+
+
 
 #endif //FARASAN_950815_DUE_PUBLICFUNCVAR_H_H

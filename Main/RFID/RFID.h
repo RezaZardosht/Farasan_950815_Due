@@ -16,7 +16,9 @@
 #define BLOCK_NUMBER_OF_SECTOR_1ST_BLOCK(sector) (((sector)<NR_SHORTSECTOR)? \
     ((sector)*NR_BLOCK_OF_SHORTSECTOR):\
     (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR))
-void  ReadNFCRead(uint8_t uid[], uint8_t uidLength, uint8_t SectorRequesttoRead, uint8_t  *data) ;
-void WriteNFCBlock(uint8_t uid[], uint8_t uidLength, uint8_t SectorRequesttoWrite, uint8_t  *data);
+int  ReadNFCRead(uint8_t uid[], uint8_t uidLength, uint8_t SectorRequesttoRead, uint8_t  *data) ;
+int  WriteNFCBlock(uint8_t uid[], uint8_t uidLength, uint8_t SectorRequesttoWrite, uint8_t  *data);
 void NFC_Loop(void);
+
+
 #endif

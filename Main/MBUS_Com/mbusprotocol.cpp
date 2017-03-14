@@ -2416,11 +2416,11 @@ int replay_RequestUD2() {
     Nrecord = MBUS_CuCurrentInterval();
     add_NrecordPackFrame(replay_frame, Nrecord);
     mbus_Ndata_record_free(Nrecord);
-    delay(1000);
+ //   delay(1000);
 
-    Serial.print("\r\n----> free memorry=");
-    Serial.println(freemeMory());
-    delay(1000);
+ //   Serial.print("\r\n----> free memorry=");
+ //   Serial.println(freemeMory());
+ //   delay(1000);
 
     /*   for (int i = 0; i < 2; i++) {
            Nrecord = MBus_ptr_array[0]();
@@ -2697,7 +2697,7 @@ mbus_parse(uint8_t *data, size_t data_size) {
 
                 //        mbus_data_record_replay
                 // successfully parsed data
-                IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid short packet start, but we need more data\n",
+                IF_SERIAL_DEBUG(printf_New("%s:OK, got a valid short packet start,\n",
                                            __PRETTY_FUNCTION__));
 
                 return 0;

@@ -10,12 +10,14 @@
 #include "loop.h"
 #include "DuePWM_P/DuePWM.h"
 #include "IEC_C_Com/IEC_C_protocol.h"
-#include <DueTimer.h>
+
+
 //#include "Loop.h"
 
 #define IF_SERIAL_DEBUG_LOOP(x)
 
 #if defined (_VARIANT_ARDUINO_DUE_X_)
+#include <DueTimer.h>
 // your Arduino Due code here
 #include <malloc.h>
 #include <DueFlashStorage.h>
@@ -66,6 +68,8 @@ void SetStutrupValues();
 
 void InitializeNFC();
 
+int Read_RFIDCardData(StructTotalValues *TotalValues);
+
 byte BackColor[3] = {192, 192, 192};
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
@@ -73,7 +77,7 @@ unsigned long FlowMicroSecDiff = 0;
 unsigned long PreFlowMicroSecDiff = 0;
 unsigned long LastCallMillisCountFlowInterrupt20 = 0;
 float CurrentFlow, MovingAvgFlow[110];
-unsigned int TestCounterFlow=0;
+unsigned int TestCounterFlow = 0;
 #define PWM_FREQ1  200
 #define PWM_FREQ2  4000
 
@@ -245,13 +249,13 @@ void Get_ObisValue(char *Obis, char *RetVal) {
         );
     if (!strcmp(Obis, "0-4:24,2,32,255")) {
         memset(F2str, 0, sizeof(F2str) / F2str[0]);
-        sprintf(RetVal, "%s(%s", Obis, FtoStr(TotalValues.Taarefe[0],F2str , 2));
-       memset(F2str, 0, sizeof(F2str) / F2str[0]);
-        sprintf(RetVal, "%s;%s",RetVal, FtoStr(TotalValues.Taarefe[1],F2str , 2));
-      memset(F2str, 0, sizeof(F2str) / F2str[0]);
-        sprintf(RetVal, "%s;%s",RetVal, FtoStr(TotalValues.Taarefe[2],F2str , 2));
-       memset(F2str, 0, sizeof(F2str) / F2str[0]);
-        sprintf(RetVal, "%s;%s)\r\n",RetVal,FtoStr(TotalValues.Taarefe[3],F2str , 2));
+        sprintf(RetVal, "%s(%s", Obis, FtoStr(TotalValues.Taarefe[0], F2str, 2));
+        memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s", RetVal, FtoStr(TotalValues.Taarefe[1], F2str, 2));
+        memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s", RetVal, FtoStr(TotalValues.Taarefe[2], F2str, 2));
+        memset(F2str, 0, sizeof(F2str) / F2str[0]);
+        sprintf(RetVal, "%s;%s)\r\n", RetVal, FtoStr(TotalValues.Taarefe[3], F2str, 2));
 
     }
     if (!strcmp(Obis, "0-4:24,2,33,255")) {
@@ -312,18 +316,20 @@ void Get_ObisValue(char *Obis, char *RetVal) {
             ReadEventFile = GetDailEventRecords("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
-                SerialIR.print(StrOut);
+                IECuseSerial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    SerialIR.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
-                SerialIR.print(StrOut);
+                    IECuseSerial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
+                        IEC_C_ETX_Const);
+                IECuseSerial.print(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 Serial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     Serial.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
+                        IEC_C_ETX_Const);
                 Serial.print(StrOut);
 
 
@@ -343,18 +349,20 @@ void Get_ObisValue(char *Obis, char *RetVal) {
             ReadEventFile = GetHourlyLogFile("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
-                SerialIR.print(StrOut);
+                IECuseSerial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    SerialIR.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
-                SerialIR.print(StrOut);
+                    IECuseSerial.write(ReadEventFile->memory[i]);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
+                        IEC_C_ETX_Const);
+                IECuseSerial.print(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
                 Serial.print(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
                     Serial.write(ReadEventFile->memory[i]);
-                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const, IEC_C_ETX_Const);
+                sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
+                        IEC_C_ETX_Const);
                 Serial.print(StrOut);
 
 
@@ -387,9 +395,11 @@ long MaxFlowIn24Hour() {
 
 unsigned int V_PompTotalSec = 0;
 
+unsigned long IndPulseInterrupt = 0;
 
 void SimulateFllow(void) {
-    SumTotal(1, TotalValues);
+    IndPulseInterrupt++;
+//    SumTotal(1, TotalValues);
 }
 
 void CountFlowInterrupt20() {
@@ -398,15 +408,15 @@ void CountFlowInterrupt20() {
     if (buttonState != lastButtonState) {
         // if the state has changed, increment the counter
         if (buttonState == LOW) {
-
-            SumTotal(1, TotalValues);
+            IndPulseInterrupt++;
+//            SumTotal(1, TotalValues);
         }
         // Delay a little bit to avoid bouncing
     }
     // save the current state as the last state,
     //for next time through the loop
     lastButtonState = buttonState;
-    get_MicroSecondDiff(LastCallMillisCountFlowInterrupt20);
+    //   get_MicroSecondDiff(LastCallMillisCountFlowInterrupt20);
 
     //CurunCalibrateFlow++;
 }
@@ -497,7 +507,8 @@ int PassNumberOfPesianDate(int yMiladi = 2016, int mMiladi = 3,
                            int dMiladi = 12) {
     //char msb_Date[100]  ;
     int ys, ms, ds;
-    m2s(yMiladi, mMiladi, dMiladi, ys, ms, ds);
+    //  m2s(yMiladi, mMiladi, dMiladi, ys, ms, ds);
+    M2Sh(&ys, &ms, &ds, yMiladi, mMiladi, dMiladi);
     //sprintf(CurrSPDate, " % 04d % 02d % 02d", ys, ms, ds);
     return ((ms < 7) ? (31 * ms) : (228 + (ms - 6) * 30)) + ds;
 }
@@ -516,7 +527,7 @@ float GetcurrentTaarefe() {
 
 StructTotalValues &SumTotal(unsigned long IncLitre,
                             StructTotalValues &CurrTotalValues) {
-
+    IndPulseInterrupt = 0;
     FlowMicroSecDiff = get_MicroSecondDiff(PreFlowMicroSecDiff);  //GreaUnSLong
     PreFlowMicroSecDiff = micros();
 
@@ -564,10 +575,10 @@ StructTotalValues &SumTotal(unsigned long IncLitre,
     //  Dtostrf(IncLitre / TotalValues.K_param, 4, 2, str_temp2);
     //  Dtostrf(P_CurrTotalValues->Litre_Volume, 4, 2, str_temp3);
     float tttt = (360000.0 / FlowMicroSecDiff);
-    //   printf_New("Fllow->%u,%u,%u,%f,%f\n",FlowMicroSecDiff,IncLitre,IncP_CurrTotalValues,P_CurrTotalValues->Litre_Volume,TotalValues.K_param);
     //   Dtostrf(tttt, 4, 2, str_temp4);
     float tttt2 = tttt * IncLitre / TotalValues.K_param;
     //  Dtostrf(tttt2, 4, 2, str_temp5);
+    //  printf_New("Fllow->%u,%f,%f,%f\n",FlowMicroSecDiff,tttt,tttt2);
 
     float Temp_CurrentFlow = 0;
     for (int i = 0; i < 99; i++)
@@ -607,7 +618,6 @@ void LCDShowCurrDateTime() {
 }
 
 void LCDShowCurrFlow() {
-
     char FFstr[20];
     unsigned long TempDuration_Volume = TotalValues.Duration_Volume;
     long TempTotalDuration_Charzh = TotalValues.TotalDuration_Charzh;
@@ -620,13 +630,14 @@ void LCDShowCurrFlow() {
     myGLCD.setColor(255, 255, 255);
     myGLCD.setBackColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
 
+
     memcpy(FFstr, TotalValues.DateStart, 10);
     FFstr[10] = 0;
     myGLCD.print(FFstr, 200, 45);
     memcpy(FFstr, TotalValues.DateEnd, 10);
     FFstr[10] = 0;
     myGLCD.print(FFstr, 15, 45);
-    IF_SERIAL_DEBUG_LOOP(printf_New("90301:%u\n", millis()));
+    //   IF_SERIAL_DEBUG(printf_New("TotalValues.DateStart= %s , %s\n",TotalValues.DateStart,TotalValues.DateEnd));
 
     myGLCD.setColor(255, 255, 255);
     char TotalDuSign = (TempTotalDuration_Charzh >= 0) ? ' ' : '-';
@@ -667,10 +678,10 @@ void LCDShowCurrFlow() {
     // مصرف دوره
     for (int i = 0; i < 20; i++)
         FFstr[i] = '\0';
-    if ((int) TempLitre_Volume  < 10)
+    if ((int) TempLitre_Volume < 10)
         sprintf(FFstr, "%ld.00%ld", TempDuration_Volume,
-                (long) ((int) TempLitre_Volume ));
-    else if ((int) TempLitre_Volume  < 100)
+                (long) ((int) TempLitre_Volume));
+    else if ((int) TempLitre_Volume < 100)
         sprintf(FFstr, "%ld.0%ld", TempDuration_Volume,
                 (long) ((int) TempLitre_Volume));
     else
@@ -715,7 +726,7 @@ void LCDShowCurrFlow() {
     long MaxFlowIn24Hour_V = MaxFlowIn24Hour();
     FtoStr(TotalValues.V_MaxFlowIn24Hour, F2str, 2);
     FFstr[strlen(F2str)] = 0;
-    sprintf(F2str,"%u",TotalValues.V_MaxFlowIn24Hour);
+    sprintf(F2str, "%u", TotalValues.V_MaxFlowIn24Hour);
     myGLCD.print(F2str, 15, FontRowPos(3));
     IF_SERIAL_DEBUG_LOOP(printf_New("90306:%u\n", millis()));
 
@@ -850,24 +861,26 @@ void FirstGetDateTime() {
     DateTime_RTC now_ = rtc.now();
     //  now = rtc.now();
     int ys, ms, ds;
-    m2s(now_.year(), now_.month(), now_.day(), ys, ms, ds);
+    M2Sh(&ys, &ms, &ds, now_.year(), now_.month(), now_.day());
+    //  m2s(now_.year(), now_.month(), now_.day(), ys, ms, ds);
     // sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, now_.hour(), now_.minute(), now_.second());
     setTime(now_.hour(), now_.minute(), now_.second(), now_.day(), now_.month(),
             now_.year());
 
     sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, hour(),
             minute(), second());
-    IF_SERIAL_DEBUG_LOOP(Serial__println(CurrSPDate));
+    IF_SERIAL_DEBUG_LOOP(printf_New(CurrSPDate, 0));
 
 }
 
 void GetDateTime() {
     int ys, ms, ds;
-    m2s(year(), month(), day(), ys, ms, ds);
+    M2Sh(&ys, &ms, &ds, year(), month(), day());
+//    m2s(year(), month(), day(), ys, ms, ds);
 
     sprintf(CurrSPDate, "%d/%02d/%02d  %02d:%02d:%02d", ys, ms, ds, hour(),
             minute(), second());
-     IF_SERIAL_DEBUG(printf_New(CurrSPDate, 0));
+    IF_SERIAL_DEBUG(printf_New(CurrSPDate, 0));
 }
 
 void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_,
@@ -939,9 +952,10 @@ void SendSMS(String Value) {
 
 const int MinimumForBatteryCharzhe = 700;
 const int MaximumForBatteryCharzhe = 1000;
-bool SimulatrPermitPumpOn=false;
+bool SimulatrPermitPumpOn = false;
+
 bool PermitPumpOn() {
-    return  SimulatrPermitPumpOn;
+    return SimulatrPermitPumpOn;
     return (get_MainPower() == true && TotalValues.TotalDuration_Charzh > 1.0) ?
            true : false;
 }
@@ -950,13 +964,13 @@ void resetValvePower() {
 }
 
 void ResetTotalPerid() {
-    Serial__println(
-            "=========================Reset Total DurateData=======================");
+    printf_New(
+            "=========================Reset Total DurateData=======================", 0);
 }
 
 void ResetPerid() {
-    Serial__println(
-            "-------------------Reset Duration-------------------------");
+    printf_New(
+            "-------------------Reset Duration-------------------------", 0);
 }
 
 void Debuglog(int errnom) {
@@ -1120,11 +1134,11 @@ int button_11_prevVal;
 uint32_t pwm_duty = 127; // 50% duty cycle
 void SetDisplayPWM() {
     pwm.pinDuty(Display_LED_PWM_PIN, pwm_duty); // 100% duty cycle on Pin 6
-    boolean BtnPress=digitalRead(BtnDisplayLight);
+    boolean BtnPress = digitalRead(BtnDisplayLight);
     if (button_11_prevVal != BtnPress) {
-        IF_SERIAL_DEBUG(printf_New("BtnPress==----->>:%u , \n",BtnPress));
+        IF_SERIAL_DEBUG(printf_New("BtnPress==----->>:%u , \n", BtnPress));
         button_11_prevVal = BtnPress;
-        if ( BtnPress == 0)
+        if (BtnPress == 0)
             pwm_duty = (pwm_duty <= 200) ? (pwm_duty + 50) : 100;
     }
 
@@ -1133,15 +1147,15 @@ void SetDisplayPWM() {
 void TimeStartup() {
 
     Serial.begin(115200);
-    SerialIR.begin(300, SERIAL_7E1);/// M
+    IECuseSerial.begin(300, SERIAL_7E1);/// M
     SerialMBUS.begin(115200);
     if (!rtc.begin()) {
-        Serial__println("Couldn't find RTC");
+        printf_New("Couldn't find RTC", 0);
 
     }
 
     if (!rtc.isrunning()) {
-        Serial__println("RTC is NOT running!");
+        printf_New("RTC is NOT running!", 0);
         // following line sets the RTC to the date & time this sketch was compiled
         rtc.adjust(DateTime_RTC(2016, 1, 21, 3, 0, 0)); //(F(__DATE__), F(__TIME__)));
         setEvent(ErrorInternal_RTC, true);
@@ -1149,7 +1163,7 @@ void TimeStartup() {
     }
 
     if (!SD.begin(10)) {
-        Serial__println("SD could not open!");
+        printf_New("SD could not open!", 0);
         SdError = true;
         setEvent(ErrorInternal_SDCard, true);
         setEvent(ApplicationError, true);
@@ -1199,11 +1213,13 @@ void TimeStartup() {
     delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
-   // TotalValues.K_param = 0.29;
-    TotalValues.K_param =0.1;
+    // TotalValues.K_param = 0.29;
+    TotalValues.K_param = 0.1;
+#if defined (_VARIANT_ARDUINO_DUE_X_)
 
-    Timer5.attachInterrupt(SimulateFllow).setFrequency(1);
+    Timer5.attachInterrupt(SimulateFllow).setFrequency(28);
     Timer5.start();
+#endif
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
                     CHANGE);
     interrupts();
@@ -1223,6 +1239,7 @@ void TimeStartup() {
 
 // initialize the library with the numbers of the interface pins
 void TimeLoop() {
+
 
     CheckMainRelayValveTimeOut();
 
@@ -1246,11 +1263,13 @@ void TimeLoop() {
       NewTimeMill = millis();
       Serial.print(",New=");
       Serial.println(NewTimeMill);
-   */   if (get_MilliSecondDiff(LastCallMillisCountFlowInterrupt20) > 5000)
-        CurrentFlow = 0;
+   */
+    //if (get_MilliSecondDiff(FlowMicroSecDiff) > 5000)
+    //    CurrentFlow = 0;
 
-    IF_SERIAL_DEBUG(printf_New("------>:%u\n",TestCounterFlow));
+    IF_SERIAL_DEBUG(printf_New("------>:%u\n", TestCounterFlow));
     IF_SERIAL_DEBUG_LOOP(printf_New("90001:%u\n", millis()));
+    SumTotal(IndPulseInterrupt, TotalValues);
 
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 0);
@@ -1299,8 +1318,8 @@ void TimeLoop() {
 
          */
 
+    Read_RFIDCardData(&TotalValues);
 
-    NFC_Loop();
     IF_SERIAL_DEBUG_LOOP(printf_New("90005  NFC_Loop():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 5);
@@ -1327,7 +1346,7 @@ void TimeLoop() {
         SaveEventsFile(ErrorInFreeMemory + 7);
         freememoryTrace = freemeMory();
     }
-     CheckElectroMagnetic();
+    CheckElectroMagnetic();
     ShowErrorsOnScreen();
     if (freemeMory() != freememoryTrace) {
         SaveEventsFile(ErrorInFreeMemory + 9);
@@ -1339,7 +1358,7 @@ void TimeLoop() {
 
     Serial.print("Freememory_ =");
     Serial.println(freemeMory());
-  }
+}
 
 void readFileTestEvent();
 
@@ -1355,17 +1374,21 @@ void Setalltestzero1();
 
 void Setalltestzero2();
 
+void tttttttest();
+
 void serialEvent() {
     char inChar;
     struct EventsSaveFile_Struct *EvntStrdata;
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == 'a');//TotalValues.TotalDuration_Charzh=;
-    if (inChar == 'b')SaveHourlyFile(TotalValues);
+    if (inChar == 'a')tttttttest();
+    if (inChar == 'b')   Read_RFIDCardData(&TotalValues);
+//SaveHourlyFile(TotalValues);
     if (inChar == 'c')Setalltestzero2();
-    if (inChar == '1')SimulatrPermitPumpOn = !SimulatrPermitPumpOn;//ForceCloseValve();//Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
-  //  if (inChar == '2')ForceOpenValve();//Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
+    if (inChar == '1')
+        SimulatrPermitPumpOn = !SimulatrPermitPumpOn;//ForceCloseValve();//Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
+    //  if (inChar == '2')ForceOpenValve();//Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
     if (inChar == '3')DemoSaveGetEventFile();
     //  if (inChar == '3')readFileTestEvent();
     // if (inChar == '4')//readFileTestHourly();
@@ -1401,6 +1424,7 @@ void serialEvent() {
 int IEC_C_serial_recv();
 
 void SerialIREvent() {
+
     /*  char inChar;
       int dd;
       while (Serial1.available()) {
@@ -1414,8 +1438,11 @@ void SerialIREvent() {
     int i;
     i = IEC_C_serial_recv();
 }
+
 int mbus_serial_recv();
+
 void SerialMBUSEvent() {
+
     int i;
     i = mbus_serial_recv();
 }

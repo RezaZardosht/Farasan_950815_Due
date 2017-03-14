@@ -10,81 +10,6 @@
 //#include "DueTimer\DueTimer.h"
 #define DEBUG true
 
-void Serial__print(char *Message) {
-#if DEBUG
-    Serial.print(Message);
-#endif
-    //mySerial.print(Message);
-}
-
-void Serial__println(char *Message) {
-#if DEBUG
-    Serial.println(Message);
-#endif
-    //  mySerial.println(Message);
-}
-
-void Serial__print(String Message) {
-#if DEBUG
-    Serial.print(Message);
-#endif
-    //  mySerial.print(Message);
-}
-
-void Serial__println(String Message) {
-#if DEBUG
-    Serial.println(Message);
-#endif
-    //  mySerial.println(Message);
-}
-
-void Serial__printlnDebug(String Message) {
-    // if (SerialType == "Debug")
-#if DEBUG
-    Serial.println(Message);
-#endif
-
-    //  mySerial.println(Message);
-}
-
-void Serial__println(uint32_t Message) {
-#if DEBUG
-    char StrTmp[100] = "";
-    sprintf(StrTmp, "%d", Message);
-
-    Serial.println(StrTmp);
-#endif
-}
-
-void Serial__println(uint8_t Message) {
-#if DEBUG
-    char StrTmp[100] = "";
-    sprintf(StrTmp, "%d", Message);
-
-    Serial.println(StrTmp);
-#endif
-}
-
-void Serial__println(uint32_t Message, int Type = DEC) {
-#if DEBUG
-    char StrTmp[100] = "";
-    if (Type == DEC)sprintf(StrTmp, "%d", Message);
-
-    if (Type == HEX)sprintf(StrTmp, "%X", Message);
-    Serial.println(StrTmp);
-#endif
-}
-
-void Serial__print(uint32_t Message, int Type) {
-#if DEBUG
-    char StrTmp[100] = "";
-    if (Type == DEC)sprintf(StrTmp, "%d", Message);
-
-    if (Type == HEX)sprintf(StrTmp, "%X", Message);
-    Serial.print(StrTmp);
-#endif
-}
-
 bool IsNumber(char *StrNum) {
     char str[20];
     int k = 0;
@@ -110,7 +35,7 @@ bool IsNumber(const char *StrNum) {
     return (IsNumber(Tempstr));
 }
 
-int m2s(int ym, int mm, int dm, int &ys, int &ms, int &ds) {
+int m2s______(int ym, int mm, int dm, int &ys, int &ms, int &ds) {
     unsigned long int ys1, ym1;
     int ym2, ys2, mm1, ms1, k, ms0;
     char msb_Date[100];
@@ -283,6 +208,24 @@ int GetMonthOfForSumofDays(int days) {
     else
         return ((int) ((days - 1 - 186) / 30) + 1) + 6;
 }
+void GetDateFrom1299passday(int *y_j, int *m_j, int *d_j, int PasedDay) {
+    int no_yearPassed=(int)(PasedDay/365)/4;
+    *y_j=(int)((PasedDay-no_yearPassed)/365)+1375+1;
+    int md_j=PasedDay-((*y_j-1 - 1375)*365+no_yearPassed);
+    *m_j = GetMonthOfForSumofDays(md_j);
+    *d_j = GetDayOfMonthForSumofDays(md_j);}
+unsigned long GetPassedDateFrom1299(int y_j, int m_j, int d_j)
+{
+    int no_yearPassed=( y_j - 1 - 1375);
+    int no_kabise = (int)(no_yearPassed) / 4 ;
+    int passedday_j =no_yearPassed*365+no_kabise;
+    int PassedinMonth=(m_j<=7)?(m_j -1)*31:((m_j -7)*30)+186;
+    int passeDay=passedday_j+PassedinMonth+d_j;
+
+
+    return passeDay;
+}
+
 
 int strtoint(char a[]) {
     int c, sign, offset, n;
@@ -428,7 +371,7 @@ char *GetStrCurrentDay(char *Mem) {
     ys = 2016;
     ms = 3;
     ds = 12;
-    m2s(year(), month(), day(), ys, ms, ds);
+    M2Sh( &ys, &ms, &ds,year(), month(), day());
     sprintf(Mem, "%04d%02d%02d", ys, ms, ds);
     return Mem;
 }
@@ -443,79 +386,10 @@ char *GetCurrentStrHour(char *Mem) {
     return Mem;
 }
 
-int ardprintf(char *str, ...) {
-    int i, count = 0, j = 0, flag = 0, k;
-    char temp[ARDBUFFER + 1];
-    char msg[100], msg2[100];
-    boolean Find_Argument;
-    for (i = 0; str[i] != '\0'; i++) if (str[i] == '%') count++;
-
-    va_list argv;
-    va_start(argv, count);
-    i = 0;
-    j = 0;
-
-    while (str[i] != '\0') {
-        k = 0;
-        if (str[i] == '%') {
-            msg[0] = str[i];
-            temp[j] = '\0';
-            Serial.print(temp);
-            j = 0;
-            temp[0] = '\0';
-            Find_Argument = false;
-            while (!Find_Argument && str[i] != '\0') {
-                msg[++k] = str[++i];
-                msg[k + 1] = '\0';
-                switch (str[i]) {
-                    case 'd':
-                        sprintf(msg2, msg, va_arg(argv, int));
-                        Find_Argument = true;
-                        break;
-                    case 'l':
-                        sprintf(msg2, msg, va_arg(argv, long));
-                        Find_Argument = true;
-                        break;
-                    case 'f':
-                        sprintf(msg2, msg, va_arg(argv, double));
-                        Find_Argument = true;
-                        break;
-                    case 'c':
-                        sprintf(msg2, msg, (char) va_arg(argv, int));
-                        Find_Argument = true;
-                        break;
-                    case 's':
-                        sprintf(msg2, msg, va_arg(argv, char *));
-                        Find_Argument = true;
-                        break;
-                    case 'X':
-                        sprintf(msg2, msg, va_arg(argv, int));
-                        Find_Argument = true;
-
-                        break;
-                    default:;
-                };
-            }
-            Serial.print(msg2);
-            j = 0;
-            temp[0] = '\0';
-        } else {
-            temp[j] = str[i];
-            temp[j + 1] = '\0';
-            j = (j + 1) % ARDBUFFER;
-            if (j == 0) {
-                temp[ARDBUFFER] = '\0';
-                Serial.print(temp);
-                temp[0] = '\0';
-            }
-        }
-        i++;
-    };
-    //sprintf(msg2,"%d,%s", va_arg(argv, int));
-    //          Find_Argument = true;
-
-    Serial.print(temp);
-
-    //  Serial.println();
-    return count + 1;
+byte Calc_publicCheckSum(char *data,int size_data){
+    byte cksum=0;
+    for (int i = 0; i < size_data; i++) {
+        cksum += data[i];
+    }
+    return cksum;
 }

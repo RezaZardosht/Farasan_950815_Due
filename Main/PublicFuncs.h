@@ -4,21 +4,6 @@
 
 bool IsNumber(char *StrNum);
 
-bool IsNumber(const char *StrNum);
-
-void Serial__print(char *Message);
-
-void Serial__println(char *Message);
-
-void Serial__print(String Message);
-
-void Serial__println(String Message);
-
-void Serial__printlnDebug(String Message);
-
-void Serial__println(uint32_t Message, int Type);
-
-void Serial__print(uint32_t Message, int Type);
 
 int m2s(int ym, int mm, int dm, int &ys, int &ms, int &ds);
 
@@ -34,7 +19,11 @@ char GetCharCurrentProfile();
 
 char *GetCurrentStrHour(char *Mem);
 
-int ardprintf(char *str, ...);
+
+void GetDateFrom1299passday(int *y_j, int *m_j, int *d_j, int PasedDay) ;
+unsigned long GetPassedDateFrom1299(int y_j, int m_j, int d_j);
+
+byte Calc_publicCheckSum(char *data,int size_data);
 
 #endif
 

@@ -32,15 +32,14 @@
 
 #ifndef _IEC_C_H_
 #define _IEC_C_H_
-#define  IECuseSerial Serial1
-#define  DebugSerial Serial
+
 //#undefine HANDHELD
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 //#include "../loop.h"
 #include "IEC_C_protocol.h"
 #include "IEC_C_serial.h"
 #include "IEC_Cconfig.h"
-
+#include "../PublicFuncVar.h"
 
 //#include <Arduino.h>
 //int ardprintf(char *str, ...);
@@ -135,66 +134,9 @@ int IEC_C_init();
 #else
 #define IF_SERIAL_DEBUG(x)
 #endif
-#define SerialIR Serial2
+
 #define DataPackRecieveOK 0
 
-typedef struct {
-    char SerialKontor[11];
-    char SerialConsule[11];
-    char CreatedDate[11];
-    unsigned long Total_UsedVolume = 12;
-    unsigned long Total_UsedHourPump = 12;
-    unsigned long UsedHourPump_CountBySec = 0;
-    unsigned long TotalDuration_Charzh = 1000;
-    char LastDateUseMoreThanMaxVolume[11];
-    char LastDateUseMoreThanMaxFellow[11];
-    char LastDatePowerOffForUseMoreThanMaxVolume[11];
-    char LastDatePowerOffForUseMoreThanMaxFellow[11];
-    unsigned long CountOpenDoor = 0;
-    char LastDateUseWaterWhenPowerOff[11];
-    unsigned long VolumeUseWhenPowerOff;
-    unsigned long CountOpenConsule = 0;
-    char LastDateSeeElectroMagnetic[11];
-    char LastTimeSeeElectroMagnetic[9];
-    int batteryStatus;
-    int InternalError;
-    char NewFirmwareDate[11];
-    char LastDateCharzhe[11];
-    char LastUserConnectedDate[11];
-    int LastUserConnectedCode;
-    char LastDateKontorConfig[9];
-
-    unsigned long Duration_Volume = 34;
-    float Litre_Volume = 10;
-    float TaarefeLitre_Volume = 10;
-    long lastTotalBuy = 1000;
-    float MaxFellowAllow = 100.0;
-    float V_MaxFlowIn24Hour = 0.0;
-    char V_MaxFlowIn24Hour_LogDay[7];
-
-    unsigned long MaxVolumeAllow = 1000;
-    unsigned long V_PUmpTotalHour = 0;
-    char DateStart[8];// current duration Date start
-    char DateEnd[8];  // Current duration Date End
-
-    int DateTaarefe[4];// number of date from wate year duratoin
-    float Taarefe[4];
-    int DateHourSaveTime;// hour that log daily data shuld be save
-    int MonthDaySaveTime;// day that log monthly data shuld be save
-    float K_param = 1.0;
-    char IEC_Password_1[20];
-    char IEC_Password_2[20];
-
-} StructTotalValues;
-typedef struct {
-
-    long UsedScharzhe;
-    int  DateTaarefeFrom[4];// number of date from wate year duratoin
-    int  DateTaarefeTo[4];// number of date from wate year duratoin
-    float Taarefe[4];
-    long  CharzheDore[4];
-
-}_RFIDCardInform;
 int ReadInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
 int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
 
