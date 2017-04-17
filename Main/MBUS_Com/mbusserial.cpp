@@ -225,7 +225,7 @@ mbus_serial_recv() {
     len = 0;
     timeouts = 0;
     //   printf_P(PSTR("%s: Entered3 \n"), __PRETTY_FUNCTION__);
-    IF_SERIAL_DEBUG(printf_New("%s: Entered3 \n", __PRETTY_FUNCTION__));
+//    IF_SERIAL_DEBUG(printf_New("%s: Entered3 \n", __PRETTY_FUNCTION__));
     boolean PermitContinue = false;
     unsigned long start_millis;
     int iecChar;

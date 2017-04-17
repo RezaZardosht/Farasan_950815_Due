@@ -1,15 +1,16 @@
 //
 // Created by Zardosht on 28/02/2017.
 //
-
+#include <Arduino.h>
 #ifndef FARASAN_950815_DUE_PUBLICFUNCVAR_H_H
 #define FARASAN_950815_DUE_PUBLICFUNCVAR_H_H
-#define  IECuseSerial Serial1
-#define  DebugSerial Serial
-#define SerialIR Serial1
-#define SerialIREvent serialEvent1
-#define SerialMBUS Serial2
-#define SerialMBUSEvent serialEvent2
+#define DebugSerial Serial
+#define IECuseSerialWithPC Serial1
+#define SerialIECWithPCvent serialEvent1
+#define IECuseSerial Serial2
+#define SerialIREvent serialEvent2
+#define SerialMBUS Serial3
+#define SerialMBUSEvent serialEvent3
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 typedef union {
     unsigned long long  longn;
@@ -118,7 +119,8 @@ typedef struct  {
     boolean SaveOnFile;
     boolean ErrorShowOnScreen;
     boolean ErrorValue;
-
+    void (*onSetEventOn)();
+    void (*onSetEventOff)();
 }EventsStructDefine;
 void TimeStartup();
 
@@ -136,7 +138,7 @@ void Debuglog(int errnom);
 
 void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_, int year_);
 
-void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]);
+void IncreseCharzh(unsigned long Value, char DateStart[10], char DateEnd[10]);
 
 void SetParameters(int MaxFellow, int MaxVollume = 2, int MaxPeriod = 1, float K_param = 1.0, int Taarefe1_Enable = 1,
                    float Taarefe1_Percent = 1.0, int Taarefe1_Sum_Date_from = 1, int SumTo_1 = 100,
@@ -273,16 +275,17 @@ void GetStartEndDateFromObisValue(char *OBIS_Value, char *DateFrom, char *DateTo
 unsigned int freemeMory();
 typedef struct {
    unsigned long SatartDay;
-    long UsedScharzhe;
-    int  DateTaarefePassed[4];// number of date from wate year duratoin
-    float Taarefe[4];
-    long  CharzheDore[4];
+    unsigned  long UsedScharzhe;
+    unsigned  int  DateTaarefePassed[4];// number of date from wate year duratoin
+     float Taarefe[4];
+    unsigned long  CharzheDore[4];
     byte  XorSum;
 
 }_RFIDCardInform;
 int ReadInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
 int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) ;
-
-
-
+void IECuseSerial_print_2Port(char *Data);
+void IECuseSerial_write_2Port(char dataC);
+void IECuseSerial_flush_2Port();
+void IECuseSerial_end_2Port();
 #endif //FARASAN_950815_DUE_PUBLICFUNCVAR_H_H

@@ -22,7 +22,6 @@ PN532 nfc(pn532hsu);
 #include <PN532.h>
 
 
-
 PN532_I2C pn532i2c(Wire);
 PN532 nfc(pn532i2c);
 
@@ -143,7 +142,7 @@ void NFC_Loop(void) {
 
 /*            IF_SERIAL_DEBUG(printf_New("%d\n", TempLongCharzhe.longn));
             //  EEPROM.get(Add_TotalConf_EEP,  SaveToMemoryStruct);
-            //  SaveToMemoryStruct.TotalDuration_Charzh = SaveToMemoryStruct.TotalDuration_Charzh + 100;
+            //  TotalDuration_Charzh = SaveToMemoryStruct.TotalDuration_Charzh + 100;
             //  SaveTotal(SaveToMemoryStruct);//TotalDuration_Charzh
             data[0] = TempLongCharzhe.chars[0];
             data[1] = TempLongCharzhe.chars[1];
@@ -417,12 +416,14 @@ int Read_RFIDCardData(StructTotalValues *TotalValues) {
     char *SumChar;
     SumChar = (char *) malloc(sizeof(RFIDCardInform__));
     memcpy(SumChar, RFIDCardInform__, sizeof(RFIDCardInform__));
-    CheckSm=Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
+    CheckSm = Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
     free(SumChar);
-    if(CheckSm != RFIDCardInform__->XorSum){
-        IF_SERIAL_DEBUG(printf_New("%s:NFC Xor Sum error \n", __PRETTY_FUNCTION__));
+    if (CheckSm != RFIDCardInform__->XorSum) {
+        IF_SERIAL_DEBUG(printf_New("%s:error NFC Xor Sum = %d <> %d in RFid  \n", __PRETTY_FUNCTION__, CheckSm,
+                                   RFIDCardInform__->XorSum));
         return 0;
     }
+
     TotalValues->DateTaarefe[0] = RFIDCardInform__->DateTaarefePassed[0];
     TotalValues->DateTaarefe[1] = RFIDCardInform__->DateTaarefePassed[1];
     TotalValues->DateTaarefe[2] = RFIDCardInform__->DateTaarefePassed[2];
@@ -470,7 +471,7 @@ int Read_RFIDCardData(StructTotalValues *TotalValues) {
 
     SumChar = (char *) malloc(sizeof(RFIDCardInform__));
     memcpy(SumChar, RFIDCardInform__, sizeof(RFIDCardInform__));
-    RFIDCardInform__->XorSum=Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
+    RFIDCardInform__->XorSum = Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
     free(SumChar);
     WriteInformToRFidCard(RFIDCardInform__);
 
@@ -512,6 +513,15 @@ int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
        printf_New( "  %u ,%u ,%u,%u\n",RFIDCardInform__->CharzheDore[0],RFIDCardInform__->CharzheDore[1],RFIDCardInform__->CharzheDore[2],RFIDCardInform__->CharzheDore[3]);
    */
     int SuccessWrite;
+
+    char *SumChar;
+    SumChar = (char *) malloc(sizeof(RFIDCardInform__));
+    memcpy(SumChar, RFIDCardInform__, sizeof(RFIDCardInform__));
+    RFIDCardInform__->XorSum = Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
+
+    IF_SERIAL_DEBUG(printf_New("%s :RFIDCardInform__->XorSum = %d \n ", __PRETTY_FUNCTION__, RFIDCardInform__->XorSum));
+    free(SumChar);
+
     int len = sizeof(_RFIDCardInform);
 
     char *raw = (char *) malloc(len);
@@ -521,7 +531,6 @@ int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
     }
     int z = 0;
     memcpy(raw, RFIDCardInform__, len);
-
     uint8_t data_[10][NR_BLOCK_OF_LONGSECTOR];                        // Array to store block data during reads
     for (int y = 0; y < len;) {
         for (int x = 0; x < 16; x++) {
@@ -533,7 +542,7 @@ int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
         z = z + 1;
         y = y + 16;
     }
-
+    free(raw);
     /*  RFIDCardInform__->UsedScharzhe=0;
       RFIDCardInform__->DateTaarefe[0]=0;RFIDCardInform__->DateTaarefe[1]=0;RFIDCardInform__->DateTaarefe[2]=0;RFIDCardInform__->DateTaarefe[3]=0;
       RFIDCardInform__->Taarefe[0]=0;RFIDCardInform__->Taarefe[1]=0;RFIDCardInform__->Taarefe[2]=0;RFIDCardInform__->Taarefe[3]=0;
@@ -560,7 +569,7 @@ int WriteInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
       printf_New( "  %f ,%f ,%f,%f",RFIDCardInform__->Taarefe[0],RFIDCardInform__->Taarefe[1],RFIDCardInform__->Taarefe[2],RFIDCardInform__->Taarefe[3]);
       printf_New( "  %u ,%u ,%u,%u\n",RFIDCardInform__->CharzheDore[0],RFIDCardInform__->CharzheDore[1],RFIDCardInform__->CharzheDore[2],RFIDCardInform__->CharzheDore[3]);
   */
-    free(raw);
+
     return SuccessWrite;
 }
 
@@ -581,6 +590,9 @@ int ReadInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
     success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
     if (!success) {
 //        IF_SERIAL_DEBUG(printf_New("<%s>  success = nfc.readPassiveTargetID = null", __PRETTY_FUNCTION__));
+        for (uint8_t i = 0; i < sizeof(Last_uid); i++)
+            Last_uid[i] = 0;
+
         return 0;
     }
     boolean ReadingPrevRFID = true;
@@ -662,6 +674,7 @@ int ReadInformToRFidCard(_RFIDCardInform *RFIDCardInform__) {
     return SuccessRead;
 }
 
+
 void tttttttest() {
     _RFIDCardInform RFIDCardInform__1;
     _RFIDCardInform *RFIDCardInform__ = &RFIDCardInform__1;
@@ -682,9 +695,12 @@ void tttttttest() {
     char *SumChar;
     SumChar = (char *) malloc(sizeof(RFIDCardInform__));
     memcpy(SumChar, RFIDCardInform__, sizeof(RFIDCardInform__));
-    RFIDCardInform__->XorSum=Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
+    RFIDCardInform__->XorSum = Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
     free(SumChar);
     WriteInformToRFidCard(RFIDCardInform__);
+
+    return;
+
     RFIDCardInform__->UsedScharzhe = 0;
     RFIDCardInform__->DateTaarefePassed[0] = 0;
     RFIDCardInform__->DateTaarefePassed[1] = 0;
@@ -702,10 +718,11 @@ void tttttttest() {
     byte CheckSm;
     SumChar = (char *) malloc(sizeof(RFIDCardInform__));
     memcpy(SumChar, RFIDCardInform__, sizeof(RFIDCardInform__));
-    CheckSm=Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
+    CheckSm = Calc_publicCheckSum(SumChar, sizeof(RFIDCardInform__));
     free(SumChar);
 
-    printf_New("@@@@33333Sum=%d,%d  = %u %u ,%d,%d,%d,%d  ",RFIDCardInform__->XorSum,CheckSm, RFIDCardInform__->SatartDay, RFIDCardInform__->UsedScharzhe,
+    printf_New("@@@@33333Sum=%d,%d  = %u %u ,%d,%d,%d,%d  ", RFIDCardInform__->XorSum, CheckSm,
+               RFIDCardInform__->SatartDay, RFIDCardInform__->UsedScharzhe,
                RFIDCardInform__->DateTaarefePassed[0],
                RFIDCardInform__->DateTaarefePassed[1], RFIDCardInform__->DateTaarefePassed[2],
                RFIDCardInform__->DateTaarefePassed[3]);

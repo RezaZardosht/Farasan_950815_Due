@@ -5,11 +5,12 @@
 // bluetooth change baudrate
 //Serial1.begin(Current BaudRate);
 //Serial1.print("AT");
-//  Serial1.print("AT+BAUD4");
+//  Serial1.print("PermitPumpOnAT+BAUD4");
 //Serial.println("AT115200");
 #include "loop.h"
 #include "DuePWM_P/DuePWM.h"
 #include "IEC_C_Com/IEC_C_protocol.h"
+#include "PublicFuncVar.h"
 
 
 //#include "Loop.h"
@@ -118,6 +119,7 @@ boolean Last_ShowTempTotalDuration_Charzh = false;
 //DefaultBacklight backlight;
 boolean SdError = false;
 boolean ForceRelayMode = false;
+bool RFIDinSimulateWritingMode =false;
 ////////////////////////////////////////////////////
 
 struct StructPreCheckValueInMmory {
@@ -316,12 +318,12 @@ void Get_ObisValue(char *Obis, char *RetVal) {
             ReadEventFile = GetDailEventRecords("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
-                IECuseSerial.print(StrOut);
+                IECuseSerial_print_2Port(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    IECuseSerial.write(ReadEventFile->memory[i]);
+                    IECuseSerial_write_2Port(ReadEventFile->memory[i]);
                 sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
                         IEC_C_ETX_Const);
-                IECuseSerial.print(StrOut);
+                IECuseSerial_print_2Port(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
@@ -349,12 +351,12 @@ void Get_ObisValue(char *Obis, char *RetVal) {
             ReadEventFile = GetHourlyLogFile("00000000", "99999999");
             if (ReadEventFile != NULL) {
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
-                IECuseSerial.print(StrOut);
+                IECuseSerial_print_2Port(StrOut);
                 for (int i = 0; i < ReadEventFile->size; i++)
-                    IECuseSerial.write(ReadEventFile->memory[i]);
+                    IECuseSerial_write_2Port(ReadEventFile->memory[i]);
                 sprintf(StrOut, ")%c%c%cP0%c%c", IEC_CR_CHARACTER, IEC_LF_CHARACTER, IEC_C_SOH_Const, IEC_C_STX_Const,
                         IEC_C_ETX_Const);
-                IECuseSerial.print(StrOut);
+                IECuseSerial_print_2Port(StrOut);
 
                 delay(1000);
                 sprintf(StrOut, "%c%s(", IEC_C_STX_Const, Obis);
@@ -432,12 +434,14 @@ void SetCharzhe(int Value) {
 
 }
 
-void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
+void IncreseCharzh(unsigned long Value, char DateStart[10], char DateEnd[10]) {
+    IF_SERIAL_DEBUG(printf_New("%s:Increase Chchchchchcarzhe =%u,  StartDate=%s  \n", __PRETTY_FUNCTION__,Value,  DateStart ));
 
-    if (TotalValues.TotalDuration_Charzh > 0)
-        TotalValues.TotalDuration_Charzh = 0;
-    else
+   // if (TotalValues.TotalDuration_Charzh > 0)
+    //    TotalValues.TotalDuration_Charzh = 0;
+   // else
         TotalValues.TotalDuration_Charzh = TotalValues.TotalDuration_Charzh + Value;
+
     memcpy(TotalValues.DateStart, DateStart, 10);
     TotalValues.DateStart[10] = '\0';
     memcpy(TotalValues.DateEnd, DateEnd, 10);
@@ -445,24 +449,9 @@ void IncreseCharzh(int Value, char DateStart[10], char DateEnd[10]) {
     char msg[20];
     strcpy(TotalValues.LastDateCharzhe, GetStrCurrentDay(msg));
 
-    //   TotalValues.LastDateCharzhe
-    //   char msg[100];
-    //   sprintf(msg,"%lu,%s,%s",TotalValues.TotalDuration_Charzh,TotalValues.DateStart,TotalValues.DateEnd);
+
 }
 
-/*void SetParameters(int MaxFellow, int MaxVollume, int MaxPeriod, float K_param,
-                   int Taarefe1_Enable, float Taarefe1_Percent, int Taarefe1_Sum_Date_from,
-                   int SumTo_1, int Taarefe2_Enable, float Taarefe2_Percent,
-                   int Taarefe2_Sum_Date_from, int SumTo_2, int Taarefe3_Enable,
-                   float Taarefe3_Percent, int Taarefe3_Sum_Date_from, int SumTo_3) {
-    //#if DEBUG_loop
-    //  Serial__print("K_param ---- > ");
-    //  Serial__println(K_param);
-    //#endif
-    ParametersConfig.K_param = K_param;
-    SaveParameters();
-
-}*/
 
 bool FirsTimeLoadFlashMemory() {
     EEProm_Get<StructPreCheckValueInMmory>(Add_PreCheckValueIn_EEP,
@@ -817,6 +806,10 @@ void ShowIconRelayClose(boolean Show) {
 // باطری تمام
 
 void ShowIconBattery(boolean Show) {
+    if (Show) {
+        myGLCD.setColor(255, 255, 255);
+    } else
+        myGLCD.setColor(BackColor[0], BackColor[1], BackColor[2]); // light gray
     myGLCD.setFont(Text_16);
     myGLCD.print("0", 355, 5);
 }
@@ -892,9 +885,11 @@ void SetDateTimeRTC(int hour_, int minute_, int second_, int day_, int month_,
 }
 
 // todo to do
+
 bool get_MainPower() {
 
     bool MainPower = !digitalRead(MainPowerOnRelay);
+
     if (MainPower == false) {
         setEvent(PowerDown, true);
         setEvent(PowerUp, false);
@@ -955,7 +950,7 @@ const int MaximumForBatteryCharzhe = 1000;
 bool SimulatrPermitPumpOn = false;
 
 bool PermitPumpOn() {
-    return SimulatrPermitPumpOn;
+  //  return SimulatrPermitPumpOn;
     return (get_MainPower() == true && TotalValues.TotalDuration_Charzh > 1.0) ?
            true : false;
 }
@@ -1148,6 +1143,7 @@ void TimeStartup() {
 
     Serial.begin(115200);
     IECuseSerial.begin(300, SERIAL_7E1);/// M
+    IECuseSerialWithPC.begin(300, SERIAL_7E1);/// M
     SerialMBUS.begin(115200);
     if (!rtc.begin()) {
         printf_New("Couldn't find RTC", 0);
@@ -1213,12 +1209,15 @@ void TimeStartup() {
     delay(2000);
     noInterrupts();
     ///////////////////// simulate fellow
-    // TotalValues.K_param = 0.29;
     TotalValues.K_param = 0.1;
+  //  TotalValues.K_param = 0.29;
+    TotalValues.MaxVolumeAllow=10000;
+    TotalValues.Total_UsedVolume=0;
+    TotalValues.TotalDuration_Charzh=10000;
 #if defined (_VARIANT_ARDUINO_DUE_X_)
 
-    Timer5.attachInterrupt(SimulateFllow).setFrequency(28);
-    Timer5.start();
+  //  Timer5.attachInterrupt(SimulateFllow).setFrequency(28);
+  //  Timer5.start();
 #endif
     attachInterrupt(digitalPinToInterrupt(Pulse1Pin), CountFlowInterrupt20,
                     CHANGE);
@@ -1317,8 +1316,8 @@ void TimeLoop() {
     /*todo ok
 
          */
-
-    Read_RFIDCardData(&TotalValues);
+    if(!RFIDinSimulateWritingMode )
+        Read_RFIDCardData(&TotalValues);
 
     IF_SERIAL_DEBUG_LOOP(printf_New("90005  NFC_Loop():%u\n", millis()));
     if (freemeMory() != freememoryTrace) {
@@ -1375,6 +1374,9 @@ void Setalltestzero1();
 void Setalltestzero2();
 
 void tttttttest();
+void ss_test(){
+    Serial.print("Hi reza");
+}
 
 void serialEvent() {
     char inChar;
@@ -1382,10 +1384,19 @@ void serialEvent() {
     inChar = (char) Serial.read();
     if ((int) inChar == 0)return;
     Serial.println(inChar);
-    if (inChar == 'a')tttttttest();
-    if (inChar == 'b')   Read_RFIDCardData(&TotalValues);
+    if (inChar == 'a'){
+        RFIDinSimulateWritingMode = !RFIDinSimulateWritingMode ;
+       printf_New("RFIDinSimulateWritingMode =%d", RFIDinSimulateWritingMode );
+    };
+    if (inChar == 'b')tttttttest();
 //SaveHourlyFile(TotalValues);
-    if (inChar == 'c')Setalltestzero2();
+    if (inChar == 'c')
+    {
+        void (*a)();
+        a=&ss_test;
+        a();
+
+    };
     if (inChar == '1')
         SimulatrPermitPumpOn = !SimulatrPermitPumpOn;//ForceCloseValve();//Val_PositionSwitchOPEN = !Val_PositionSwitchOPEN;//SaveHourlyFile(TotalValues);
     //  if (inChar == '2')ForceOpenValve();//Val_PositionSwitchCLOSE = !Val_PositionSwitchCLOSE;//SaveHourlyFile(TotalValues);
@@ -1437,6 +1448,12 @@ void SerialIREvent() {
     //IEC6205621_Com.ExternSerialEvent1();
     int i;
     i = IEC_C_serial_recv();
+}
+int SerialIECWithPC_recv();
+void SerialIECWithPCvent() {
+
+
+    SerialIECWithPC_recv();
 }
 
 int mbus_serial_recv();

@@ -1048,7 +1048,7 @@ void GetStartEndDateFromObisValue(char *OBIS_Value, char *DateFrom, char *DateTo
 
 }
 
-void GetDateFromObisValue(char *value, TimeStruct *RetValue) {
+void GetDateFromObisValue(char *value, struct tm *RetValue) {
     char msg[11];
     DateTimeCharStruct *Mdate;
     if ((Mdate = (DateTimeCharStruct *) malloc(sizeof(DateTimeCharStruct))) == NULL) {
@@ -1067,7 +1067,7 @@ void GetDateFromObisValue(char *value, TimeStruct *RetValue) {
     free(Mdate);
 }
 
-void GetDateToObisValue(char *value, TimeStruct *RetValue) {
+void GetDateToObisValue(char *value, struct tm *RetValue) {
 
 }
 

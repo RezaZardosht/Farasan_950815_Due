@@ -25,6 +25,7 @@
 int                 IEC_C_serial_disconnect(HardwareSerial  *handle);
 int                 IEC_C_serial_send_frame(IEC_C_frame *frame);
 int                 IEC_C_serial_recv();
+int                 SerialIECWithPC_recv();
 int                 IEC_C_serial_set_baudrate( int baudrate);
 #endif /* IEC_C_SERIAL_H */
 

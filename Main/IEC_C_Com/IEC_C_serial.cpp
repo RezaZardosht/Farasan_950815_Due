@@ -86,33 +86,39 @@ IEC_C_serial_set_baudrate(int baudrate) {
         return -1;
     IF_SERIAL_DEBUG(printf_New("%s:New badRate %c \n", __PRETTY_FUNCTION__, baudrate));
 
-    IECuseSerial.flush();   // wait for send buffer to empty
+    IECuseSerial_flush_2Port();   // wait for send buffer to empty
     delay(20);    // let last character be sent
-    IECuseSerial.end();
+    IECuseSerial_end_2Port();
     switch (baudrate) {
         case '0':
             IECuseSerial.begin(300, SERIAL_7E1);
+            IECuseSerialWithPC.begin(300, SERIAL_7E1);
             IF_SERIAL_DEBUG(printf_New("%s:change badRate %c \n", __PRETTY_FUNCTION__, baudrate));
             break;
         case '1':
             IECuseSerial.begin(600, SERIAL_7E1);
+            IECuseSerialWithPC.begin(600, SERIAL_7E1);
             IF_SERIAL_DEBUG(printf_New("%s:change badRate %c \n", __PRETTY_FUNCTION__, baudrate));
             break;
         case '2':
             IECuseSerial.begin(1200, SERIAL_7E1);
+            IECuseSerialWithPC.begin(1200, SERIAL_7E1);
             break;
         case '3':
             IECuseSerial.begin(2400, SERIAL_7E1);
+            IECuseSerialWithPC.begin(2400, SERIAL_7E1);
             break;
         case '4':
             IECuseSerial.begin(4800, SERIAL_7E1);
             break;
         case '5':
             IECuseSerial.begin(9600, SERIAL_7E1);
+            IECuseSerialWithPC.begin(9600, SERIAL_7E1);
             IF_SERIAL_DEBUG(printf_New("%s:change badRate %c \n", __PRETTY_FUNCTION__, baudrate));
             break;
         case '6':
             IECuseSerial.begin(19200, SERIAL_7E1);
+            IECuseSerialWithPC.begin(19200, SERIAL_7E1);
             break;
         default:
             return -1; // unsupported baudrate
@@ -179,7 +185,7 @@ IEC_C_serial_send_frame(IEC_C_frame *frame) {
 
     //#endif
     for (int j = 0; j < len; j++)
-        IECuseSerial.write(Nbuff[j]);
+        IECuseSerial_write_2Port(Nbuff[j]);
     /*  if ((ret = IECuseSerial.write(Nbuff, len)) == len) {
           //
           // call the send event function, if the callback function is registered
@@ -203,7 +209,7 @@ IEC_C_serial_send_frame(IEC_C_frame *frame) {
 //------------------------------------------------------------------------------
 //
 int SerielTesSendFram() {
-    IECuseSerial.write("WWWWWWWWWWWWWWWWWW", 10);
+  //  IECuseSerial_write_2Port("WWWWWWWWWWWWWWWWWW", 10);
 
 }
 
@@ -251,7 +257,7 @@ IEC_C_serial_recv() {
     start_millis = millis();
     do {
         IF_SERIAL_DEBUG(printf_New("%s: Attempt to read %d bytes [len = %d]\n", __PRETTY_FUNCTION__, remaining, len));
-        while (IECuseSerial.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis) < 700)) {
+        while (IECuseSerial.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis) < 1700)) {
             iecChar = IECuseSerial.read();
             if (iecChar != 0 && iecChar < 130) {
                 buff[len] = iecChar;
@@ -264,7 +270,7 @@ IEC_C_serial_recv() {
         }
         remaining = IEC_C_parse(buff, len);
 
-    } while ((remaining > 0) && ((millis() - start_millis) < 500));
+    } while ((remaining > 0) && ((millis() - start_millis) < 1000));
     ////yyyyyyyyyyyyy
     IF_SERIAL_DEBUG(printf_New("%s: IEC REMMMMMMMMMMMMMMMMMMMM=%d,%d.\n", __PRETTY_FUNCTION__,remaining , DataPackRecieveOK));
     if (remaining == DataPackRecieveOK)
@@ -299,6 +305,90 @@ IEC_C_serial_recv() {
             DebugSerial.print(Tmsg);
 
           }*/
+    return 0;
+}
+int SerialIECWithPC_recv() {
+    int len, remaining, nread, timeouts;
+    int iecChar;
+    boolean PermitContinue = false;
+    uint8_t buff[PACKET_BUFF_SIZE];
+    unsigned long start_millis;
+    while (IECuseSerialWithPC.available() > 0 && PermitContinue == false) {
+        iecChar = IECuseSerialWithPC.read();
+        if (IEC_state == Wait_SignOn) {
+            if (iecChar == IEC_C_IDENTIFY_BYTE_START) {
+                PermitContinue = true;
+            }
+        }else
+        if (iecChar != 0 && iecChar < 130)
+            PermitContinue = true;
+    }
+    if (PermitContinue == false)return 0;
+
+    memset(buff, 0, sizeof(buff));
+    remaining = 1; // start by reading 1 byte
+    len = 0;
+    timeouts = 0;
+   // if (IEC_state == Wait_SignOn)
+     //   if (iecChar == IEC_C_IDENTIFY_BYTE_START) {
+            PermitContinue = true;
+            buff[len] = iecChar;
+            len++;
+    //    }
+
+    //    printf_P(PSTR("%s: Entered \n"), __PRETTY_FUNCTION__);
+    IF_SERIAL_DEBUG(printf_New("%s: Entered \n", __PRETTY_FUNCTION__));
+
+
+
+    //
+    // read data until a packet is received
+    //
+    //   printf_P(PSTR("%s: Entered3 \n"), __PRETTY_FUNCTION__);
+    IF_SERIAL_DEBUG(printf_New("%s: Entered3 \n", __PRETTY_FUNCTION__));
+    start_millis = millis();
+    do {
+        IF_SERIAL_DEBUG(printf_New("%s: Attempt to read %d bytes [len = %d]\n", __PRETTY_FUNCTION__, remaining, len));
+        while (IECuseSerialWithPC.available() > 0 && len < PACKET_BUFF_SIZE && ((millis() - start_millis) < 1700)) {
+            iecChar = IECuseSerialWithPC.read();
+            if (iecChar != 0 && iecChar < 130) {
+                buff[len] = iecChar;
+                len++;
+                start_millis = millis();
+            } else
+                start_millis = millis() + 800;
+
+            IF_SERIAL_DEBUG(printf_New("millis = %ld", millis()));
+        }
+        remaining = IEC_C_parse(buff, len);
+
+    } while ((remaining > 0) && ((millis() - start_millis) < 1000));
+    ////yyyyyyyyyyyyy
+    IF_SERIAL_DEBUG(printf_New("%s: IEC REMMMMMMMMMMMMMMMMMMMM=%d,%d.\n", __PRETTY_FUNCTION__,remaining , DataPackRecieveOK));
+    if (remaining == DataPackRecieveOK)
+        IEC_C_CheckModeTimeOut(true);
+    if (len == 0) {
+// No data received
+        return -1;
+    }
+//
+// call the receive event function, if the callback function is registered
+//
+    if (_IEC_C_recv_event)
+        _IEC_C_recv_event(IEC_C_HANDLE_TYPE_SERIAL, buff, len);
+
+    if (remaining != 0) {
+// Would be OK when e.g. scanning the bus, otherwise it is a failure.
+        IF_SERIAL_DEBUG(printf_New("%s: IEC layer failed to receive complete data.\n", __PRETTY_FUNCTION__));
+
+        return -2;
+    }
+
+    if (len == -1) {
+        IF_SERIAL_DEBUG(printf_New("%s: M-Bus layer failed to parse data.\n", __PRETTY_FUNCTION__));
+
+        return -1;
+    }
     return 0;
 }
 

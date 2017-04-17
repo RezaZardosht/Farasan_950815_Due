@@ -10,5 +10,6 @@ set(${CMAKE_PROJECT_NAME}_PORT COM3)
 LINK_DIRECTORIES(C:/Users/Zardosht/Documents/Arduino/libraries)
 include_directories(C:/Users/Zardosht/Documents/Arduino/libraries)
 include_directories(C:/Program Files (x86)/Arduino/hardware\teensy/avr/cores/teensy3)
+include_directories(C:/Program Files (x86)/Arduino/hardware\teensy/avr/libraries/Time)
 
 include_directories(Main/DS1307)

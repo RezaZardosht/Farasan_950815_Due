@@ -1,5 +1,4 @@
 #include "loop.h"
-#include "Loop.h"
 
 void Show_EventsOnScreen(char *msg);
 
@@ -120,6 +119,17 @@ void ShowErrorsOnScreen__1() {
 
     }
 *//*}*/
+void nothingFunc() {}
+
+void ShowIconBattery(boolean Show);
+
+void ShowBatteryLevel() {
+    ShowIconBattery(true);
+}
+
+void HideBatteryLevel() {
+    ShowIconBattery(false);
+}
 
 void InitializeEvents() {
 
@@ -127,12 +137,20 @@ void InitializeEvents() {
         EventsStruct[i].SaveOnFile = true;
         EventsStruct[i].EventNegativePositive = true;
         EventsStruct[i].ErrorShowOnScreen = false;
+        EventsStruct[i].onSetEventOn = nothingFunc;
+        EventsStruct[i].onSetEventOff = nothingFunc;
+
         for (int k = 0; k < (sizeof(EventErrors) / EventErrors[0]); k++) {
             if (EventErrors[k] == i)
                 EventsStruct[i].ErrorShowOnScreen = true;
         }
     }
     EventsStruct[StrongDCMagneticFieldDetected].EventNegativePositive = false;
+    EventsStruct[PowerDown].onSetEventOn = &ShowBatteryLevel;
+    EventsStruct[PowerDown].onSetEventOff = &HideBatteryLevel;
+    EventsStruct[PowerUp].onSetEventOn = &HideBatteryLevel;
+    EventsStruct[PowerUp].onSetEventOff = &ShowBatteryLevel;
+
 }
 
 void setEvent(int EventNumber, boolean SetValue) {
@@ -140,11 +158,14 @@ void setEvent(int EventNumber, boolean SetValue) {
     if (EventsStruct[EventNumber].Value == SetValue) return;
     if ((SetValue == true && EventsStruct[EventNumber].EventNegativePositive == true) ||
         (SetValue == false && EventsStruct[EventNumber].EventNegativePositive == false)) {
+
         EventsStruct->ErrorValue = true;
+        EventsStruct[EventNumber].onSetEventOn();
         if (EventsStruct[EventNumber].SaveOnFile)
             SaveEventsFile(EventNumber);
     } else {
         EventsStruct->ErrorValue = false;
+        EventsStruct[EventNumber].onSetEventOff();
 
     }
 

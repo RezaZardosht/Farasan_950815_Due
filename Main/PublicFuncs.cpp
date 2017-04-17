@@ -3,7 +3,6 @@
 #include <SPI.h>
 #include <SD.h>
 #include "Time.h"
-#include "String.h"
 #include <LiquidCrystal.h>
 #include "loop.h"
 //#include "DueFlashStorage\DueFlashStorage.h"
@@ -208,19 +207,21 @@ int GetMonthOfForSumofDays(int days) {
     else
         return ((int) ((days - 1 - 186) / 30) + 1) + 6;
 }
+
 void GetDateFrom1299passday(int *y_j, int *m_j, int *d_j, int PasedDay) {
-    int no_yearPassed=(int)(PasedDay/365)/4;
-    *y_j=(int)((PasedDay-no_yearPassed)/365)+1375+1;
-    int md_j=PasedDay-((*y_j-1 - 1375)*365+no_yearPassed);
+    int no_yearPassed = (int) (PasedDay / 365) / 4;
+    *y_j = (int) ((PasedDay - no_yearPassed) / 365) + 1375 + 1;
+    int md_j = PasedDay - ((*y_j - 1 - 1375) * 365 + no_yearPassed);
     *m_j = GetMonthOfForSumofDays(md_j);
-    *d_j = GetDayOfMonthForSumofDays(md_j);}
-unsigned long GetPassedDateFrom1299(int y_j, int m_j, int d_j)
-{
-    int no_yearPassed=( y_j - 1 - 1375);
-    int no_kabise = (int)(no_yearPassed) / 4 ;
-    int passedday_j =no_yearPassed*365+no_kabise;
-    int PassedinMonth=(m_j<=7)?(m_j -1)*31:((m_j -7)*30)+186;
-    int passeDay=passedday_j+PassedinMonth+d_j;
+    *d_j = GetDayOfMonthForSumofDays(md_j);
+}
+
+unsigned long GetPassedDateFrom1299(int y_j, int m_j, int d_j) {
+    int no_yearPassed = (y_j - 1 - 1375);
+    int no_kabise = (int) (no_yearPassed) / 4;
+    int passedday_j = no_yearPassed * 365 + no_kabise;
+    int PassedinMonth = (m_j <= 7) ? (m_j - 1) * 31 : ((m_j - 7) * 30) + 186;
+    int passeDay = passedday_j + PassedinMonth + d_j;
 
 
     return passeDay;
@@ -371,7 +372,7 @@ char *GetStrCurrentDay(char *Mem) {
     ys = 2016;
     ms = 3;
     ds = 12;
-    M2Sh( &ys, &ms, &ds,year(), month(), day());
+    M2Sh(&ys, &ms, &ds, year(), month(), day());
     sprintf(Mem, "%04d%02d%02d", ys, ms, ds);
     return Mem;
 }
@@ -386,10 +387,31 @@ char *GetCurrentStrHour(char *Mem) {
     return Mem;
 }
 
-byte Calc_publicCheckSum(char *data,int size_data){
-    byte cksum=0;
+byte Calc_publicCheckSum(char *data, int size_data) {
+    byte cksum = 0;
     for (int i = 0; i < size_data; i++) {
         cksum += data[i];
     }
     return cksum;
+}
+
+void IECuseSerial_print_2Port(char *Data) {
+    IECuseSerial.print(Data);
+    IECuseSerialWithPC.print(Data);
+}
+
+void IECuseSerial_write_2Port(char dataC) {
+    IECuseSerial.write(dataC);
+    IECuseSerialWithPC.write(dataC);
+}
+
+
+void IECuseSerial_flush_2Port() {
+    IECuseSerial.flush();
+    IECuseSerialWithPC.flush();
+}
+
+void IECuseSerial_end_2Port() {
+    IECuseSerial.end();
+    IECuseSerialWithPC.end();
 }
